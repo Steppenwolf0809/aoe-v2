@@ -20,7 +20,7 @@ services/
 n8n/
 
 # Supabase local config
-supabase/
+/supabase/
 
 # Environment files (Vercel uses its own)
 .env
