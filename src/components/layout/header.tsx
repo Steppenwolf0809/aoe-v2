@@ -2,9 +2,11 @@
 
 import { motion, useScroll, useMotionValueEvent } from 'framer-motion'
 import Link from 'next/link'
+import Image from 'next/image'
 import { useState } from 'react'
-import { Menu } from 'lucide-react'
+import { Menu, Calendar } from 'lucide-react'
 import { Button } from '@/components/ui/button'
+import { Badge } from '@/components/ui/badge'
 import { NAV_LINKS } from '@/lib/constants'
 import { MobileMenu } from './mobile-menu'
 
@@ -20,47 +22,65 @@ export function Header() {
   return (
     <>
       <motion.header
-        className={`fixed top-0 left-0 right-0 z-50 transition-all duration-300 border-b ${
-          scrolled
-            ? 'bg-[var(--bg-primary)]/80 backdrop-blur-xl border-white/[0.05]'
-            : 'bg-transparent border-transparent'
-        }`}
+        className="fixed top-0 left-0 right-0 z-50 transition-all duration-300 border-b"
+        style={{
+          backgroundColor: scrolled ? 'rgba(5, 5, 6, 0.8)' : 'transparent',
+          backdropFilter: scrolled ? 'blur(16px)' : 'none',
+          WebkitBackdropFilter: scrolled ? 'blur(16px)' : 'none',
+          borderColor: scrolled ? 'rgba(255, 255, 255, 0.05)' : 'transparent',
+        }}
       >
         <nav className="max-w-7xl mx-auto px-4 sm:px-6 h-16 flex items-center justify-between">
-          <Link href="/" className="flex items-center gap-2.5">
-            <div className="w-8 h-8 rounded-lg bg-gradient-to-br from-[var(--accent-primary)] to-[var(--accent-secondary)] flex items-center justify-center">
-              <span className="text-white font-bold text-sm">AO</span>
-            </div>
-            <span className="font-semibold text-white text-sm sm:text-base">
-              Abogados Online
-            </span>
+          {/* Logo */}
+          <Link href="/" className="flex items-center shrink-0">
+            <Image
+              src="/logo/logo-horizontal.svg"
+              alt="Abogados Online Ecuador"
+              width={180}
+              height={40}
+              className="h-8 w-auto brightness-0 invert"
+              priority
+            />
           </Link>
 
-          <div className="hidden md:flex items-center gap-8">
+          {/* Desktop Navigation */}
+          <div className="hidden md:flex items-center gap-1">
             {NAV_LINKS.map((link) => (
               <Link
                 key={link.href}
                 href={link.href}
-                className="text-sm text-[var(--text-secondary)] hover:text-white transition-colors"
+                className="relative px-3 py-2 text-sm text-text-secondary hover:text-white transition-colors duration-200 rounded-[var(--radius-sm)] hover:bg-white/5"
               >
-                {link.label}
+                <span className="flex items-center gap-1.5">
+                  {link.label}
+                  {link.badge && (
+                    <Badge variant="success" size="sm">
+                      {link.badge}
+                    </Badge>
+                  )}
+                </span>
               </Link>
             ))}
           </div>
 
+          {/* Right side */}
           <div className="flex items-center gap-3">
             <Link
               href="/iniciar-sesion"
-              className="hidden sm:inline-flex text-sm text-[var(--text-secondary)] hover:text-white transition-colors"
+              className="hidden sm:inline-flex text-sm text-text-secondary hover:text-white transition-colors duration-200"
             >
               Iniciar Sesion
             </Link>
-            <Button size="sm" className="hidden sm:inline-flex">
-              Comenzar
-            </Button>
+            <Link href="/contacto" className="hidden sm:inline-flex">
+              <Button size="sm">
+                <Calendar className="w-4 h-4" />
+                Agendar Cita
+              </Button>
+            </Link>
             <button
               onClick={() => setMobileOpen(true)}
-              className="md:hidden p-2 text-[var(--text-secondary)] hover:text-white transition-colors cursor-pointer"
+              className="md:hidden p-2 text-text-secondary hover:text-white hover:bg-white/5 rounded-[var(--radius-sm)] transition-colors duration-200 cursor-pointer"
+              aria-label="Abrir menu"
             >
               <Menu className="w-5 h-5" />
             </button>

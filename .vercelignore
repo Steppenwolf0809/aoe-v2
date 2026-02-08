@@ -1,0 +1,44 @@
+# Dependencies
+node_modules/
+
+# Development & IDE
+.agent/
+.git/
+.next/
+.vscode/
+*.log
+
+# Documentation (not needed in production)
+docs/
+calculadora_docs/
+brain.md
+AOE-v2-PLAN-MAESTRO-PASO-A-PASO.md
+README.md
+
+# Local services (not for Vercel)
+services/
+n8n/
+
+# Supabase local config
+supabase/
+
+# Environment files (Vercel uses its own)
+.env
+.env.local
+.env.development
+.env.production.local
+
+# Test files
+*.test.ts
+*.test.tsx
+*.spec.ts
+*.spec.tsx
+__tests__/
+coverage/
+
+# TypeScript build info
+*.tsbuildinfo
+
+# OS files
+.DS_Store
+Thumbs.db

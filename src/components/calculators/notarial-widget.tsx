@@ -1,0 +1,585 @@
+'use client'
+
+import { useState } from 'react'
+import { Calculator, Info, Plus, Trash2, FileText, PenTool, Stamp, Copy, FileSignature } from 'lucide-react'
+import { Button } from '@/components/ui/button'
+import { Card } from '@/components/ui/card'
+import { Slider } from '@/components/ui/slider'
+import { calcularTramiteNotarial, getTramitesPorCategoria, TARIFAS_ITEMS_ADICIONALES } from '@/lib/formulas/notarial'
+import { TipoServicioNotarial, ItemAdicional } from '@/lib/formulas/types'
+import { AnimatedCounter } from './animated-counter'
+
+const ICONOS_ITEMS: Record<string, React.ReactNode> = {
+  copia_certificada: <Copy className="w-4 h-4" />,
+  declaracion_juramentada: <FileText className="w-4 h-4" />,
+  poder: <PenTool className="w-4 h-4" />,
+  cancelacion_hipoteca: <Trash2 className="w-4 h-4" />,
+  reconocimiento_firma: <Stamp className="w-4 h-4" />,
+  autenticacion_firma: <Stamp className="w-4 h-4" />,
+  materializacion: <FileSignature className="w-4 h-4" />,
+  protocolizacion: <FileText className="w-4 h-4" />,
+  marginacion: <FileText className="w-4 h-4" />,
+}
+
+export function NotarialCalculatorWidget() {
+  const [tipoServicio, setTipoServicio] = useState<TipoServicioNotarial>('TRANSFERENCIA_DOMINIO')
+  const [cuantia, setCuantia] = useState(50000)
+  const [tiempoMeses, setTiempoMeses] = useState(12)
+  const [cantidadMenores, setCantidadMenores] = useState(1)
+  const [esViviendaSocial, setEsViviendaSocial] = useState(false)
+  const [esTerceraEdad, setEsTerceraEdad] = useState(false)
+  
+  // Items adicionales
+  const [itemsAdicionales, setItemsAdicionales] = useState<ItemAdicional[]>([])
+  const [mostrarAgregarItem, setMostrarAgregarItem] = useState(false)
+  const [nuevoItemTipo, setNuevoItemTipo] = useState<ItemAdicional['tipo']>('copia_certificada')
+  const [nuevoItemCantidad, setNuevoItemCantidad] = useState(1)
+  
+  const [resultado, setResultado] = useState<ReturnType<typeof calcularTramiteNotarial> | null>(null)
+
+  const tramites = getTramitesPorCategoria()
+
+  const handleCalcular = () => {
+    const opciones: {
+      cantidadMenores?: number
+      esViviendaSocial?: boolean
+      esTerceraEdad?: boolean
+      tiempoMeses?: number
+      itemsAdicionales?: ItemAdicional[]
+    } = {
+      itemsAdicionales,
+    }
+
+    if (tipoServicio === 'SALIDA_PAIS') {
+      opciones.cantidadMenores = cantidadMenores
+    }
+
+    if (tipoServicio === 'TRANSFERENCIA_DOMINIO') {
+      opciones.esViviendaSocial = esViviendaSocial
+    }
+
+    if (
+      [
+        'TESTAMENTO_ABIERTO',
+        'TESTAMENTO_CERRADO',
+        'POSESION_EFECTIVA',
+        'DECLARACION_JURAMENTADA',
+        'CANCELACION_HIPOTECA',
+      ].includes(tipoServicio)
+    ) {
+      opciones.esTerceraEdad = esTerceraEdad
+    }
+
+    if (
+      tipoServicio === 'CONTRATO_ARRIENDO_ESCRITURA' ||
+      tipoServicio === 'INSCRIPCION_ARRENDAMIENTO'
+    ) {
+      opciones.tiempoMeses = tiempoMeses
+    }
+
+    const res = calcularTramiteNotarial(tipoServicio, cuantia, opciones)
+    setResultado(res)
+  }
+
+  // Función para calcular subtotal en tiempo real
+  const calcularSubtotalItem = (tipo: ItemAdicional['tipo'], cantidad: number): number => {
+    if (tipo === 'poder') {
+      if (cantidad === 1) {
+        return 482 * 0.12
+      } else {
+        const primerOtorgante = 482 * 0.12
+        const adicionales = (cantidad - 1) * (482 * 0.03)
+        return primerOtorgante + adicionales
+      }
+    } else if (tipo === 'copia_certificada') {
+      return 1.79 * cantidad
+    } else if (tipo === 'reconocimiento_firma') {
+      return (482 * 0.03) * cantidad
+    } else if (tipo === 'autenticacion_firma') {
+      return (482 * 0.04) * cantidad
+    } else {
+      return TARIFAS_ITEMS_ADICIONALES[tipo].valorUnitario * cantidad
+    }
+  }
+
+  const handleAgregarItem = () => {
+    const tarifa = TARIFAS_ITEMS_ADICIONALES[nuevoItemTipo]
+    
+    // Calcular subtotal según el tipo
+    let subtotal = 0
+    let descripcion = tarifa.nombre
+    
+    if (nuevoItemTipo === 'poder') {
+      // Poder: 12% primer otorgante, 3% adicionales
+      if (nuevoItemCantidad === 1) {
+        subtotal = 482 * 0.12
+        descripcion = 'Poder General/Especial/Procuración (1 otorgante)'
+      } else {
+        const primerOtorgante = 482 * 0.12
+        const adicionales = (nuevoItemCantidad - 1) * (482 * 0.03)
+        subtotal = primerOtorgante + adicionales
+        descripcion = `Poder General/Especial/Procuración (${nuevoItemCantidad} otorgantes)`
+      }
+    } else if (nuevoItemTipo === 'copia_certificada') {
+      subtotal = 1.79 * nuevoItemCantidad
+      descripcion = `Copia Certificada (${nuevoItemCantidad} fojas)`
+    } else if (nuevoItemTipo === 'reconocimiento_firma') {
+      subtotal = (482 * 0.03) * nuevoItemCantidad
+      descripcion = `Reconocimiento de Firma (${nuevoItemCantidad} firmas)`
+    } else if (nuevoItemTipo === 'autenticacion_firma') {
+      subtotal = (482 * 0.04) * nuevoItemCantidad
+      descripcion = `Autenticación de Firma (${nuevoItemCantidad} firmas)`
+    } else {
+      subtotal = tarifa.valorUnitario * nuevoItemCantidad
+      descripcion = `${tarifa.nombre} (${nuevoItemCantidad} ${tarifa.unidad})`
+    }
+    
+    const item: ItemAdicional = {
+      id: `${nuevoItemTipo}-${Date.now()}`,
+      tipo: nuevoItemTipo,
+      descripcion,
+      cantidad: nuevoItemCantidad,
+      valorUnitario: nuevoItemTipo === 'copia_certificada' ? 1.79 : tarifa.valorUnitario,
+      subtotal: Math.round(subtotal * 100) / 100,
+    }
+    
+    setItemsAdicionales([...itemsAdicionales, item])
+    setMostrarAgregarItem(false)
+    setNuevoItemCantidad(1)
+  }
+
+  const handleEliminarItem = (id: string) => {
+    setItemsAdicionales(itemsAdicionales.filter((item) => item.id !== id))
+  }
+
+  const requiereCuantia = ![
+    'PODER_GENERAL_PN',
+    'PODER_GENERAL_PJ',
+    'TESTAMENTO_ABIERTO',
+    'TESTAMENTO_CERRADO',
+    'UNION_HECHO',
+    'DIVORCIO',
+    'TERMINACION_UNION_HECHO',
+    'POSESION_EFECTIVA',
+    'CANCELACION_HIPOTECA',
+    'RECONOCIMIENTO_FIRMA',
+    'DECLARACION_JURAMENTADA',
+    'SALIDA_PAIS',
+  ].includes(tipoServicio)
+
+  const esSalidaPais = tipoServicio === 'SALIDA_PAIS'
+  const esArrendamiento =
+    tipoServicio === 'CONTRATO_ARRIENDO_ESCRITURA' ||
+    tipoServicio === 'INSCRIPCION_ARRENDAMIENTO'
+  const esTransferencia = tipoServicio === 'TRANSFERENCIA_DOMINIO'
+
+  return (
+    <div className="space-y-6">
+      {/* Selector de Tipo de Servicio */}
+      <div className="space-y-3">
+        <label className="text-sm font-medium text-white">Tipo de Servicio Principal</label>
+        <select
+          value={tipoServicio}
+          onChange={(e) => {
+            setTipoServicio(e.target.value as TipoServicioNotarial)
+            setResultado(null)
+          }}
+          className="w-full px-4 py-3 bg-[#1a1a2e] border border-white/10 rounded-lg text-white focus:ring-2 focus:ring-[var(--accent-primary)] focus:border-transparent [&>option]:bg-[#1a1a2e] [&>option]:text-white"
+        >
+          <optgroup label="Servicios con Cuantía">
+            {tramites.conCuantia.map((t) => (
+              <option key={t.value} value={t.value}>
+                {t.label}
+              </option>
+            ))}
+          </optgroup>
+          <optgroup label="Arrendamientos">
+            {tramites.arrendamientos.map((t) => (
+              <option key={t.value} value={t.value}>
+                {t.label}
+              </option>
+            ))}
+          </optgroup>
+          <optgroup label="Servicios con Tarifa Fija">
+            {tramites.sinCuantia.map((t) => (
+              <option key={t.value} value={t.value}>
+                {t.label}
+              </option>
+            ))}
+          </optgroup>
+        </select>
+      </div>
+
+      {/* Input de Cuantía (si aplica) */}
+      {requiereCuantia && (
+        <div className="space-y-3">
+          <label className="text-sm font-medium text-white">
+            {esArrendamiento ? 'Canon Mensual ($)' : 'Cuantía / Valor del Acto ($)'}
+          </label>
+          <div className="relative">
+            <span className="absolute left-4 top-1/2 -translate-y-1/2 text-white/50">$</span>
+            <input
+              type="number"
+              value={cuantia}
+              onChange={(e) => setCuantia(Number(e.target.value))}
+              min={0}
+              step={100}
+              className="w-full pl-8 pr-4 py-3 bg-white/5 border border-white/10 rounded-lg text-white focus:ring-2 focus:ring-[var(--accent-primary)] focus:border-transparent"
+              placeholder="0.00"
+            />
+          </div>
+          <Slider
+            value={[cuantia]}
+            onValueChange={(value) => setCuantia(value[0])}
+            min={0}
+            max={500000}
+            step={1000}
+          />
+        </div>
+      )}
+
+      {/* Tiempo para arrendamientos */}
+      {esArrendamiento && (
+        <div className="space-y-3">
+          <label className="text-sm font-medium text-white">Duración (meses)</label>
+          <div className="flex items-center gap-4">
+            <input
+              type="number"
+              value={tiempoMeses}
+              onChange={(e) => setTiempoMeses(Number(e.target.value))}
+              min={1}
+              max={120}
+              className="w-24 px-3 py-2 bg-white/5 border border-white/10 rounded-lg text-white text-center"
+            />
+            <Slider
+              value={[tiempoMeses]}
+              onValueChange={(value) => setTiempoMeses(value[0])}
+              min={1}
+              max={60}
+              step={1}
+              className="flex-1"
+            />
+          </div>
+          {tipoServicio === 'CONTRATO_ARRIENDO_ESCRITURA' && (
+            <p className="text-xs text-[var(--text-secondary)]">
+              Art. 40: Calcula sobre el valor total del contrato (canon × meses) = $
+              {(cuantia * tiempoMeses).toLocaleString()}
+            </p>
+          )}
+        </div>
+      )}
+
+      {/* Cantidad de menores para salida del país */}
+      {esSalidaPais && (
+        <div className="space-y-3">
+          <label className="text-sm font-medium text-white">Número de Menores</label>
+          <div className="flex items-center gap-4">
+            <input
+              type="number"
+              value={cantidadMenores}
+              onChange={(e) => setCantidadMenores(Number(e.target.value))}
+              min={1}
+              max={10}
+              className="w-24 px-3 py-2 bg-white/5 border border-white/10 rounded-lg text-white text-center"
+            />
+            <Slider
+              value={[cantidadMenores]}
+              onValueChange={(value) => setCantidadMenores(value[0])}
+              min={1}
+              max={5}
+              step={1}
+              className="flex-1"
+            />
+          </div>
+        </div>
+      )}
+
+      {/* Checkboxes de opciones */}
+      <div className="space-y-3">
+        {esTransferencia && (
+          <label className="flex items-center gap-3 cursor-pointer group">
+            <input
+              type="checkbox"
+              checked={esViviendaSocial}
+              onChange={(e) => setEsViviendaSocial(e.target.checked)}
+              className="w-5 h-5 rounded border-white/20 bg-white/5 text-[var(--accent-primary)] focus:ring-[var(--accent-primary)]"
+            />
+            <span className="text-sm text-white/80 group-hover:text-white transition-colors">
+              Vivienda de Interés Social (hasta $60,000) - Descuento 25%
+            </span>
+          </label>
+        )}
+
+        {[
+          'TESTAMENTO_ABIERTO',
+          'TESTAMENTO_CERRADO',
+          'POSESION_EFECTIVA',
+          'DECLARACION_JURAMENTADA',
+          'CANCELACION_HIPOTECA',
+        ].includes(tipoServicio) && (
+          <label className="flex items-center gap-3 cursor-pointer group">
+            <input
+              type="checkbox"
+              checked={esTerceraEdad}
+              onChange={(e) => setEsTerceraEdad(e.target.checked)}
+              className="w-5 h-5 rounded border-white/20 bg-white/5 text-[var(--accent-primary)] focus:ring-[var(--accent-primary)]"
+            />
+            <span className="text-sm text-white/80 group-hover:text-white transition-colors">
+              Adulto Mayor (acto unilateral) - Descuento 50%
+            </span>
+          </label>
+        )}
+      </div>
+
+      {/* ÍTEMS ADICIONALES */}
+      <div className="pt-4 border-t border-white/10">
+        <div className="flex items-center justify-between mb-4">
+          <h3 className="text-sm font-medium text-white flex items-center gap-2">
+            <FileText className="w-4 h-4" />
+            Ítems Adicionales
+          </h3>
+          <button
+            onClick={() => setMostrarAgregarItem(!mostrarAgregarItem)}
+            className="flex items-center gap-1 px-3 py-1.5 bg-[var(--accent-primary)]/10 hover:bg-[var(--accent-primary)]/20 text-[var(--accent-primary)] text-sm rounded-lg transition-colors"
+          >
+            <Plus className="w-4 h-4" />
+            Agregar ítem
+          </button>
+        </div>
+
+        {/* Lista de items adicionales */}
+        {itemsAdicionales.length > 0 && (
+          <div className="space-y-2 mb-4">
+            {itemsAdicionales.map((item) => (
+              <div
+                key={item.id}
+                className="flex items-center justify-between p-3 bg-white/5 rounded-lg"
+              >
+                <div className="flex items-center gap-3">
+                  <span className="text-[var(--accent-primary)]">
+                    {ICONOS_ITEMS[item.tipo]}
+                  </span>
+                  <div>
+                    <p className="text-sm text-white">{item.descripcion}</p>
+                    <p className="text-xs text-[var(--text-secondary)]">
+                      {item.cantidad} x ${item.valorUnitario.toFixed(2)}
+                    </p>
+                  </div>
+                </div>
+                <div className="flex items-center gap-3">
+                  <span className="text-sm font-medium text-white">
+                    ${item.subtotal.toFixed(2)}
+                  </span>
+                  <button
+                    onClick={() => handleEliminarItem(item.id)}
+                    className="p-1.5 text-red-400 hover:bg-red-400/10 rounded-lg transition-colors"
+                  >
+                    <Trash2 className="w-4 h-4" />
+                  </button>
+                </div>
+              </div>
+            ))}
+          </div>
+        )}
+
+        {/* Formulario para agregar item */}
+        {mostrarAgregarItem && (
+          <div className="p-4 bg-white/5 rounded-lg space-y-3">
+            <select
+              value={nuevoItemTipo}
+              onChange={(e) => {
+                setNuevoItemTipo(e.target.value as ItemAdicional['tipo'])
+              }}
+              className="w-full px-3 py-2 bg-[#1a1a2e] border border-white/10 rounded-lg text-white text-sm focus:ring-2 focus:ring-[var(--accent-primary)] focus:border-transparent [&>option]:bg-[#1a1a2e] [&>option]:text-white"
+            >
+              <optgroup label="Certificaciones (por foja)">
+                <option value="copia_certificada">Copia Certificada - $1.79/foja</option>
+              </optgroup>
+              
+              <optgroup label="Declaraciones">
+                <option value="declaracion_juramentada">Declaración Juramentada - ${(482 * 0.05).toFixed(2)}</option>
+              </optgroup>
+              
+              <optgroup label="Poderes (12% base + 3% por otorgante adicional)">
+                <option value="poder">Poder General/Especial/Procuración</option>
+              </optgroup>
+              
+              <optgroup label="Hipotecas">
+                <option value="cancelacion_hipoteca">Cancelación de Hipoteca - ${(482 * 0.20).toFixed(2)}</option>
+              </optgroup>
+              
+              <optgroup label="Firmas (por firma)">
+                <option value="reconocimiento_firma">Reconocimiento de Firma - ${(482 * 0.03).toFixed(2)}/firma</option>
+                <option value="autenticacion_firma">Autenticación de Firma - ${(482 * 0.04).toFixed(2)}/firma</option>
+              </optgroup>
+              
+              <optgroup label="Documentos Especiales">
+                <option value="materializacion">Materialización - ${(1.79 * 2).toFixed(2)}</option>
+                <option value="protocolizacion">Protocolización - ${(482 * 0.05).toFixed(2)}</option>
+              </optgroup>
+              
+              <optgroup label="Servicios Complementarios">
+                <option value="marginacion">Marginación/Razón - $3.00</option>
+              </optgroup>
+            </select>
+
+            <div className="flex items-center gap-4">
+              <label className="text-sm text-[var(--text-secondary)]">Cantidad:</label>
+              <div className="flex items-center gap-2">
+                <button
+                  onClick={() => setNuevoItemCantidad(Math.max(1, nuevoItemCantidad - 1))}
+                  className="w-8 h-8 flex items-center justify-center bg-white/10 hover:bg-white/20 rounded-lg text-white transition-colors"
+                >
+                  -
+                </button>
+                <input
+                  type="number"
+                  value={nuevoItemCantidad}
+                  onChange={(e) => {
+                    const val = parseInt(e.target.value) || 1
+                    setNuevoItemCantidad(Math.max(1, val))
+                  }}
+                  min={1}
+                  className="w-16 px-2 py-2 bg-white/5 border border-white/10 rounded-lg text-white text-center"
+                />
+                <button
+                  onClick={() => setNuevoItemCantidad(nuevoItemCantidad + 1)}
+                  className="w-8 h-8 flex items-center justify-center bg-white/10 hover:bg-white/20 rounded-lg text-white transition-colors"
+                >
+                  +
+                </button>
+              </div>
+              <span className="text-sm text-[var(--text-secondary)]">
+                {nuevoItemTipo === 'copia_certificada' ? 'fojas' : 
+                 nuevoItemTipo === 'reconocimiento_firma' || nuevoItemTipo === 'autenticacion_firma' ? 'firmas' :
+                 nuevoItemTipo === 'poder' ? 'otorgantes' : 'unidades'}
+              </span>
+            </div>
+
+            <div className="flex items-center justify-between pt-2">
+              <p className="text-sm text-[var(--text-secondary)]">
+                Subtotal: {' '}
+                <span className="text-white font-medium">
+                  ${calcularSubtotalItem(nuevoItemTipo, nuevoItemCantidad).toFixed(2)}
+                </span>
+              </p>
+              <div className="flex gap-2">
+                <button
+                  onClick={() => setMostrarAgregarItem(false)}
+                  className="px-3 py-1.5 text-sm text-[var(--text-secondary)] hover:text-white transition-colors"
+                >
+                  Cancelar
+                </button>
+                <button
+                  onClick={handleAgregarItem}
+                  className="px-4 py-1.5 bg-[var(--accent-primary)] hover:bg-[var(--accent-primary)]/90 text-white text-sm rounded-lg transition-colors"
+                >
+                  Agregar
+                </button>
+              </div>
+            </div>
+          </div>
+        )}
+      </div>
+
+      {/* Botón Calcular */}
+      <Button
+        onClick={handleCalcular}
+        className="w-full py-4 bg-[var(--accent-primary)] hover:bg-[var(--accent-primary)]/90 text-white font-semibold text-lg"
+      >
+        <Calculator className="w-5 h-5 mr-2" />
+        Calcular Costo Total
+      </Button>
+
+      {/* Resultados */}
+      {resultado && (
+        <Card className="p-6 mt-6 bg-gradient-to-br from-[var(--accent-primary)]/10 to-transparent border-[var(--accent-primary)]/30">
+          <div className="space-y-6">
+            {/* Gran Total */}
+            <div className="text-center">
+              <p className="text-sm text-[var(--text-secondary)] mb-2">Total a Pagar</p>
+              <div className="text-4xl font-bold text-white">
+                $<AnimatedCounter value={resultado.granTotal} duration={0.8} />
+              </div>
+              {resultado.itemsAdicionales.length > 0 && (
+                <p className="text-xs text-[var(--text-secondary)] mt-1">
+                  Incluye {resultado.itemsAdicionales.length} ítem(s) adicional(es)
+                </p>
+              )}
+            </div>
+
+            {/* Desglose del trámite principal */}
+            <div className="space-y-3 pt-4 border-t border-white/10">
+              <h4 className="text-sm font-medium text-white">Trámite Principal</h4>
+              <div className="flex justify-between text-sm">
+                <span className="text-[var(--text-secondary)]">Subtotal</span>
+                <span className="text-white font-medium">${resultado.subtotal.toFixed(2)}</span>
+              </div>
+
+              {resultado.descuento > 0 && (
+                <div className="flex justify-between text-sm">
+                  <span className="text-green-400">{resultado.razonDescuento}</span>
+                  <span className="text-green-400 font-medium">
+                    -${resultado.descuento.toFixed(2)}
+                  </span>
+                </div>
+              )}
+
+              <div className="flex justify-between text-sm">
+                <span className="text-[var(--text-secondary)]">IVA (15%)</span>
+                <span className="text-white font-medium">${resultado.iva.toFixed(2)}</span>
+              </div>
+
+              <div className="flex justify-between text-sm pt-2 border-t border-white/10">
+                <span className="font-medium text-white">Total Trámite Principal</span>
+                <span className="font-semibold text-white">${resultado.total.toFixed(2)}</span>
+              </div>
+            </div>
+
+            {/* Ítems adicionales */}
+            {resultado.itemsAdicionales.length > 0 && (
+              <div className="space-y-3 pt-4 border-t border-white/10">
+                <h4 className="text-sm font-medium text-white">Ítems Adicionales</h4>
+                {resultado.itemsAdicionales.map((item) => (
+                  <div key={item.id} className="flex justify-between text-sm">
+                    <span className="text-[var(--text-secondary)]">
+                      {item.descripcion} ({item.cantidad})
+                    </span>
+                    <span className="text-white">${item.subtotal.toFixed(2)}</span>
+                  </div>
+                ))}
+                <div className="flex justify-between text-sm pt-2 border-t border-white/10">
+                  <span className="font-medium text-white">Total Ítems Adicionales</span>
+                  <span className="font-semibold text-white">
+                    ${resultado.totalItemsAdicionales.toFixed(2)}
+                  </span>
+                </div>
+              </div>
+            )}
+
+            {/* Detalles legales */}
+            <div className="pt-4 border-t border-white/10">
+              <div className="flex items-start gap-2 text-xs text-[var(--text-secondary)]">
+                <Info className="w-4 h-4 flex-shrink-0 mt-0.5" />
+                <div className="space-y-1">
+                  {resultado.detalles.slice(0, 3).map((detalle, i) => (
+                    <p key={i}>{detalle}</p>
+                  ))}
+                </div>
+              </div>
+            </div>
+          </div>
+        </Card>
+      )}
+
+      {/* Nota legal */}
+      <div className="flex items-start gap-2 text-xs text-[var(--text-secondary)] bg-white/5 p-3 rounded-lg">
+        <Info className="w-4 h-4 flex-shrink-0 mt-0.5" />
+        <p>
+          Los valores calculados son referenciales y pueden variar según la notaría. SBU 2026: $482.00. 
+          Este cálculo está basado en el Reglamento del Sistema Notarial Integral de la Función Judicial del Ecuador.
+        </p>
+      </div>
+    </div>
+  )
+}

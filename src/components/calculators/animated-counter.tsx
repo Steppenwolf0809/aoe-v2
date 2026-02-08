@@ -5,18 +5,25 @@ import { formatCurrency } from '@/lib/utils'
 
 interface AnimatedCounterProps {
   value: number
-  label: string
+  label?: string
   formatAsCurrency?: boolean
+  duration?: number
+  className?: string
 }
 
-export function AnimatedCounter({ value, label, formatAsCurrency = true }: AnimatedCounterProps) {
+export function AnimatedCounter({
+  value,
+  label,
+  formatAsCurrency = true,
+  duration = 400,
+  className,
+}: AnimatedCounterProps) {
   const [displayValue, setDisplayValue] = useState(0)
   const prevValue = useRef(0)
 
   useEffect(() => {
     const start = prevValue.current
     const end = value
-    const duration = 400
     const startTime = performance.now()
 
     function animate(currentTime: number) {
@@ -33,14 +40,26 @@ export function AnimatedCounter({ value, label, formatAsCurrency = true }: Anima
 
     requestAnimationFrame(animate)
     prevValue.current = value
-  }, [value])
+  }, [value, duration])
 
-  return (
-    <div>
-      <div className="text-2xl font-bold text-white">
-        {formatAsCurrency ? formatCurrency(displayValue) : displayValue.toFixed(0)}
+  // Si tiene label, renderiza el diseño completo
+  if (label) {
+    return (
+      <div>
+        <div className={`text-2xl font-bold text-white ${className || ''}`}>
+          {formatAsCurrency ? formatCurrency(displayValue) : displayValue.toFixed(0)}
+        </div>
+        <div className="text-xs text-[var(--text-muted)] mt-0.5">{label}</div>
       </div>
-      <div className="text-xs text-[var(--text-muted)] mt-0.5">{label}</div>
-    </div>
+    )
+  }
+
+  // Si no tiene label, solo retorna el número (para uso inline)
+  return (
+    <span className={className}>
+      {formatAsCurrency
+        ? displayValue.toLocaleString('es-EC', { minimumFractionDigits: 2, maximumFractionDigits: 2 })
+        : displayValue.toFixed(0)}
+    </span>
   )
 }

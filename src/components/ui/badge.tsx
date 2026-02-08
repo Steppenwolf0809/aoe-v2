@@ -1,29 +1,42 @@
 import { cn } from '@/lib/utils'
 
+type BadgeVariant = 'default' | 'success' | 'warning' | 'error' | 'info' | 'purple'
+
 interface BadgeProps {
-  variant?: 'default' | 'success' | 'warning' | 'error' | 'info'
+  variant?: BadgeVariant
+  size?: 'sm' | 'md'
   children: React.ReactNode
   className?: string
 }
 
-const variantStyles = {
-  default: 'bg-white/10 text-[var(--text-secondary)] border-white/10',
-  success: 'bg-[var(--accent-success)]/10 text-[var(--accent-success)] border-[var(--accent-success)]/20',
-  warning: 'bg-[var(--accent-warning)]/10 text-[var(--accent-warning)] border-[var(--accent-warning)]/20',
-  error: 'bg-[var(--accent-error)]/10 text-[var(--accent-error)] border-[var(--accent-error)]/20',
-  info: 'bg-[var(--accent-primary)]/10 text-[var(--accent-primary)] border-[var(--accent-primary)]/20',
+const variantStyles: Record<BadgeVariant, string> = {
+  default: 'bg-white/10 text-text-secondary border-white/10',
+  success: 'bg-accent-success/10 text-accent-success border-accent-success/20',
+  warning: 'bg-accent-warning/10 text-accent-warning border-accent-warning/20',
+  error: 'bg-accent-error/10 text-accent-error border-accent-error/20',
+  info: 'bg-accent-primary/10 text-accent-primary border-accent-primary/20',
+  purple: 'bg-accent-secondary/10 text-accent-secondary border-accent-secondary/20',
 }
 
-export function Badge({ variant = 'default', children, className }: BadgeProps) {
+const sizeStyles = {
+  sm: 'px-2 py-0.5 text-[11px]',
+  md: 'px-2.5 py-0.5 text-xs',
+}
+
+export function Badge({ variant = 'default', size = 'md', children, className }: BadgeProps) {
   return (
     <span
       className={cn(
-        'inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium border',
+        'inline-flex items-center rounded-full font-medium border',
+        'transition-colors duration-200',
         variantStyles[variant],
-        className
+        sizeStyles[size],
+        className,
       )}
     >
       {children}
     </span>
   )
 }
+
+export type { BadgeProps, BadgeVariant }

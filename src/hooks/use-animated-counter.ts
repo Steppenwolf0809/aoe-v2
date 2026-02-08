@@ -1,36 +1,49 @@
 'use client'
 
-import { useEffect, useRef, useState } from 'react'
+import { useEffect, useRef } from 'react'
+import {
+  useMotionValue,
+  useTransform,
+  useInView,
+  animate,
+} from 'framer-motion'
 
 interface UseAnimatedCounterOptions {
+  /** Target value to animate to */
   value: number
+  /** Animation duration in seconds */
   duration?: number
+  /** Decimal places to display */
+  decimals?: number
 }
 
-export function useAnimatedCounter({ value, duration = 400 }: UseAnimatedCounterOptions) {
-  const [displayValue, setDisplayValue] = useState(0)
-  const prevValue = useRef(0)
+/**
+ * Animates a numeric counter with Framer Motion useMotionValue + useTransform.
+ * Only triggers when the element enters viewport (useInView).
+ */
+export function useAnimatedCounter({
+  value,
+  duration = 2,
+  decimals = 0,
+}: UseAnimatedCounterOptions) {
+  const ref = useRef<HTMLDivElement>(null)
+  const isInView = useInView(ref, { once: true, margin: '-80px' })
+
+  const motionValue = useMotionValue(0)
+  const rounded = useTransform(motionValue, (latest) =>
+    decimals > 0 ? latest.toFixed(decimals) : Math.round(latest).toLocaleString('es-EC'),
+  )
 
   useEffect(() => {
-    const start = prevValue.current
-    const end = value
-    const startTime = performance.now()
+    if (!isInView) return
 
-    function animate(currentTime: number) {
-      const elapsed = currentTime - startTime
-      const progress = Math.min(elapsed / duration, 1)
-      const eased = 1 - Math.pow(1 - progress, 3) // easeOutCubic
-      const current = start + (end - start) * eased
-      setDisplayValue(current)
+    const controls = animate(motionValue, value, {
+      duration,
+      ease: [0.25, 0.46, 0.45, 0.94],
+    })
 
-      if (progress < 1) {
-        requestAnimationFrame(animate)
-      }
-    }
+    return () => controls.stop()
+  }, [isInView, value, duration, motionValue])
 
-    requestAnimationFrame(animate)
-    prevValue.current = value
-  }, [value, duration])
-
-  return displayValue
+  return { ref, displayValue: rounded, isInView }
 }

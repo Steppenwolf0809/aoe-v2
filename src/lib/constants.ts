@@ -32,9 +32,15 @@ export const CALCULATOR_TYPES = {
 } as const
 
 export const NAV_LINKS = [
-  { href: '/servicios', label: 'Servicios' },
-  { href: '/calculadoras', label: 'Calculadoras' },
-  { href: '/precios', label: 'Precios' },
-  { href: '/blog', label: 'Blog' },
-  { href: '/contacto', label: 'Contacto' },
+  { href: '/servicios', label: 'Servicios', badge: null },
+  { href: '/calculadoras', label: 'Calculadoras', badge: 'Gratis' },
+  { href: '/blog', label: 'Blog', badge: null },
+  { href: '/contacto', label: 'Contacto', badge: null },
 ] as const
+
+export const SOCIAL_LINKS = {
+  whatsapp: 'https://wa.me/593999999999',
+  email: 'mailto:info@abogadosonlineecuador.com',
+  facebook: 'https://facebook.com/abogadosonlineecuador',
+  instagram: 'https://instagram.com/abogadosonlineecuador',
+} as const

@@ -4,16 +4,17 @@ import { cn } from '@/lib/utils'
 interface InputProps extends InputHTMLAttributes<HTMLInputElement> {
   label?: string
   error?: string
+  hint?: string
 }
 
 const Input = forwardRef<HTMLInputElement, InputProps>(
-  ({ className, label, error, id, ...props }, ref) => {
+  ({ className, label, error, hint, id, type = 'text', ...props }, ref) => {
     return (
       <div className="space-y-1.5">
         {label && (
           <label
             htmlFor={id}
-            className="block text-sm font-medium text-[var(--text-secondary)]"
+            className="block text-sm font-medium text-text-secondary"
           >
             {label}
           </label>
@@ -21,23 +22,35 @@ const Input = forwardRef<HTMLInputElement, InputProps>(
         <input
           ref={ref}
           id={id}
+          type={type}
           className={cn(
-            'w-full h-10 px-3 rounded-xl text-sm text-white',
+            'w-full h-10 px-3 rounded-[var(--radius-md)] text-sm text-white',
             'bg-white/[0.03] border border-white/[0.08]',
-            'placeholder:text-[var(--text-muted)]',
-            'focus:outline-none focus:ring-2 focus:ring-[var(--accent-primary)] focus:border-transparent',
+            'placeholder:text-text-muted',
+            'hover:bg-white/[0.05] hover:border-white/[0.12]',
+            'focus:outline-none focus:ring-2 focus:ring-accent-primary focus:border-transparent',
             'transition-all duration-200',
-            error && 'border-[var(--accent-error)] focus:ring-[var(--accent-error)]',
-            className
+            'disabled:opacity-50 disabled:cursor-not-allowed',
+            error && 'border-accent-error focus:ring-accent-error',
+            className,
           )}
+          aria-invalid={error ? 'true' : undefined}
+          aria-describedby={error ? `${id}-error` : hint ? `${id}-hint` : undefined}
           {...props}
         />
         {error && (
-          <p className="text-xs text-[var(--accent-error)]">{error}</p>
+          <p id={`${id}-error`} className="text-xs text-accent-error" role="alert">
+            {error}
+          </p>
+        )}
+        {!error && hint && (
+          <p id={`${id}-hint`} className="text-xs text-text-muted">
+            {hint}
+          </p>
         )}
       </div>
     )
-  }
+  },
 )
 Input.displayName = 'Input'
 

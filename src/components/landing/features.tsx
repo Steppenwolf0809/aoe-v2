@@ -1,83 +1,182 @@
 'use client'
 
 import { motion } from 'framer-motion'
-import { FileText, Calculator, MessageSquare, QrCode } from 'lucide-react'
+import {
+  FileText,
+  Car,
+  Handshake,
+  Scale,
+  Home,
+  Plane,
+  ArrowRight,
+} from 'lucide-react'
+import Link from 'next/link'
 import { Card, CardContent } from '@/components/ui/card'
+import { Button } from '@/components/ui/button'
 
-const features = [
+/* ----------------------------------------------------------------
+   Service definitions — 6 cards per PROMPT 06
+   ---------------------------------------------------------------- */
+const services = [
   {
-    title: 'Contratos Vehiculares',
-    description: 'Genera contratos de compra-venta de vehiculos en minutos. Validos legalmente y listos para imprimir.',
+    title: 'Generación de Documentos',
+    description:
+      'Genera contratos y documentos legales personalizados en minutos. Válidos para uso notarial en Ecuador.',
     icon: FileText,
     gradient: 'from-blue-500/20 to-cyan-500/20',
+    href: '/servicios',
   },
   {
-    title: 'Calculadoras Notariales',
-    description: 'Calcula costos notariales y de registro antes de cualquier transaccion. 100% gratuito.',
-    icon: Calculator,
+    title: 'Compraventas',
+    description:
+      'Contratos de compra-venta vehicular y de bienes. Incluye todas las cláusulas legales necesarias.',
+    icon: Car,
     gradient: 'from-emerald-500/20 to-teal-500/20',
+    href: '/servicios',
   },
   {
-    title: 'Consultas Legales',
-    description: 'Conecta con abogados especializados para resolver tus dudas legales de forma rapida.',
-    icon: MessageSquare,
+    title: 'Promesas de Compraventa',
+    description:
+      'Promesas de compra-venta de inmuebles con cláusulas de garantía y condiciones suspensivas.',
+    icon: Handshake,
     gradient: 'from-purple-500/20 to-pink-500/20',
+    href: '/servicios',
   },
   {
-    title: 'Verificacion QR',
-    description: 'Proximamente: verifica la autenticidad de documentos con codigo QR seguro.',
-    icon: QrCode,
+    title: 'Poderes',
+    description:
+      'Poderes generales y especiales para representación legal, trámites vehiculares y más.',
+    icon: Scale,
     gradient: 'from-amber-500/20 to-orange-500/20',
+    href: '/servicios',
+  },
+  {
+    title: 'Posesiones Efectivas',
+    description:
+      'Trámite de posesión efectiva de bienes hereditarios. Asesoría completa del proceso.',
+    icon: Home,
+    gradient: 'from-rose-500/20 to-red-500/20',
+    href: '/servicios',
+  },
+  {
+    title: 'Salidas del País',
+    description:
+      'Autorizaciones de viaje para menores de edad. Documento notarial con validez migratoria.',
+    icon: Plane,
+    gradient: 'from-sky-500/20 to-indigo-500/20',
+    href: '/servicios',
   },
 ]
 
+/* ----------------------------------------------------------------
+   Stagger variants for viewport animation
+   ---------------------------------------------------------------- */
+const containerVariants = {
+  hidden: {},
+  visible: {
+    transition: {
+      staggerChildren: 0.08,
+    },
+  },
+}
+
+const cardVariants = {
+  hidden: { opacity: 0, y: 24 },
+  visible: {
+    opacity: 1,
+    y: 0,
+    transition: { duration: 0.4, ease: [0.25, 0.46, 0.45, 0.94] as const },
+  },
+}
+
+/* ----------------------------------------------------------------
+   Features / Servicios Section
+   ---------------------------------------------------------------- */
 export function Features() {
   return (
-    <section className="py-24 px-4 sm:px-6 bg-[var(--bg-primary)]">
-      <div className="max-w-6xl mx-auto">
+    <section className="py-20 sm:py-28 px-4 sm:px-6 bg-bg-primary">
+      <div className="max-w-7xl mx-auto">
+        {/* Section header */}
         <motion.div
           initial={{ opacity: 0, y: 20 }}
           whileInView={{ opacity: 1, y: 0 }}
-          viewport={{ once: true }}
-          className="text-center mb-16"
+          viewport={{ once: true, margin: '-80px' }}
+          transition={{ duration: 0.5 }}
+          className="text-center mb-14"
         >
-          <h2 className="text-3xl md:text-4xl font-bold text-white mb-4">
-            Soluciones Legales Digitales
+          <h2 className="text-3xl sm:text-4xl font-bold text-white mb-4">
+            Soluciones Legales a su Alcance
           </h2>
-          <p className="text-[var(--text-secondary)] text-lg max-w-2xl mx-auto">
-            Todo lo que necesitas para tus tramites legales en un solo lugar
+          <p className="text-text-secondary text-lg max-w-2xl mx-auto">
+            Todo lo que necesitas para tus trámites legales en un solo lugar.
+            Servicio profesional con respaldo de 12+ años de experiencia.
           </p>
         </motion.div>
 
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-          {features.map((feature, index) => {
-            const Icon = feature.icon
+        {/* Cards grid — 3 cols on lg, 2 on md, 1 on mobile */}
+        <motion.div
+          variants={containerVariants}
+          initial="hidden"
+          whileInView="visible"
+          viewport={{ once: true, margin: '-60px' }}
+          className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5"
+        >
+          {services.map((service) => {
+            const Icon = service.icon
             return (
-              <motion.div
-                key={feature.title}
-                initial={{ opacity: 0, y: 20 }}
-                whileInView={{ opacity: 1, y: 0 }}
-                viewport={{ once: true }}
-                transition={{ delay: index * 0.1 }}
-              >
-                <Card className="h-full p-6 hover:bg-white/[0.05] hover:border-white/[0.12] transition-all duration-200 cursor-pointer group relative overflow-hidden">
-                  <div className={`absolute -top-24 -right-24 w-48 h-48 rounded-full blur-3xl bg-gradient-to-br ${feature.gradient} opacity-30 group-hover:opacity-50 transition-opacity`} />
-                  <CardContent className="p-0 relative z-10">
-                    <div className={`w-12 h-12 rounded-xl bg-gradient-to-br ${feature.gradient} flex items-center justify-center mb-4`}>
-                      <Icon className="w-6 h-6 text-white" />
-                    </div>
-                    <h3 className="text-lg font-semibold text-white mb-2 group-hover:text-[var(--accent-primary)] transition-colors">
-                      {feature.title}
-                    </h3>
-                    <p className="text-sm text-[var(--text-secondary)] leading-relaxed">
-                      {feature.description}
-                    </p>
-                  </CardContent>
-                </Card>
+              <motion.div key={service.title} variants={cardVariants}>
+                <Link href={service.href} className="block h-full">
+                  <Card className="h-full p-6 hover:bg-white/[0.05] hover:border-white/[0.12] transition-all duration-200 cursor-pointer group relative overflow-hidden">
+                    {/* Ambient gradient blob */}
+                    <div
+                      className={`absolute -top-20 -right-20 w-40 h-40 rounded-full blur-3xl bg-gradient-to-br ${service.gradient} opacity-0 group-hover:opacity-40 transition-opacity duration-300`}
+                    />
+                    <CardContent className="p-0 relative z-10">
+                      {/* Icon */}
+                      <div
+                        className={`w-12 h-12 rounded-xl bg-gradient-to-br ${service.gradient} flex items-center justify-center mb-4 group-hover:scale-110 transition-transform duration-200`}
+                      >
+                        <Icon className="w-6 h-6 text-white" />
+                      </div>
+
+                      {/* Title */}
+                      <h3 className="text-lg font-semibold text-white mb-2 group-hover:text-accent-primary transition-colors duration-200">
+                        {service.title}
+                      </h3>
+
+                      {/* Description */}
+                      <p className="text-sm text-text-secondary leading-relaxed mb-4">
+                        {service.description}
+                      </p>
+
+                      {/* Link indicator */}
+                      <span className="inline-flex items-center gap-1.5 text-sm text-text-muted group-hover:text-accent-primary transition-colors duration-200">
+                        Saber más
+                        <ArrowRight className="w-3.5 h-3.5 group-hover:translate-x-1 transition-transform duration-200" />
+                      </span>
+                    </CardContent>
+                  </Card>
+                </Link>
               </motion.div>
             )
           })}
-        </div>
+        </motion.div>
+
+        {/* Bottom CTA */}
+        <motion.div
+          initial={{ opacity: 0, y: 16 }}
+          whileInView={{ opacity: 1, y: 0 }}
+          viewport={{ once: true }}
+          transition={{ duration: 0.4, delay: 0.3 }}
+          className="text-center mt-12"
+        >
+          <Link href="/servicios">
+            <Button variant="outline" size="lg">
+              Ver todos nuestros servicios
+              <ArrowRight className="w-4 h-4" />
+            </Button>
+          </Link>
+        </motion.div>
       </div>
     </section>
   )

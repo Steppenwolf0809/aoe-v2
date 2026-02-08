@@ -1,71 +1,50 @@
-'use server'
+"use server";
 
-import { createClient } from '@/lib/supabase/server'
+import { z } from 'zod';
+import { createClient } from '@/lib/supabase/server';
 
-type ActionResult<T> =
-  | { success: true; data: T }
-  | { success: false; error: string }
+const leadSchema = z.object({
+  name: z.string(),
+  email: z.string().email(),
+  phone: z.string().optional(),
+  source: z.string(), // 'inmobiliario', 'vehicular', 'checklist', etc.
+  metadata: z.record(z.string(), z.any()).optional()
+});
 
-export async function saveLead(data: {
-  email?: string
-  phone?: string
-  source: string
-  calculatorType?: string
-  context?: Record<string, unknown>
-}): Promise<ActionResult<{ id: string }>> {
+type LeadInput = z.infer<typeof leadSchema>;
+
+export async function submitLead(data: LeadInput) {
+  const result = leadSchema.safeParse(data);
+
+  if (!result.success) {
+    return { success: false, error: 'Datos inválidos' };
+  }
+
+  const supabase = await createClient(); // Await createClient() for server actions
+
   try {
-    const supabase = await createClient()
-
-    const { data: lead, error } = await supabase
+    const { error } = await supabase
       .from('leads')
       .insert({
-        email: data.email,
-        phone: data.phone,
-        source: data.source,
-        calculator_type: data.calculatorType,
-        data: data.context,
-      })
-      .select('id')
-      .single()
+        name: result.data.name,
+        email: result.data.email,
+        phone: result.data.phone || null,
+        source: result.data.source,
+        metadata: result.data.metadata || {},
+        status: 'new', // pending contact
+        created_at: new Date().toISOString()
+      });
 
     if (error) {
-      return { success: false, error: error.message }
+      console.error("Supabase error submitting lead:", error);
+      return { success: false, error: 'Error guardando datos' };
     }
 
-    return { success: true, data: { id: lead.id } }
-  } catch (error) {
-    console.error('[saveLead]', error)
-    return {
-      success: false,
-      error: error instanceof Error ? error.message : 'Error desconocido',
-    }
-  }
-}
+    // TODO: Enviar email con Resend aquí (siguiente paso)
 
-export async function trackCalculatorUse(data: {
-  type: string
-  inputs: Record<string, unknown>
-  result: Record<string, unknown>
-}): Promise<ActionResult<null>> {
-  try {
-    const supabase = await createClient()
-
-    const { error } = await supabase.from('calculator_sessions').insert({
-      type: data.type,
-      inputs: data.inputs,
-      result: data.result,
-    })
-
-    if (error) {
-      return { success: false, error: error.message }
-    }
-
-    return { success: true, data: null }
-  } catch (error) {
-    console.error('[trackCalculatorUse]', error)
-    return {
-      success: false,
-      error: error instanceof Error ? error.message : 'Error desconocido',
-    }
+    return { success: true };
+  } catch (e) {
+    console.error("Server action exception:", e);
+    return { success: false, error: 'Error del servidor' };
   }
 }

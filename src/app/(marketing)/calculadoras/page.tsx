@@ -35,8 +35,8 @@ const calculadoras = [
   },
   {
     href: '/calculadoras/consejo-provincial',
-    title: 'Calculadora Consejo Provincial',
-    description: 'Calcula la contribucion al Consejo Provincial por transferencia de dominio.',
+    title: 'Calculadora Consejo Provincial Pichincha',
+    description: 'Calcula la contribución al Consejo Provincial (10% de Alcabala + $1.60) para Pichincha.',
     icon: Building2,
   },
 ]

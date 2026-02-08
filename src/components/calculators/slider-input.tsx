@@ -13,16 +13,30 @@ interface SliderInputProps {
   formatAsCurrency?: boolean
 }
 
-export function SliderInput({ label, value, onChange, min, max, step, formatAsCurrency = true }: SliderInputProps) {
+export function SliderInput({
+  label,
+  value,
+  onChange,
+  min,
+  max,
+  step,
+  formatAsCurrency = true,
+}: SliderInputProps) {
   return (
-    <Slider
-      label={label}
-      displayValue={formatAsCurrency ? formatCurrency(value) : String(value)}
-      min={min}
-      max={max}
-      step={step}
-      value={value}
-      onChange={(e) => onChange(Number(e.target.value))}
-    />
+    <div className="space-y-2">
+      <div className="flex items-center justify-between">
+        <label className="text-sm font-medium text-[var(--text-secondary)]">{label}</label>
+        <span className="text-sm font-semibold text-white">
+          {formatAsCurrency ? formatCurrency(value) : String(value)}
+        </span>
+      </div>
+      <Slider
+        min={min}
+        max={max}
+        step={step}
+        value={[value]}
+        onValueChange={(vals) => onChange(vals[0])}
+      />
+    </div>
   )
 }

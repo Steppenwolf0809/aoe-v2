@@ -5,46 +5,63 @@ import { motion, AnimatePresence } from 'framer-motion'
 import { ChevronDown } from 'lucide-react'
 import { cn } from '@/lib/utils'
 
+/* ----------------------------------------------------------------
+   FAQ data — 5 questions per PROMPT 07
+   ---------------------------------------------------------------- */
 const faqs = [
   {
-    question: 'Son validos legalmente los contratos generados?',
-    answer: 'Si, todos los contratos generados cumplen con la legislacion ecuatoriana vigente y son validos para su uso en notarias.',
+    question: '¿Son válidos legalmente los contratos generados?',
+    answer:
+      'Sí, todos los contratos generados cumplen con la legislación ecuatoriana vigente y son válidos para su uso en notarías. Nuestros documentos están respaldados por 12+ años de experiencia en la Notaría 18 de Quito.',
   },
   {
-    question: 'Como funciona la calculadora notarial?',
-    answer: 'Nuestras calculadoras utilizan las tablas oficiales del Consejo de la Judicatura para calcular aranceles notariales de forma precisa.',
+    question: '¿Cómo funciona la calculadora notarial?',
+    answer:
+      'Nuestras calculadoras utilizan las tablas oficiales del Consejo de la Judicatura y las tarifas municipales vigentes para calcular aranceles notariales de forma precisa. Solo necesitas ingresar el valor del inmueble o vehículo y obtendrás un estimado detallado.',
   },
   {
-    question: 'Cuanto tiempo toma generar un contrato?',
-    answer: 'El proceso completo toma entre 5 y 10 minutos. Solo necesitas llenar el formulario con los datos requeridos.',
+    question: '¿Cuánto tiempo toma generar un contrato?',
+    answer:
+      'El proceso completo toma entre 5 y 10 minutos. Solo necesitas llenar el formulario con los datos requeridos, realizar el pago y recibirás tu contrato por correo electrónico listo para imprimir y firmar.',
   },
   {
-    question: 'Que metodos de pago aceptan?',
-    answer: 'Aceptamos tarjetas de credito/debito y transferencias bancarias a traves de nuestra pasarela de pago segura.',
+    question: '¿Qué métodos de pago aceptan?',
+    answer:
+      'Aceptamos tarjetas de crédito y débito a través de nuestra pasarela de pago segura. También puedes realizar transferencias bancarias. Todos los pagos están protegidos con encriptación de última generación.',
   },
   {
-    question: 'Puedo modificar un contrato despues de generarlo?',
-    answer: 'Si, con el plan Profesional puedes solicitar modificaciones ilimitadas a tus contratos.',
+    question: '¿Puedo modificar un contrato después de generarlo?',
+    answer:
+      'Sí, con el plan Profesional puedes solicitar modificaciones ilimitadas a tus contratos. Para el plan básico, puedes generar un nuevo contrato con los datos corregidos a un precio reducido.',
   },
 ]
 
+/* ----------------------------------------------------------------
+   FAQ Section — accordion with AnimatePresence
+   ---------------------------------------------------------------- */
 export function FAQ() {
   const [openIndex, setOpenIndex] = useState<number | null>(null)
 
   return (
-    <section className="py-24 px-4 sm:px-6 bg-[var(--bg-secondary)]">
+    <section className="py-20 sm:py-28 px-4 sm:px-6 bg-bg-secondary">
       <div className="max-w-3xl mx-auto">
+        {/* Section header */}
         <motion.div
           initial={{ opacity: 0, y: 20 }}
           whileInView={{ opacity: 1, y: 0 }}
           viewport={{ once: true }}
-          className="text-center mb-16"
+          transition={{ duration: 0.5 }}
+          className="text-center mb-14"
         >
-          <h2 className="text-3xl md:text-4xl font-bold text-white mb-4">
+          <h2 className="text-3xl sm:text-4xl font-bold text-white mb-4">
             Preguntas Frecuentes
           </h2>
+          <p className="text-text-secondary text-lg max-w-xl mx-auto">
+            Resolvemos tus dudas sobre nuestros servicios legales y calculadoras.
+          </p>
         </motion.div>
 
+        {/* Accordion */}
         <div className="space-y-3">
           {faqs.map((faq, index) => (
             <motion.div
@@ -52,20 +69,38 @@ export function FAQ() {
               initial={{ opacity: 0, y: 10 }}
               whileInView={{ opacity: 1, y: 0 }}
               viewport={{ once: true }}
-              transition={{ delay: index * 0.05 }}
-              className="rounded-xl border border-white/[0.08] bg-white/[0.02] overflow-hidden"
+              transition={{ delay: index * 0.05, duration: 0.4 }}
+              className={cn(
+                'rounded-xl border overflow-hidden transition-colors duration-200',
+                openIndex === index
+                  ? 'border-accent-primary/20 bg-white/[0.04]'
+                  : 'border-white/[0.08] bg-white/[0.02] hover:bg-white/[0.03]',
+              )}
             >
               <button
                 onClick={() => setOpenIndex(openIndex === index ? null : index)}
-                className="w-full flex items-center justify-between p-5 text-left cursor-pointer"
+                className="w-full flex items-center justify-between p-5 text-left cursor-pointer group"
               >
-                <span className="text-sm font-medium text-white pr-4">{faq.question}</span>
-                <ChevronDown
+                <span
                   className={cn(
-                    'w-5 h-5 text-[var(--text-muted)] flex-shrink-0 transition-transform duration-200',
-                    openIndex === index && 'rotate-180'
+                    'text-sm font-medium pr-4 transition-colors duration-200',
+                    openIndex === index ? 'text-accent-primary' : 'text-white group-hover:text-white/90',
                   )}
-                />
+                >
+                  {faq.question}
+                </span>
+                <motion.div
+                  animate={{ rotate: openIndex === index ? 180 : 0 }}
+                  transition={{ duration: 0.2 }}
+                  className="flex-shrink-0"
+                >
+                  <ChevronDown
+                    className={cn(
+                      'w-5 h-5 transition-colors duration-200',
+                      openIndex === index ? 'text-accent-primary' : 'text-text-muted',
+                    )}
+                  />
+                </motion.div>
               </button>
               <AnimatePresence>
                 {openIndex === index && (
@@ -73,9 +108,9 @@ export function FAQ() {
                     initial={{ height: 0, opacity: 0 }}
                     animate={{ height: 'auto', opacity: 1 }}
                     exit={{ height: 0, opacity: 0 }}
-                    transition={{ duration: 0.2 }}
+                    transition={{ duration: 0.25, ease: [0.25, 0.46, 0.45, 0.94] }}
                   >
-                    <div className="px-5 pb-5 text-sm text-[var(--text-secondary)] leading-relaxed">
+                    <div className="px-5 pb-5 text-sm text-text-secondary leading-relaxed">
                       {faq.answer}
                     </div>
                   </motion.div>
