@@ -1,7 +1,11 @@
 import type { NextConfig } from 'next'
 
 const nextConfig: NextConfig = {
-  /* Force clean Turbopack trace on config change */
+  turbopack: {
+    resolveAlias: {
+      '@/*': './src/*',
+    },
+  },
   async headers() {
     return [
       {
