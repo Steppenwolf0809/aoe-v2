@@ -231,7 +231,7 @@ export function Hero() {
           </div>
 
           {/* Right — animated document visual */}
-          <div className="hidden lg:block">
+          <div className="relative w-full max-w-sm mx-auto lg:max-w-none">
             <DocumentVisual />
           </div>
         </div>
