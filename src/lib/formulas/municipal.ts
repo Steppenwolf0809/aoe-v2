@@ -117,7 +117,7 @@ function calcularRebajaAlcabala(meses: number): { porcentaje: number; descripcio
 // CÁLCULO DE IMPUESTO A LA UTILIDAD (Vendedor)
 // ============================================
 
-function calcularUtilidad(data: DatosMunicipales): ResultadoUtilidad {
+export function calcularUtilidad(data: DatosMunicipales): ResultadoUtilidad {
   const mejoras = data.mejoras || 0
   const contribucionMejoras = data.contribucionMejoras || 0
 
@@ -182,7 +182,7 @@ function calcularUtilidad(data: DatosMunicipales): ResultadoUtilidad {
 // CÁLCULO DE IMPUESTO DE ALCABALA (Comprador)
 // ============================================
 
-function calcularAlcabala(data: DatosMunicipales): ResultadoAlcabala {
+export function calcularAlcabala(data: DatosMunicipales): ResultadoAlcabala {
   // 1. Base Imponible (mayor valor)
   const baseImponible = Math.max(data.valorTransferencia, data.avaluoCatastral)
 

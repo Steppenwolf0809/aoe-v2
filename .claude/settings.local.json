@@ -1,0 +1,16 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(python:*)",
+      "Bash(npm run build:*)",
+      "Bash(/c/Users/Usuario02/AppData/Local/Programs/Python/Python312/python.exe:*)",
+      "Bash(git add:*)",
+      "Bash(git commit:*)",
+      "Bash(git push:*)",
+      "Bash(npx next build:*)",
+      "Bash(node -e:*)",
+      "Bash(git rm:*)",
+      "Bash(git ls-tree:*)"
+    ]
+  }
+}

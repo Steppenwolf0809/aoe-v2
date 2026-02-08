@@ -2,7 +2,7 @@
 
 > **Última actualización:** 2026-02-07  
 > **Arquitecto:** Antigravity AI (Asistente de Desarrollo)  
-> **Owner:** Jose Luis — Notaría 18, Quito, Ecuador
+> **Owner:** Jose Luis — Abogados Online Ecuador
 
 ---
 
@@ -13,7 +13,7 @@
 **Tipo:** Plataforma Legal-Tech moderna
 
 ### Quiénes Somos
-Somos una **firma legal tecnológica** liderada por Jose Luis, abogado notario con 12+ años de experiencia en Quito, Ecuador (Notaría 18).
+Somos una **firma legal tecnológica** liderada por Jose Luis, abogado con 12+ años de experiencia en Quito, Ecuador.
 
 ### Objetivo Principal
 1. **Vender contratos automatizados** — Generación de documentos legales (compra-venta vehicular, etc.) con pago integrado
@@ -417,7 +417,7 @@ export async function miAction(): Promise<ActionResult<MiTipo>> {
 - [ ] Sistema de suscripciones
 - [ ] Dashboard de usuario
 - [ ] Historial de documentos
-- [ ] Verificación QR "Notaría Segura"
+- [ ] Verificación QR "Documento Seguro"
 
 ---
 

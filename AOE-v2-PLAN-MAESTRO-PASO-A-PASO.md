@@ -262,7 +262,7 @@ Mobile-first OBLIGATORIO. Probar en 375px primero.
 
 ---
 
-### ✅ PROMPT 07 — Landing page: Stats + Testimonios + FAQ + CTA (COMPLETADO)
+### 🔲 PROMPT 07 — Landing page: Stats + Testimonios + FAQ + CTA
 
 ```
 Lee el brain.md y LANDING_PAGE_DESIGN_PLAN.md.
@@ -336,7 +336,7 @@ Crea las páginas secundarias del marketing:
    - Formulario con React Hook Form + Zod validation
    - Campos: nombre, email, teléfono, tipo de consulta, mensaje
    - Server Action para procesar (guardar en leads + enviar email)
-   - Datos de contacto: dirección Notaría 18, teléfonos, email, WhatsApp
+   - Datos de contacto: dirección Azuay E2-231 y Av Amazonas, Quito - Ecuador. email   info@abogadosonlineecuador.com, WhatsApp +593 979317579
    - Mapa de ubicación (Google Maps embed o placeholder)
 
 Cada página con generateMetadata() completo.
@@ -369,17 +369,46 @@ El usuario NO quiere calcular tasas. El usuario quiere resolver:
 
 ---
 
-### ✅ PROMPT 09 — Fórmulas puras + tests unitarios (COMPLETADO)
+### 🔲 PROMPT 09 — Fórmulas puras + tests unitarios (BACKEND OCULTO)
 
-> **Estado:** Lógica implementada en `src/lib/calculators/`.
-> **Archivos clave:**
-> - `src/lib/calculators/inmobiliario.ts` (Agregador)
-> - `src/lib/calculators/vehicular.ts` (Solo firmas + impuestos)
-> - `municipal.ts`, `registro.ts`, `servicios-menores.ts`
-> - `src/types/calculators.ts`
+```
+Lee el brain.md, el plan definitivo, y CALCULADORAS_LOGICA.md.
 
-**Nota:** Los tests unitarios se ejecutaron manualmente con script `scripts/test-calculators.ts` (verificado OK).
-Entregable cumplido.
+⚠️ IMPORTANTE: Estas fórmulas son lógica de BACKEND. NUNCA se exponen al usuario.
+El usuario solo ve el TOTAL, no el desglose técnico (esto filtra abogados).
+
+Implementa las funciones puras de cálculo en lib/formulas/:
+
+1. src/lib/formulas/types.ts — Interfaces compartidas:
+   - PresupuestoInmobiliario (notarial + alcabalas + Consejo Provincial +registro + plusvalía)
+   - CotizacionVehicular (notarial + IVA)
+   - TarifaServicioMenor (precio fijo + IVA)
+
+2. src/lib/formulas/inmobiliario.ts — Presupuestador de compra de vivienda:
+   - calcularPresupuestoComprador(datos) → Notaría + Alcabalas + Consejo Provincial+ Registro
+   - calcularPresupuestoVendedor(datos) → Plusvalía
+   - calcularTotalTransaccion(datos) → Todo integrado
+   - INTERNO: usa las fórmulas de notarial.ts, municipal.ts, registro.ts consejo provincial
+
+3. src/lib/formulas/vehicular.ts — Cotizador de vehículos:
+   - calcularCotizacionVehiculo(valor, firmas) → Tarifa + IVA
+
+4. src/lib/formulas/servicios-menores.ts — Tarifas fijas:
+   - obtenerTarifaServicio(tipoServicio, opciones) → Precio fijo según tabla
+   - Servicios: poder, declaracion, autorizacion, reconocimiento, etc.
+
+5. TESTS con Vitest para CADA función:
+   - inmobiliario.test.ts — Mínimo 10 test cases (comprador + vendedor)
+   - vehicular.test.ts — Mínimo 5 test cases
+   - servicios-menores.test.ts — Mínimo 8 test cases
+
+Las fórmulas están en CALCULADORAS_LOGICA.md. Seguirlas AL PIE DE LA LETRA.
+El SBU actual es $482.
+
+Ejecuta `npx vitest run` y confirma que TODOS los tests pasan.
+```
+
+**Entregable:** Lógica de cálculo 100% implementada y testeada (backend oculto).
 
 ---
 
@@ -388,14 +417,7 @@ Entregable cumplido.
 ```
 Lee el brain.md (sección diseño glass) y docs/plans/2026-02-07-calculadoras-lead-magnet-design.md.
 
-⚠️ **YA EXISTE:**
-- `src/components/lead-capture/EmailGate.tsx` (Componente visual de bloqueo)
-- `src/actions/leads.ts` (Server Action para guardar leads)
-- `supabase/migrations/20260207_create_leads.sql` (Schema de DB)
-
-**TAREA ACTUAL:** Completar los hooks y componentes layout restantes.
-
-Crea los componentes reutilizables FALTANTES:
+Crea los componentes reutilizables:
 
 1. src/hooks/use-calculator.ts — Hook genérico con: input state, result, error, loading, calculate(), reset()
 
@@ -417,12 +439,24 @@ Crea los componentes reutilizables FALTANTES:
    - Texto: "Tu total estimado para gastos legales"
    - NO muestra desglose técnico aquí
 
-6. src/components/lead-capture/lead-magnets-menu.tsx — Opciones de lead magnets:
+6. src/components/lead-capture/email-gate.tsx — Muro de valor post-resultado:
+   - Aparece DESPUÉS de mostrar el total
+   - "¿Quieres el desglose completo + checklist?"
+   - Input email + botón "Enviar a mi correo"
+   - Alternativa: "Prefiero agendar una cita" → WhatsApp
+
+7. src/components/lead-capture/lead-magnets-menu.tsx — Opciones de lead magnets:
    - 📧 "Recibe el desglose completo por email"
    - 📋 "Descarga la Checklist de Documentos"
    - 💬 "Agenda asesoría gratuita" (WhatsApp directo)
 
-7. src/lib/validations/leads.ts — Mejorar schema Zod existente si es necesario.
+8. src/actions/leads.ts — Server Actions:
+   - captureLead(data) — Guarda en tabla leads
+   - trackCalculatorSession(data) — Analytics anónimo
+   - sendLeadMagnetEmail(leadId, type) — Envía PDF via Resend
+
+9. src/lib/validations/leads.ts — Schemas Zod:
+   - LeadCaptureSchema (email, nombre opcional, teléfono opcional, source)
 
 Todos "use client" donde necesario. Mobile-first OBLIGATORIO.
 ```
@@ -440,10 +474,6 @@ Lee brain.md y docs/plans/2026-02-07-calculadoras-lead-magnet-design.md.
 El enfoque es "Job to be Done": resolver el problema del usuario, no calcular tasas.
 
 Crea: src/app/(marketing)/calculadoras/inmuebles/page.tsx
-
-**⚠️ IMPORTANTE: Estrategia de Precios (Ver PRICING_BRAINSTORM.md)**
-- El honorario base ($500) DEBE ser una constante configurable, no hardcodeada.
-- Objetivo: Poder hacer A/B testing (ej: bajar a $390) sin deploy.
 
 WIZARD (lenguaje natural, NO técnico):
 
@@ -945,7 +975,7 @@ Estas tareas NO las hace Claude Code — las haces tú en dashboards web:
 | 04 | 🔲 Design system + componentes UI | 2 | 2 |
 | 05 | 🔲 Header, Footer, layout marketing | 2 | 2 |
 | 06 | 🔲 Landing: Hero + Servicios + Calculadoras | 2 | 2-3 |
-| 07 | ✅ Landing: Stats + Testimonios + FAQ + CTA | 2 | 3 |
+| 07 | 🔲 Landing: Stats + Testimonios + FAQ + CTA | 2 | 3 |
 | 08 | 🔲 Páginas servicios, precios, contacto | 2 | 3 |
 | 09 | 🔲 Fórmulas puras + tests Vitest | 3 | 4 |
 | 10 | 🔲 Componentes calculadora + hooks | 3 | 4 |
