@@ -1,6 +1,12 @@
 import type { NextConfig } from 'next'
 
 const nextConfig: NextConfig = {
+  // Turbopack configuration for path aliases
+  turbopack: {
+    resolveAlias: {
+      '@/*': './src/*',
+    },
+  },
   async headers() {
     return [
       {
