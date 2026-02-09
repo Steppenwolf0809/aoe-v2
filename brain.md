@@ -221,6 +221,11 @@ const cardVariants = {
 
 ## 4. 📝 Reglas de Código
 
+### Nota Operativa (Proxy)
+- Desde **2026-02-09**, este proyecto usa **`proxy.ts`** (en la raiz) para auth, redirects y proteccion de rutas.
+- **No usar `middleware.ts`** para nueva implementacion ni mantenimiento rutinario.
+- Si un commit falla por rutas protegidas, revisar primero `proxy.ts` y su matcher/configuracion.
+
 ### TypeScript — Strict Mode
 ```json
 // tsconfig.json
