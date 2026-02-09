@@ -1,7 +1,7 @@
 # AOE v2 — Plan Maestro de Implementación
 
-> **Estado actual:** ✅ PROMPT 01 completado (inicialización del proyecto)
-> **Siguiente paso:** PROMPT 02 — Conectar Supabase + Deploy inicial
+> **Estado actual:** ✅ PROMPTs 01-08 completados (Fase 1 + Fase 2 terminadas)
+> **Siguiente paso:** PROMPT 09 — Fórmulas puras + tests unitarios (Fase 3: Calculadoras)
 > **Estimación total:** 8 semanas / ~20 prompts para Claude Code
 
 ---
@@ -10,8 +10,8 @@
 
 | Fase | Semana | Estado | Descripción |
 |------|--------|--------|-------------|
-| **1. Setup + Infra** | 1 | 🔄 EN CURSO | Proyecto creado, falta Supabase + deploy |
-| **2. Landing + Diseño** | 2-3 | ⏳ Pendiente | UI premium, componentes, landing completa |
+| **1. Setup + Infra** | 1 | ✅ Completada | Proyecto, Supabase, deploy Vercel |
+| **2. Landing + Diseño** | 2-3 | ✅ Completada | UI, componentes, landing, páginas marketing |
 | **3. Calculadoras** | 4 | ⏳ Pendiente | 4 calculadoras interactivas con SEO |
 | **4. Auth + Dashboard** | 5 | ⏳ Pendiente | Login, registro, área privada |
 | **5. Contratos + Pagos** | 6 | ⏳ Pendiente | Wizard, PDF, pasarela de pago |
@@ -81,7 +81,7 @@ Ahora que tenemos .env.local con las credenciales de Supabase, necesito que:
 
 ---
 
-### 🔲 PROMPT 03 — Deploy inicial en Vercel (COMPLETADO)
+### ✅ PROMPT 03 — Deploy inicial en Vercel (COMPLETADO)
 
 **⚠️ ANTES del prompt, tú debes:**
 
@@ -262,7 +262,7 @@ Mobile-first OBLIGATORIO. Probar en 375px primero.
 
 ---
 
-### 🔲 PROMPT 07 — Landing page: Stats + Testimonios + FAQ + CTA
+### ✅ PROMPT 07 — Landing page: Stats + Testimonios + FAQ + CTA (COMPLETADO)
 
 ```
 Lee el brain.md y LANDING_PAGE_DESIGN_PLAN.md.
@@ -306,7 +306,7 @@ IMPLEMENTA también:
 
 ---
 
-### 🔲 PROMPT 08 — Páginas de Servicios, Precios, y Contacto
+### ✅ PROMPT 08 — Páginas de Servicios, Precios, y Contacto (COMPLETADO)
 
 ```
 Lee el brain.md.
@@ -971,12 +971,12 @@ Estas tareas NO las hace Claude Code — las haces tú en dashboards web:
 |---|--------|------|--------|
 | 01 | ✅ Inicializar proyecto | 1 | 1 |
 | 02 | ✅ Conectar Supabase + migraciones | 1 | 1 |
-| 03 | 🔲 Preparar deploy Vercel | 1 | 1 |
-| 04 | 🔲 Design system + componentes UI | 2 | 2 |
-| 05 | 🔲 Header, Footer, layout marketing | 2 | 2 |
-| 06 | 🔲 Landing: Hero + Servicios + Calculadoras | 2 | 2-3 |
-| 07 | 🔲 Landing: Stats + Testimonios + FAQ + CTA | 2 | 3 |
-| 08 | 🔲 Páginas servicios, precios, contacto | 2 | 3 |
+| 03 | ✅ Preparar deploy Vercel | 1 | 1 |
+| 04 | ✅ Design system + componentes UI | 2 | 2 |
+| 05 | ✅ Header, Footer, layout marketing | 2 | 2 |
+| 06 | ✅ Landing: Hero + Servicios + Calculadoras | 2 | 2-3 |
+| 07 | ✅ Landing: Stats + Testimonios + FAQ + CTA | 2 | 3 |
+| 08 | ✅ Páginas servicios, precios, contacto | 2 | 3 |
 | 09 | 🔲 Fórmulas puras + tests Vitest | 3 | 4 |
 | 10 | 🔲 Componentes calculadora + hooks | 3 | 4 |
 | 11 | 🔲 Calculadora Notarial completa | 3 | 4 |

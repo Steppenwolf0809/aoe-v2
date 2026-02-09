@@ -23,7 +23,7 @@ const narrativeSteps = [
         icon: Check,
         color: 'text-accent-success',
         bgColor: 'bg-accent-success/10',
-        imageGradient: 'from-emerald-500/10 to-teal-500/10',
+        image: '/assets/landing/validation_process.svg',
         align: 'left', // Text on left, Image on right
     },
     {
@@ -40,7 +40,7 @@ const narrativeSteps = [
         icon: Zap,
         color: 'text-amber-500',
         bgColor: 'bg-amber-500/10',
-        imageGradient: 'from-amber-500/10 to-orange-500/10',
+        image: '/assets/landing/speed_process.svg',
         align: 'right', // Image on left, Text on right
     },
     {
@@ -57,48 +57,10 @@ const narrativeSteps = [
         icon: Shield,
         color: 'text-accent-primary',
         bgColor: 'bg-accent-primary/10',
-        imageGradient: 'from-blue-600/10 to-indigo-600/10',
+        image: '/assets/landing/security_process.svg',
         align: 'left', // Text on left, Image on right
     },
 ]
-
-/* ----------------------------------------------------------------
-   Visual Placeholder Component (Abstract UI Representation)
-   ---------------------------------------------------------------- */
-function VisualPlaceholder({ step }: { step: typeof narrativeSteps[0] }) {
-    const Icon = step.icon
-    return (
-        <div className={`relative w-full aspect-[4/3] rounded-2xl overflow-hidden bg-gradient-to-br ${step.imageGradient} border border-slate-100 flex items-center justify-center`}>
-            {/* Abstract Background Shapes */}
-            <div className="absolute inset-0 opacity-30">
-                <div className="absolute top-1/4 left-1/4 w-1/2 h-1/2 bg-white/40 blur-3xl rounded-full" />
-            </div>
-
-            {/* Central Card visual */}
-            <motion.div
-                initial={{ y: 20, opacity: 0 }}
-                whileInView={{ y: 0, opacity: 1 }}
-                transition={{ duration: 0.6, delay: 0.2 }}
-                className="relative z-10 w-2/3 bg-white shadow-xl shadow-slate-200/50 rounded-xl p-6 border border-slate-100"
-            >
-                <div className="flex items-center gap-3 mb-4">
-                    <div className={`w-10 h-10 rounded-lg ${step.bgColor} flex items-center justify-center`}>
-                        <Icon className={`w-5 h-5 ${step.color}`} />
-                    </div>
-                    <div className="h-2 w-1/3 bg-slate-100 rounded-full" />
-                </div>
-                <div className="space-y-2">
-                    <div className="h-2 w-full bg-slate-50 rounded-full" />
-                    <div className="h-2 w-5/6 bg-slate-50 rounded-full" />
-                    <div className="h-2 w-4/6 bg-slate-50 rounded-full" />
-                </div>
-                <div className="mt-6 flex justify-end">
-                    <div className={`h-8 w-24 rounded-lg opacity-20 ${step.bgColor}`} />
-                </div>
-            </motion.div>
-        </div>
-    )
-}
 
 /* ----------------------------------------------------------------
    Narrative Component
@@ -148,7 +110,7 @@ export function Narrative() {
                             </ul>
 
                             <Button variant="ghost" className="text-accent-primary hover:text-accent-primary-hover p-0 hover:bg-transparent group">
-                                Conce más sobre esto
+                                Conoce más sobre esto
                                 <ArrowRight className="w-4 h-4 ml-2 group-hover:translate-x-1 transition-transform" />
                             </Button>
                         </motion.div>
@@ -161,7 +123,17 @@ export function Narrative() {
                             transition={{ duration: 0.6, delay: 0.2 }}
                             className="flex-1 w-full"
                         >
-                            <VisualPlaceholder step={step} />
+                            <div className="relative aspect-[4/3] rounded-2xl overflow-hidden shadow-2xl shadow-slate-200/50 border border-slate-100">
+                                {/* Use standard img for now to avoid next/image static import issues if files don't exist yet, 
+                                     or we can use Next Image with width/height */}
+                                <img
+                                    src={step.image}
+                                    alt={step.title}
+                                    className="object-cover w-full h-full hover:scale-105 transition-transform duration-700"
+                                />
+                                {/* Gradient overlay for depth */}
+                                <div className="absolute inset-0 bg-gradient-to-t from-black/10 to-transparent pointer-events-none" />
+                            </div>
                         </motion.div>
                     </div>
                 ))}

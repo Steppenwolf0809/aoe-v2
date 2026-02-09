@@ -11,96 +11,111 @@ import { Badge } from '@/components/ui/badge'
    ---------------------------------------------------------------- */
 function DocumentVisual() {
   return (
-    <motion.div
-      initial={{ opacity: 0, scale: 0.9 }}
-      animate={{ opacity: 1, scale: 1 }}
-      transition={{ duration: 0.8, delay: 0.5, ease: [0.25, 0.46, 0.45, 0.94] }}
-      className="relative w-full max-w-sm mx-auto"
-    >
-      {/* Outer glow */}
-      <div className="absolute -inset-8 bg-accent-primary/5 rounded-full blur-[60px]" />
+    <div className="relative w-full max-w-sm mx-auto perspective-1000">
+      <motion.div
+        initial={{ opacity: 0, scale: 0.9, rotateY: -15, rotateX: 5 }}
+        animate={{
+          opacity: 1,
+          scale: 1,
+          rotateY: [-5, 5, -5],
+          rotateX: [2, -2, 2],
+          y: [-10, 10, -10]
+        }}
+        transition={{
+          opacity: { duration: 0.8, delay: 0.5 },
+          scale: { duration: 0.8, delay: 0.5 },
+          rotateY: { duration: 8, repeat: Infinity, ease: "easeInOut" },
+          rotateX: { duration: 10, repeat: Infinity, ease: "easeInOut" },
+          y: { duration: 6, repeat: Infinity, ease: "easeInOut" }
+        }}
+        style={{ transformStyle: "preserve-3d" }}
+        className="relative"
+      >
+        {/* Outer glow */}
+        <div className="absolute -inset-8 bg-accent-primary/5 rounded-full blur-[60px] translate-z-[-20px]" />
 
-      {/* Document card - Light mode compliant */}
-      <div className="relative rounded-2xl bg-white/60 backdrop-blur-xl border border-slate-200/60 shadow-glass-lg overflow-hidden">
-        {/* Document header bar */}
-        <div className="flex items-center gap-2 px-5 py-3 border-b border-slate-100 bg-slate-50/50">
-          <div className="w-3 h-3 rounded-full bg-accent-error/60" />
-          <div className="w-3 h-3 rounded-full bg-accent-warning/60" />
-          <div className="w-3 h-3 rounded-full bg-accent-success/60" />
-          <span className="ml-2 text-xs text-text-muted">contrato-compraventa.pdf</span>
-        </div>
+        {/* Document card - Light mode compliant */}
+        <div className="relative rounded-2xl bg-white/80 backdrop-blur-xl border border-white/40 shadow-glass-lg overflow-hidden translate-z-[10px]">
+          {/* Document header bar */}
+          <div className="flex items-center gap-2 px-5 py-3 border-b border-slate-100 bg-slate-50/80">
+            <div className="w-3 h-3 rounded-full bg-accent-error/60" />
+            <div className="w-3 h-3 rounded-full bg-accent-warning/60" />
+            <div className="w-3 h-3 rounded-full bg-accent-success/60" />
+            <span className="ml-2 text-xs text-text-muted">contrato-compraventa.pdf</span>
+          </div>
 
-        {/* Document content lines — animate in staggered */}
-        <div className="p-5 space-y-3">
-          {/* Title line */}
-          <motion.div
-            initial={{ opacity: 0, x: -20 }}
-            animate={{ opacity: 1, x: 0 }}
-            transition={{ delay: 0.8, duration: 0.4 }}
-            className="h-4 w-3/4 rounded bg-gradient-to-r from-accent-primary/20 to-accent-primary/5"
-          />
-
-          {/* Subtitle */}
-          <motion.div
-            initial={{ opacity: 0, x: -20 }}
-            animate={{ opacity: 1, x: 0 }}
-            transition={{ delay: 0.9, duration: 0.4 }}
-            className="h-3 w-1/2 rounded bg-slate-100"
-          />
-
-          {/* Separator */}
-          <motion.div
-            initial={{ scaleX: 0 }}
-            animate={{ scaleX: 1 }}
-            transition={{ delay: 1.0, duration: 0.5 }}
-            className="h-px bg-slate-100 origin-left"
-          />
-
-          {/* Content lines */}
-          {[0.6, 0.85, 0.7, 0.9, 0.55, 0.8].map((width, i) => (
+          {/* Document content lines — animate in staggered */}
+          <div className="p-5 space-y-3">
+            {/* Title line */}
             <motion.div
-              key={i}
-              initial={{ opacity: 0 }}
-              animate={{ opacity: 1 }}
-              transition={{ delay: 1.1 + i * 0.08, duration: 0.3 }}
-              className="h-2.5 rounded bg-slate-100"
-              style={{ width: `${width * 100}%` }}
+              initial={{ opacity: 0, x: -20 }}
+              animate={{ opacity: 1, x: 0 }}
+              transition={{ delay: 0.8, duration: 0.4 }}
+              className="h-4 w-3/4 rounded bg-gradient-to-r from-accent-primary/20 to-accent-primary/5"
             />
-          ))}
 
-          {/* Signature area */}
-          <motion.div
-            initial={{ opacity: 0, y: 10 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ delay: 1.6, duration: 0.4 }}
-            className="mt-4 pt-4 border-t border-slate-100 flex items-end justify-between"
-          >
-            <div className="space-y-1">
-              <div className="h-2 w-20 rounded bg-slate-100" />
-              <div className="h-px w-28 bg-accent-primary/20" />
-              <div className="text-[10px] text-text-muted">Vendedor</div>
-            </div>
-            <div className="space-y-1">
-              <div className="h-2 w-20 rounded bg-slate-100" />
-              <div className="h-px w-28 bg-accent-secondary/20" />
-              <div className="text-[10px] text-text-muted">Comprador</div>
-            </div>
-          </motion.div>
+            {/* Subtitle */}
+            <motion.div
+              initial={{ opacity: 0, x: -20 }}
+              animate={{ opacity: 1, x: 0 }}
+              transition={{ delay: 0.9, duration: 0.4 }}
+              className="h-3 w-1/2 rounded bg-slate-100"
+            />
 
-          {/* Checkmark seal */}
-          <motion.div
-            initial={{ opacity: 0, scale: 0 }}
-            animate={{ opacity: 1, scale: 1 }}
-            transition={{ delay: 1.9, type: 'spring' as const, stiffness: 200, damping: 15 }}
-            className="absolute bottom-8 right-6 w-14 h-14 rounded-full bg-accent-success/10 border border-accent-success/20 flex items-center justify-center backdrop-blur-sm"
-          >
-            <svg className="w-7 h-7 text-accent-success" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2.5}>
-              <path strokeLinecap="round" strokeLinejoin="round" d="M5 13l4 4L19 7" />
-            </svg>
-          </motion.div>
+            {/* Separator */}
+            <motion.div
+              initial={{ scaleX: 0 }}
+              animate={{ scaleX: 1 }}
+              transition={{ delay: 1.0, duration: 0.5 }}
+              className="h-px bg-slate-100 origin-left"
+            />
+
+            {/* Content lines */}
+            {[0.6, 0.85, 0.7, 0.9, 0.55, 0.8].map((width, i) => (
+              <motion.div
+                key={i}
+                initial={{ opacity: 0 }}
+                animate={{ opacity: 1 }}
+                transition={{ delay: 1.1 + i * 0.08, duration: 0.3 }}
+                className="h-2.5 rounded bg-slate-100"
+                style={{ width: `${width * 100}%` }}
+              />
+            ))}
+
+            {/* Signature area */}
+            <motion.div
+              initial={{ opacity: 0, y: 10 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ delay: 1.6, duration: 0.4 }}
+              className="mt-4 pt-4 border-t border-slate-100 flex items-end justify-between"
+            >
+              <div className="space-y-1">
+                <div className="h-2 w-20 rounded bg-slate-100" />
+                <div className="h-px w-28 bg-accent-primary/20" />
+                <div className="text-[10px] text-text-muted">Vendedor</div>
+              </div>
+              <div className="space-y-1">
+                <div className="h-2 w-20 rounded bg-slate-100" />
+                <div className="h-px w-28 bg-accent-secondary/20" />
+                <div className="text-[10px] text-text-muted">Comprador</div>
+              </div>
+            </motion.div>
+
+            {/* Checkmark seal */}
+            <motion.div
+              initial={{ opacity: 0, scale: 0 }}
+              animate={{ opacity: 1, scale: 1 }}
+              transition={{ delay: 1.9, type: 'spring', stiffness: 200, damping: 15 }}
+              className="absolute bottom-8 right-6 w-14 h-14 rounded-full bg-accent-success/10 border border-accent-success/20 flex items-center justify-center backdrop-blur-sm shadow-sm"
+            >
+              <svg className="w-7 h-7 text-accent-success" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2.5}>
+                <path strokeLinecap="round" strokeLinejoin="round" d="M5 13l4 4L19 7" />
+              </svg>
+            </motion.div>
+          </div>
         </div>
-      </div>
-    </motion.div>
+      </motion.div>
+    </div>
   )
 }
 /* ----------------------------------------------------------------
