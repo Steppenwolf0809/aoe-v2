@@ -24,10 +24,10 @@ export function Header() {
       <motion.header
         className="fixed top-0 left-0 right-0 z-50 transition-all duration-300 border-b"
         style={{
-          backgroundColor: scrolled ? 'rgba(5, 5, 6, 0.8)' : 'transparent',
+          backgroundColor: scrolled ? 'rgba(255, 255, 255, 0.9)' : 'transparent',
           backdropFilter: scrolled ? 'blur(16px)' : 'none',
           WebkitBackdropFilter: scrolled ? 'blur(16px)' : 'none',
-          borderColor: scrolled ? 'rgba(255, 255, 255, 0.05)' : 'transparent',
+          borderColor: scrolled ? 'rgba(15, 23, 42, 0.06)' : 'transparent',
         }}
       >
         <nav className="max-w-7xl mx-auto px-4 sm:px-6 h-16 flex items-center justify-between">
@@ -36,9 +36,9 @@ export function Header() {
             <Image
               src="/logo/logo-horizontal.svg"
               alt="Abogados Online Ecuador"
-              width={180}
-              height={40}
-              className="h-8 w-auto brightness-0 invert"
+              width={240}
+              height={60}
+              className="h-10 md:h-12 w-auto"
               priority
             />
           </Link>
@@ -49,7 +49,7 @@ export function Header() {
               <Link
                 key={link.href}
                 href={link.href}
-                className="relative px-3 py-2 text-sm text-text-secondary hover:text-white transition-colors duration-200 rounded-[var(--radius-sm)] hover:bg-white/5"
+                className="relative px-3 py-2 text-sm text-text-secondary hover:text-text-primary transition-colors duration-200 rounded-[var(--radius-sm)] hover:bg-slate-100"
               >
                 <span className="flex items-center gap-1.5">
                   {link.label}
@@ -67,19 +67,19 @@ export function Header() {
           <div className="flex items-center gap-3">
             <Link
               href="/iniciar-sesion"
-              className="hidden sm:inline-flex text-sm text-text-secondary hover:text-white transition-colors duration-200"
+              className="hidden sm:inline-flex text-sm text-text-secondary hover:text-text-primary transition-colors duration-200"
             >
               Iniciar Sesion
             </Link>
             <Link href="/contacto" className="hidden sm:inline-flex">
-              <Button size="sm">
+              <Button size="sm" className="bg-accent-primary hover:bg-accent-primary-hover text-white">
                 <Calendar className="w-4 h-4" />
                 Agendar Cita
               </Button>
             </Link>
             <button
               onClick={() => setMobileOpen(true)}
-              className="md:hidden p-2 text-text-secondary hover:text-white hover:bg-white/5 rounded-[var(--radius-sm)] transition-colors duration-200 cursor-pointer"
+              className="md:hidden p-2 text-text-secondary hover:text-text-primary hover:bg-slate-100 rounded-[var(--radius-sm)] transition-colors duration-200 cursor-pointer"
               aria-label="Abrir menu"
             >
               <Menu className="w-5 h-5" />

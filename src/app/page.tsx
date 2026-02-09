@@ -2,6 +2,7 @@ import type { Metadata } from 'next'
 import { SITE_NAME, SITE_URL, SITE_DESCRIPTION } from '@/lib/constants'
 import { Hero } from '@/components/landing/hero'
 import { Stats } from '@/components/landing/stats'
+import { Narrative } from '@/components/landing/narrative'
 import { Features } from '@/components/landing/features'
 import { CalculatorPreview } from '@/components/landing/calculator-preview'
 import { Testimonials } from '@/components/landing/testimonials'
@@ -140,6 +141,7 @@ export default function HomePage() {
       <main className="pt-16">
         <Hero />
         <Stats />
+        <Narrative />
         <Features />
         <CalculatorPreview />
         <Testimonials />

@@ -43,8 +43,11 @@ export function FAQ() {
   const [openIndex, setOpenIndex] = useState<number | null>(null)
 
   return (
-    <section className="py-20 sm:py-28 px-4 sm:px-6 bg-bg-secondary">
-      <div className="max-w-3xl mx-auto">
+    <section className="py-20 sm:py-28 px-4 sm:px-6 bg-[#024089] relative overflow-hidden">
+      {/* Background patterns */}
+      <div className="absolute inset-0 opacity-10" style={{ backgroundImage: 'radial-gradient(#ffffff 1px, transparent 1px)', backgroundSize: '32px 32px' }}></div>
+
+      <div className="max-w-3xl mx-auto relative z-10">
         {/* Section header */}
         <motion.div
           initial={{ opacity: 0, y: 20 }}
@@ -56,7 +59,7 @@ export function FAQ() {
           <h2 className="text-3xl sm:text-4xl font-bold text-white mb-4">
             Preguntas Frecuentes
           </h2>
-          <p className="text-text-secondary text-lg max-w-xl mx-auto">
+          <p className="text-blue-100 text-lg max-w-xl mx-auto">
             Resolvemos tus dudas sobre nuestros servicios legales y calculadoras.
           </p>
         </motion.div>
@@ -73,8 +76,8 @@ export function FAQ() {
               className={cn(
                 'rounded-xl border overflow-hidden transition-colors duration-200',
                 openIndex === index
-                  ? 'border-accent-primary/20 bg-white/[0.04]'
-                  : 'border-white/[0.08] bg-white/[0.02] hover:bg-white/[0.03]',
+                  ? 'border-white/20 bg-white/10'
+                  : 'border-white/10 bg-white/5 hover:bg-white/10',
               )}
             >
               <button
@@ -84,7 +87,7 @@ export function FAQ() {
                 <span
                   className={cn(
                     'text-sm font-medium pr-4 transition-colors duration-200',
-                    openIndex === index ? 'text-accent-primary' : 'text-white group-hover:text-white/90',
+                    openIndex === index ? 'text-white' : 'text-blue-50 group-hover:text-white',
                   )}
                 >
                   {faq.question}
@@ -97,7 +100,7 @@ export function FAQ() {
                   <ChevronDown
                     className={cn(
                       'w-5 h-5 transition-colors duration-200',
-                      openIndex === index ? 'text-accent-primary' : 'text-text-muted',
+                      openIndex === index ? 'text-white' : 'text-blue-200',
                     )}
                   />
                 </motion.div>
@@ -110,7 +113,7 @@ export function FAQ() {
                     exit={{ height: 0, opacity: 0 }}
                     transition={{ duration: 0.25, ease: [0.25, 0.46, 0.45, 0.94] }}
                   >
-                    <div className="px-5 pb-5 text-sm text-text-secondary leading-relaxed">
+                    <div className="px-5 pb-5 text-sm text-blue-100 leading-relaxed">
                       {faq.answer}
                     </div>
                   </motion.div>

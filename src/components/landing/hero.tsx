@@ -18,12 +18,12 @@ function DocumentVisual() {
       className="relative w-full max-w-sm mx-auto"
     >
       {/* Outer glow */}
-      <div className="absolute -inset-8 bg-accent-primary/10 rounded-full blur-[60px]" />
+      <div className="absolute -inset-8 bg-accent-primary/5 rounded-full blur-[60px]" />
 
-      {/* Document card */}
-      <div className="relative rounded-2xl bg-white/[0.04] backdrop-blur-xl border border-white/[0.08] shadow-glass-lg overflow-hidden">
+      {/* Document card - Light mode compliant */}
+      <div className="relative rounded-2xl bg-white/60 backdrop-blur-xl border border-slate-200/60 shadow-glass-lg overflow-hidden">
         {/* Document header bar */}
-        <div className="flex items-center gap-2 px-5 py-3 border-b border-white/[0.06] bg-white/[0.02]">
+        <div className="flex items-center gap-2 px-5 py-3 border-b border-slate-100 bg-slate-50/50">
           <div className="w-3 h-3 rounded-full bg-accent-error/60" />
           <div className="w-3 h-3 rounded-full bg-accent-warning/60" />
           <div className="w-3 h-3 rounded-full bg-accent-success/60" />
@@ -37,7 +37,7 @@ function DocumentVisual() {
             initial={{ opacity: 0, x: -20 }}
             animate={{ opacity: 1, x: 0 }}
             transition={{ delay: 0.8, duration: 0.4 }}
-            className="h-4 w-3/4 rounded bg-gradient-to-r from-accent-primary/30 to-accent-primary/10"
+            className="h-4 w-3/4 rounded bg-gradient-to-r from-accent-primary/20 to-accent-primary/5"
           />
 
           {/* Subtitle */}
@@ -45,7 +45,7 @@ function DocumentVisual() {
             initial={{ opacity: 0, x: -20 }}
             animate={{ opacity: 1, x: 0 }}
             transition={{ delay: 0.9, duration: 0.4 }}
-            className="h-3 w-1/2 rounded bg-white/10"
+            className="h-3 w-1/2 rounded bg-slate-100"
           />
 
           {/* Separator */}
@@ -53,7 +53,7 @@ function DocumentVisual() {
             initial={{ scaleX: 0 }}
             animate={{ scaleX: 1 }}
             transition={{ delay: 1.0, duration: 0.5 }}
-            className="h-px bg-white/[0.08] origin-left"
+            className="h-px bg-slate-100 origin-left"
           />
 
           {/* Content lines */}
@@ -63,7 +63,7 @@ function DocumentVisual() {
               initial={{ opacity: 0 }}
               animate={{ opacity: 1 }}
               transition={{ delay: 1.1 + i * 0.08, duration: 0.3 }}
-              className="h-2.5 rounded bg-white/[0.06]"
+              className="h-2.5 rounded bg-slate-100"
               style={{ width: `${width * 100}%` }}
             />
           ))}
@@ -73,16 +73,16 @@ function DocumentVisual() {
             initial={{ opacity: 0, y: 10 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ delay: 1.6, duration: 0.4 }}
-            className="mt-4 pt-4 border-t border-white/[0.06] flex items-end justify-between"
+            className="mt-4 pt-4 border-t border-slate-100 flex items-end justify-between"
           >
             <div className="space-y-1">
-              <div className="h-2 w-20 rounded bg-white/[0.08]" />
-              <div className="h-px w-28 bg-accent-primary/40" />
+              <div className="h-2 w-20 rounded bg-slate-100" />
+              <div className="h-px w-28 bg-accent-primary/20" />
               <div className="text-[10px] text-text-muted">Vendedor</div>
             </div>
             <div className="space-y-1">
-              <div className="h-2 w-20 rounded bg-white/[0.08]" />
-              <div className="h-px w-28 bg-accent-secondary/40" />
+              <div className="h-2 w-20 rounded bg-slate-100" />
+              <div className="h-px w-28 bg-accent-secondary/20" />
               <div className="text-[10px] text-text-muted">Comprador</div>
             </div>
           </motion.div>
@@ -92,7 +92,7 @@ function DocumentVisual() {
             initial={{ opacity: 0, scale: 0 }}
             animate={{ opacity: 1, scale: 1 }}
             transition={{ delay: 1.9, type: 'spring' as const, stiffness: 200, damping: 15 }}
-            className="absolute bottom-8 right-6 w-14 h-14 rounded-full bg-accent-success/15 border border-accent-success/30 flex items-center justify-center"
+            className="absolute bottom-8 right-6 w-14 h-14 rounded-full bg-accent-success/10 border border-accent-success/20 flex items-center justify-center backdrop-blur-sm"
           >
             <svg className="w-7 h-7 text-accent-success" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2.5}>
               <path strokeLinecap="round" strokeLinejoin="round" d="M5 13l4 4L19 7" />
@@ -103,7 +103,6 @@ function DocumentVisual() {
     </motion.div>
   )
 }
-
 /* ----------------------------------------------------------------
    Hero Section
    ---------------------------------------------------------------- */
@@ -115,23 +114,23 @@ export function Hero() {
         className="absolute inset-0"
         style={{
           background:
-            'radial-gradient(ellipse 80% 60% at 50% 0%, rgba(59,130,246,0.12) 0%, transparent 60%), radial-gradient(ellipse 60% 50% at 80% 80%, rgba(139,92,246,0.08) 0%, transparent 50%), var(--bg-primary)',
+            'radial-gradient(ellipse 80% 60% at 50% 0%, rgba(2,64,137,0.05) 0%, transparent 60%), radial-gradient(ellipse 60% 50% at 80% 80%, rgba(15,23,42,0.03) 0%, transparent 50%), var(--bg-primary)',
         }}
       />
 
       {/* Subtle grid overlay */}
       <div
-        className="absolute inset-0 opacity-[0.025]"
+        className="absolute inset-0 opacity-[0.4]"
         style={{
           backgroundImage:
-            'linear-gradient(rgba(255,255,255,0.1) 1px, transparent 1px), linear-gradient(90deg, rgba(255,255,255,0.1) 1px, transparent 1px)',
+            'linear-gradient(rgba(15,23,42,0.03) 1px, transparent 1px), linear-gradient(90deg, rgba(15,23,42,0.03) 1px, transparent 1px)',
           backgroundSize: '64px 64px',
         }}
       />
 
       {/* Ambient light orbs */}
       <div className="absolute top-1/4 left-[16%] w-80 h-80 bg-accent-primary/[0.08] rounded-full blur-[100px] pointer-events-none" />
-      <div className="absolute bottom-1/4 right-[16%] w-64 h-64 bg-accent-secondary/[0.06] rounded-full blur-[80px] pointer-events-none" />
+      <div className="absolute bottom-1/4 right-[16%] w-64 h-64 bg-accent-secondary/[0.05] rounded-full blur-[80px] pointer-events-none" />
 
       {/* Content */}
       <div className="relative z-10 w-full max-w-7xl mx-auto px-4 sm:px-6 py-16 lg:py-24">
@@ -144,12 +143,12 @@ export function Hero() {
               animate={{ opacity: 1, y: 0 }}
               transition={{ duration: 0.5 }}
             >
-              <div className="inline-flex items-center gap-2.5 px-4 py-2 rounded-full bg-white/[0.04] border border-white/[0.08] mb-8">
+              <div className="inline-flex items-center gap-2.5 px-4 py-2 rounded-full bg-white border border-slate-200 shadow-sm mb-8">
                 <span className="relative flex h-2.5 w-2.5">
                   <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-accent-success/75 opacity-75" />
                   <span className="relative inline-flex rounded-full h-2.5 w-2.5 bg-accent-success" />
                 </span>
-                <span className="text-sm text-text-secondary">
+                <span className="text-sm font-medium text-text-secondary">
                   Plataforma legal digital de confianza
                 </span>
               </div>
@@ -160,10 +159,10 @@ export function Hero() {
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ duration: 0.5, delay: 0.1 }}
-              className="text-4xl sm:text-5xl lg:text-6xl font-bold text-white leading-[1.1] tracking-tight mb-6"
+              className="text-4xl sm:text-5xl lg:text-6xl font-bold text-text-primary leading-[1.1] tracking-tight mb-6"
             >
               Tus trámites legales,{' '}
-              <span className="bg-gradient-to-r from-blue-400 via-purple-400 to-cyan-400 bg-clip-text text-transparent">
+              <span className="bg-gradient-to-r from-accent-primary to-accent-primary-hover bg-clip-text text-transparent">
                 desde donde estés
               </span>
             </motion.h1>
@@ -188,23 +187,23 @@ export function Hero() {
               className="flex flex-col sm:flex-row gap-3"
             >
               <Link href="/servicios">
-                <Button size="lg" variant="outline">
+                <Button size="lg" variant="outline" className="border-slate-300 text-slate-700 hover:bg-slate-50">
                   Ver Servicios
-                  <ArrowRight className="w-4 h-4" />
+                  <ArrowRight className="w-4 h-4 ml-2" />
                 </Button>
               </Link>
               <Link href="/calculadoras">
-                <Button size="lg">
-                  <Calculator className="w-4 h-4" />
+                <Button size="lg" className="bg-accent-primary hover:bg-accent-primary-hover text-white shadow-lg shadow-accent-primary/25">
+                  <Calculator className="w-4 h-4 mr-2" />
                   Calcular Costos
-                  <Badge variant="success" size="sm" className="ml-1">
+                  <Badge variant="info" size="sm" className="ml-2 border-none">
                     Gratis
                   </Badge>
                 </Button>
               </Link>
               <Link href="/contacto">
-                <Button size="lg" variant="secondary">
-                  <Calendar className="w-4 h-4" />
+                <Button size="lg" variant="ghost" className="text-text-secondary hover:text-text-primary hover:bg-slate-100">
+                  <Calendar className="w-4 h-4 mr-2" />
                   Agendar Cita
                 </Button>
               </Link>
@@ -215,7 +214,7 @@ export function Hero() {
               initial={{ opacity: 0 }}
               animate={{ opacity: 1 }}
               transition={{ duration: 0.5, delay: 0.5 }}
-              className="flex items-center gap-6 mt-10 pt-8 border-t border-white/[0.06]"
+              className="flex items-center gap-6 mt-10 pt-8 border-t border-slate-200"
             >
               {[
                 { value: '500+', label: 'Clientes' },
@@ -223,7 +222,7 @@ export function Hero() {
                 { value: '24/7', label: 'Disponible' },
               ].map((stat) => (
                 <div key={stat.label} className="text-center">
-                  <div className="text-lg font-bold text-white">{stat.value}</div>
+                  <div className="text-lg font-bold text-text-primary">{stat.value}</div>
                   <div className="text-xs text-text-muted">{stat.label}</div>
                 </div>
               ))}

@@ -26,7 +26,7 @@ export function Footer() {
   const currentYear = new Date().getFullYear()
 
   return (
-    <footer className="border-t border-white/[0.05] bg-bg-primary">
+    <footer className="border-t border-slate-200 bg-bg-secondary">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 py-12 lg:py-16">
         <div className="grid grid-cols-2 gap-8 lg:grid-cols-5">
           {/* Brand column — spans 2 on lg */}
@@ -37,10 +37,10 @@ export function Footer() {
                 alt={SITE_NAME}
                 width={200}
                 height={70}
-                className="h-16 w-auto brightness-0 invert"
+                className="h-16 w-auto brightness-0"
               />
             </Link>
-            <p className="text-sm text-text-muted leading-relaxed max-w-xs mb-6">
+            <p className="text-sm text-text-secondary leading-relaxed max-w-xs mb-6">
               Plataforma legal tecnologica para la generacion de contratos y calculadoras notariales en Ecuador. Rapido, seguro y confiable.
             </p>
 
@@ -50,19 +50,19 @@ export function Footer() {
                 href={SOCIAL_LINKS.whatsapp}
                 target="_blank"
                 rel="noopener noreferrer"
-                className="flex items-center gap-2.5 text-sm text-text-muted hover:text-accent-success transition-colors duration-200 group"
+                className="flex items-center gap-2.5 text-sm text-text-secondary hover:text-accent-success transition-colors duration-200 group"
               >
                 <MessageCircle className="w-4 h-4 text-accent-success/70 group-hover:text-accent-success" />
                 WhatsApp
               </a>
               <a
                 href={SOCIAL_LINKS.email}
-                className="flex items-center gap-2.5 text-sm text-text-muted hover:text-white transition-colors duration-200"
+                className="flex items-center gap-2.5 text-sm text-text-secondary hover:text-text-primary transition-colors duration-200"
               >
                 <Mail className="w-4 h-4" />
                 info@abogadosonlineecuador.com
               </a>
-              <div className="flex items-center gap-2.5 text-sm text-text-muted">
+              <div className="flex items-center gap-2.5 text-sm text-text-secondary">
                 <MapPin className="w-4 h-4" />
                 Quito, Ecuador
               </div>
@@ -72,13 +72,13 @@ export function Footer() {
           {/* Link columns */}
           {Object.entries(footerSections).map(([title, links]) => (
             <div key={title}>
-              <h3 className="text-sm font-semibold text-white mb-4">{title}</h3>
+              <h3 className="text-sm font-semibold text-text-primary mb-4">{title}</h3>
               <ul className="space-y-2.5">
                 {links.map((link) => (
                   <li key={link.href}>
                     <Link
                       href={link.href}
-                      className="text-sm text-text-muted hover:text-white transition-colors duration-200"
+                      className="text-sm text-text-secondary hover:text-text-primary transition-colors duration-200"
                     >
                       {link.label}
                     </Link>
@@ -90,7 +90,7 @@ export function Footer() {
         </div>
 
         {/* Social links + Copyright */}
-        <div className="mt-12 pt-8 border-t border-white/[0.05] flex flex-col sm:flex-row items-center justify-between gap-4">
+        <div className="mt-12 pt-8 border-t border-slate-200 flex flex-col sm:flex-row items-center justify-between gap-4">
           <p className="text-xs text-text-muted order-2 sm:order-1">
             &copy; {currentYear} {SITE_NAME}. Todos los derechos reservados.
           </p>
@@ -101,7 +101,7 @@ export function Footer() {
               href={SOCIAL_LINKS.facebook}
               target="_blank"
               rel="noopener noreferrer"
-              className="p-2 text-text-muted hover:text-white hover:bg-white/5 rounded-[var(--radius-sm)] transition-colors duration-200"
+              className="p-2 text-text-muted hover:text-text-primary hover:bg-slate-100 rounded-[var(--radius-sm)] transition-colors duration-200"
               aria-label="Facebook"
             >
               <svg className="w-4 h-4" fill="currentColor" viewBox="0 0 24 24">
@@ -112,7 +112,7 @@ export function Footer() {
               href={SOCIAL_LINKS.instagram}
               target="_blank"
               rel="noopener noreferrer"
-              className="p-2 text-text-muted hover:text-white hover:bg-white/5 rounded-[var(--radius-sm)] transition-colors duration-200"
+              className="p-2 text-text-muted hover:text-text-primary hover:bg-slate-100 rounded-[var(--radius-sm)] transition-colors duration-200"
               aria-label="Instagram"
             >
               <svg className="w-4 h-4" fill="currentColor" viewBox="0 0 24 24">
@@ -123,7 +123,7 @@ export function Footer() {
               href={SOCIAL_LINKS.whatsapp}
               target="_blank"
               rel="noopener noreferrer"
-              className="p-2 text-text-muted hover:text-accent-success hover:bg-white/5 rounded-[var(--radius-sm)] transition-colors duration-200"
+              className="p-2 text-text-muted hover:text-accent-success hover:bg-slate-100 rounded-[var(--radius-sm)] transition-colors duration-200"
               aria-label="WhatsApp"
             >
               <Phone className="w-4 h-4" />
@@ -132,5 +132,6 @@ export function Footer() {
         </div>
       </div>
     </footer>
+
   )
 }

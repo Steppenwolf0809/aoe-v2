@@ -1,0 +1,20 @@
+{
+    "name": "aoe-v2-walkthrough",
+    "version": "1.0.0",
+    "description": "Walkthrough video for AOE v2",
+    "private": true,
+    "scripts": {
+        "start": "remotion preview src/index.ts",
+        "render": "remotion render src/index.ts Composition out/video.mp4"
+    },
+    "dependencies": {
+        "react": "^18.2.0",
+        "react-dom": "^18.2.0",
+        "remotion": "^4.0.0",
+        "@remotion/transitions": "^4.0.0"
+    },
+    "devDependencies": {
+        "@types/react": "^18.0.0",
+        "typescript": "^5.0.0"
+    }
+}
