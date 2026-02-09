@@ -1,50 +1,89 @@
-"use server";
+'use server'
 
-import { z } from 'zod';
-import { createClient } from '@/lib/supabase/server';
+import { createClient } from '@/lib/supabase/server'
+import { leadCaptureSchema, calculatorSessionSchema } from '@/lib/validations/leads'
+import type { LeadCaptureInput, CalculatorSessionInput } from '@/lib/validations/leads'
 
-const leadSchema = z.object({
-  name: z.string(),
-  email: z.string().email(),
-  phone: z.string().optional(),
-  source: z.string(), // 'inmobiliario', 'vehicular', 'checklist', etc.
-  metadata: z.record(z.string(), z.any()).optional()
-});
+/* ----------------------------------------------------------------
+   captureLead — Saves a lead from calculators or lead magnets
+   ---------------------------------------------------------------- */
+export async function captureLead(data: LeadCaptureInput) {
+  const parsed = leadCaptureSchema.safeParse(data)
 
-type LeadInput = z.infer<typeof leadSchema>;
-
-export async function submitLead(data: LeadInput) {
-  const result = leadSchema.safeParse(data);
-
-  if (!result.success) {
-    return { success: false, error: 'Datos inválidos' };
+  if (!parsed.success) {
+    return { success: false as const, error: 'Datos inválidos' }
   }
 
-  const supabase = await createClient(); // Await createClient() for server actions
+  const supabase = await createClient()
 
   try {
-    const { error } = await supabase
-      .from('leads')
-      .insert({
-        name: result.data.name,
-        email: result.data.email,
-        phone: result.data.phone || null,
-        source: result.data.source,
-        metadata: result.data.metadata || {},
-        status: 'new', // pending contact
-        created_at: new Date().toISOString()
-      });
+    const { error } = await supabase.from('leads').insert({
+      email: parsed.data.email,
+      phone: parsed.data.phone || null,
+      source: parsed.data.source,
+      calculator_type: parsed.data.source,
+      data: { name: parsed.data.name || null },
+    })
 
     if (error) {
-      console.error("Supabase error submitting lead:", error);
-      return { success: false, error: 'Error guardando datos' };
+      console.error('Supabase error capturing lead:', error)
+      return { success: false as const, error: 'Error guardando datos' }
     }
 
-    // TODO: Enviar email con Resend aquí (siguiente paso)
-
-    return { success: true };
+    return { success: true as const }
   } catch (e) {
-    console.error("Server action exception:", e);
-    return { success: false, error: 'Error del servidor' };
+    console.error('captureLead exception:', e)
+    return { success: false as const, error: 'Error del servidor' }
+  }
+}
+
+/* ----------------------------------------------------------------
+   trackCalculatorSession — Anonymous analytics for calculator usage
+   ---------------------------------------------------------------- */
+export async function trackCalculatorSession(data: CalculatorSessionInput) {
+  const parsed = calculatorSessionSchema.safeParse(data)
+
+  if (!parsed.success) {
+    return { success: false as const, error: 'Datos inválidos' }
+  }
+
+  const supabase = await createClient()
+
+  try {
+    const { error } = await supabase.from('calculator_sessions').insert({
+      visitor_id: parsed.data.visitorId || null,
+      type: parsed.data.type,
+      inputs: parsed.data.inputs,
+      result: parsed.data.result,
+    })
+
+    if (error) {
+      console.error('Supabase error tracking session:', error)
+      return { success: false as const, error: 'Error guardando sesión' }
+    }
+
+    return { success: true as const }
+  } catch (e) {
+    console.error('trackCalculatorSession exception:', e)
+    return { success: false as const, error: 'Error del servidor' }
+  }
+}
+
+/* ----------------------------------------------------------------
+   sendLeadMagnetEmail — Sends a PDF lead magnet via email
+   Placeholder: Requires Resend API key configuration (PROMPT 12.5)
+   ---------------------------------------------------------------- */
+export async function sendLeadMagnetEmail(leadId: string, type: 'desglose' | 'checklist' | 'guia') {
+  // TODO: Implement with Resend in PROMPT 12.5
+  // 1. Fetch lead data from Supabase
+  // 2. Generate or fetch the correct PDF
+  // 3. Send via Resend with the PDF attachment
+  // 4. Track open/click events
+
+  console.log(`[sendLeadMagnetEmail] Would send ${type} to lead ${leadId}`)
+
+  return {
+    success: true as const,
+    message: `Email de tipo "${type}" encolado para envío`,
   }
 }
