@@ -67,12 +67,12 @@ describe('Gastos del comprador', () => {
     expect(r.comprador.alcabala.impuesto).toBe(800)
   })
 
-  it('consejo provincial: 10% de alcabala + $1.60', () => {
+  it('consejo provincial: 10% de alcabala + $1.80', () => {
     const r = calcularPresupuestoInmobiliario(datosBase)
-    // 10% de 800 = 80 + 1.60 = 81.60
+    // 10% de 800 = 80 + 1.80 = 81.80
     expect(r.comprador.consejoProvincial.valorPorcentaje).toBe(80)
-    expect(r.comprador.consejoProvincial.valorFijo).toBe(1.6)
-    expect(r.comprador.consejoProvincial.total).toBe(81.6)
+    expect(r.comprador.consejoProvincial.valorFijo).toBe(1.8)
+    expect(r.comprador.consejoProvincial.total).toBe(81.8)
   })
 
   it('registro: arancel según tabla', () => {
@@ -178,8 +178,8 @@ describe('Casos completos', () => {
     // Alcabala: 1% de 120k = 1200. ~25 meses -> 3er año -> 20% rebaja -> 960
     expect(r.comprador.alcabala.impuesto).toBe(960)
 
-    // CP: 10% de 960 = 96 + 1.60 = 97.60
-    expect(r.comprador.consejoProvincial.total).toBe(97.6)
+    // CP: 10% de 960 = 96 + 1.80 = 97.80
+    expect(r.comprador.consejoProvincial.total).toBe(97.8)
 
     // Registro: $120k -> $100 + 0.5% de (120k - 10k) = $100 + $550 = $650 -> cap $500
     expect(r.comprador.registro.arancelFinal).toBe(500)
@@ -209,8 +209,8 @@ describe('Casos completos', () => {
     // Alcabala: 1% de 50k = 500. < 1 año -> 40% rebaja -> 300
     expect(r.comprador.alcabala.impuesto).toBe(300)
 
-    // CP: 10% de 300 = 30 + 1.60 = 31.60
-    expect(r.comprador.consejoProvincial.total).toBe(31.6)
+    // CP: 10% de 300 = 30 + 1.80 = 31.80
+    expect(r.comprador.consejoProvincial.total).toBe(31.8)
 
     // Registro: $50k -> $100 + 0.5% de (50k - 10k) = $100 + $200 = $300
     expect(r.comprador.registro.arancelFinal).toBe(300)
@@ -234,8 +234,8 @@ describe('Casos completos', () => {
     // Alcabala: 1% de 200k = 2000. > 3 años -> sin rebaja
     expect(r.comprador.alcabala.impuesto).toBe(2000)
 
-    // CP: 10% de 2000 = 200 + 1.60 = 201.60
-    expect(r.comprador.consejoProvincial.total).toBe(201.6)
+    // CP: 10% de 2000 = 200 + 1.80 = 201.80
+    expect(r.comprador.consejoProvincial.total).toBe(201.8)
 
     // Registro: $200k -> $100 + 0.5% de (200k - 10k) = $100 + $950 = $1050 -> cap $500
     expect(r.comprador.registro.arancelFinal).toBe(500)

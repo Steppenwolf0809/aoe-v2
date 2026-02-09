@@ -1,9 +1,9 @@
 /**
  * Lógica de Cálculo - Consejo Provincial de Pichincha
  * Contribución al Consejo Provincial por transferencia de dominio
- * 
- * Fórmula: 10% del valor de la Alcabala + $1.60 (valor fijo)
- * 
+ *
+ * Fórmula: 10% del valor de la Alcabala + $1.80 (valor fijo)
+ *
  * Fuente: Ordenanza del Consejo Provincial de Pichincha
  * Aplicable a: Transferencias de inmuebles en el Distrito Metropolitano de Quito
  */
@@ -12,7 +12,7 @@
 // CONSTANTES
 // ============================================
 export const TASA_CONSEJO_PROVINCIAL = 0.10 // 10% sobre el impuesto de alcabala
-export const VALOR_FIJO_CONSEJO_PROVINCIAL = 1.60 // Valor fijo adicional
+export const VALOR_FIJO_CONSEJO_PROVINCIAL = 1.80 // Valor fijo adicional
 
 // ============================================
 // INTERFACES
@@ -25,7 +25,7 @@ export interface ResultadoConsejoProvincial {
   baseCalculo: number // Valor de la alcabala
   porcentaje: number // 10%
   valorPorcentaje: number // 10% de la alcabala
-  valorFijo: number // $1.60
+  valorFijo: number // $1.80
   total: number // Total a pagar
   desglose: Array<{
     concepto: string

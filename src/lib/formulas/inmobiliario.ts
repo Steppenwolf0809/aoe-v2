@@ -128,7 +128,7 @@ export function calcularPresupuestoInmobiliario(
   }
   const alcabala = calcularAlcabala(datosMunicipales)
 
-  // 3. Consejo Provincial (10% de la alcabala + $1.60)
+  // 3. Consejo Provincial (10% de la alcabala + $1.80)
   const consejoProvincial = calcularConsejoProvincial(alcabala.impuesto)
 
   // 4. Registro de la Propiedad

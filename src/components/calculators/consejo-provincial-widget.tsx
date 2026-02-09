@@ -49,14 +49,14 @@ export function ConsejoProvincialCalculatorWidget() {
     <div className="space-y-6">
       {/* Selector de modo */}
       <div className="space-y-3">
-        <label className="text-sm font-medium text-white">Modo de Cálculo</label>
+        <label className="text-sm font-medium text-text-primary">Modo de Cálculo</label>
         <div className="grid grid-cols-2 gap-2">
           <button
             onClick={() => setModoCalculo('completo')}
             className={`px-4 py-3 rounded-lg text-sm font-medium transition-all ${
               modoCalculo === 'completo'
                 ? 'bg-[var(--accent-primary)] text-white'
-                : 'bg-white/5 text-white/70 hover:bg-white/10'
+                : 'bg-bg-secondary text-text-secondary hover:bg-bg-tertiary'
             }`}
           >
             Calcular desde cero
@@ -66,7 +66,7 @@ export function ConsejoProvincialCalculatorWidget() {
             className={`px-4 py-3 rounded-lg text-sm font-medium transition-all ${
               modoCalculo === 'simple'
                 ? 'bg-[var(--accent-primary)] text-white'
-                : 'bg-white/5 text-white/70 hover:bg-white/10'
+                : 'bg-bg-secondary text-text-secondary hover:bg-bg-tertiary'
             }`}
           >
             Ya tengo el valor de Alcabala
@@ -77,16 +77,16 @@ export function ConsejoProvincialCalculatorWidget() {
       {/* Inputs según modo */}
       {modoCalculo === 'simple' ? (
         <div className="space-y-3">
-          <label className="text-sm font-medium text-white">
+          <label className="text-sm font-medium text-text-primary">
             Valor del Impuesto de Alcabala ($)
           </label>
           <div className="relative">
-            <span className="absolute left-4 top-1/2 -translate-y-1/2 text-white/50">$</span>
+            <span className="absolute left-4 top-1/2 -translate-y-1/2 text-text-muted">$</span>
             <input
               type="number"
               value={valorAlcabala}
               onChange={(e) => setValorAlcabala(Number(e.target.value))}
-              className="w-full pl-8 pr-4 py-3 bg-white/5 border border-white/10 rounded-lg text-white focus:ring-2 focus:ring-[var(--accent-primary)] focus:border-transparent"
+              className="w-full pl-8 pr-4 py-3 bg-bg-secondary border border-[var(--glass-border)] rounded-lg text-text-primary focus:ring-2 focus:ring-[var(--accent-primary)] focus:border-transparent"
               placeholder="0.00"
             />
           </div>
@@ -102,14 +102,14 @@ export function ConsejoProvincialCalculatorWidget() {
         <div className="space-y-4">
           {/* Valor de transferencia */}
           <div className="space-y-3">
-            <label className="text-sm font-medium text-white">Valor de Transferencia ($)</label>
+            <label className="text-sm font-medium text-text-primary">Valor de Transferencia ($)</label>
             <div className="relative">
-              <span className="absolute left-4 top-1/2 -translate-y-1/2 text-white/50">$</span>
+              <span className="absolute left-4 top-1/2 -translate-y-1/2 text-text-muted">$</span>
               <input
                 type="number"
                 value={valorTransferencia}
                 onChange={(e) => setValorTransferencia(Number(e.target.value))}
-                className="w-full pl-8 pr-4 py-3 bg-white/5 border border-white/10 rounded-lg text-white focus:ring-2 focus:ring-[var(--accent-primary)] focus:border-transparent"
+                className="w-full pl-8 pr-4 py-3 bg-bg-secondary border border-[var(--glass-border)] rounded-lg text-text-primary focus:ring-2 focus:ring-[var(--accent-primary)] focus:border-transparent"
               />
             </div>
             <Slider
@@ -123,14 +123,14 @@ export function ConsejoProvincialCalculatorWidget() {
 
           {/* Avalúo catastral */}
           <div className="space-y-3">
-            <label className="text-sm font-medium text-white">Avalúo Catastral ($)</label>
+            <label className="text-sm font-medium text-text-primary">Avalúo Catastral ($)</label>
             <div className="relative">
-              <span className="absolute left-4 top-1/2 -translate-y-1/2 text-white/50">$</span>
+              <span className="absolute left-4 top-1/2 -translate-y-1/2 text-text-muted">$</span>
               <input
                 type="number"
                 value={avaluoCatastral}
                 onChange={(e) => setAvaluoCatastral(Number(e.target.value))}
-                className="w-full pl-8 pr-4 py-3 bg-white/5 border border-white/10 rounded-lg text-white focus:ring-2 focus:ring-[var(--accent-primary)] focus:border-transparent"
+                className="w-full pl-8 pr-4 py-3 bg-bg-secondary border border-[var(--glass-border)] rounded-lg text-text-primary focus:ring-2 focus:ring-[var(--accent-primary)] focus:border-transparent"
               />
             </div>
             <Slider
@@ -144,7 +144,7 @@ export function ConsejoProvincialCalculatorWidget() {
 
           {/* Meses transcurridos */}
           <div className="space-y-3">
-            <label className="text-sm font-medium text-white">
+            <label className="text-sm font-medium text-text-primary">
               Meses desde la adquisición anterior
             </label>
             <div className="flex items-center gap-4">
@@ -154,7 +154,7 @@ export function ConsejoProvincialCalculatorWidget() {
                 onChange={(e) => setMesesTranscurridos(Number(e.target.value))}
                 min={0}
                 max={480}
-                className="w-24 px-3 py-2 bg-white/5 border border-white/10 rounded-lg text-white text-center"
+                className="w-24 px-3 py-2 bg-bg-secondary border border-[var(--glass-border)] rounded-lg text-text-primary text-center"
               />
               <Slider
                 value={[mesesTranscurridos]}
@@ -192,24 +192,24 @@ export function ConsejoProvincialCalculatorWidget() {
         <Card className="p-6 bg-gradient-to-br from-[var(--accent-primary)]/20 to-[var(--accent-primary)]/5 border-[var(--accent-primary)]/30">
           <div className="space-y-6">
             <div className="text-center">
-              <p className="text-sm text-white/70 mb-2">Contribución al Consejo Provincial</p>
-              <div className="text-5xl font-bold text-white">
+              <p className="text-sm text-text-secondary mb-2">Contribución al Consejo Provincial</p>
+              <div className="text-5xl font-bold text-text-primary">
                 $<AnimatedCounter value={resultado.total} duration={0.8} />
               </div>
             </div>
 
-            <div className="space-y-3 pt-4 border-t border-white/10 text-sm">
+            <div className="space-y-3 pt-4 border-t border-[var(--glass-border)] text-sm">
               <div className="flex justify-between">
                 <span className="text-[var(--text-secondary)]">Base (Alcabala)</span>
-                <span className="text-white">${resultado.baseCalculo.toFixed(2)}</span>
+                <span className="text-text-primary">${resultado.baseCalculo.toFixed(2)}</span>
               </div>
               <div className="flex justify-between">
                 <span className="text-[var(--text-secondary)]">10% de Alcabala</span>
-                <span className="text-white">${resultado.valorPorcentaje.toFixed(2)}</span>
+                <span className="text-text-primary">${resultado.valorPorcentaje.toFixed(2)}</span>
               </div>
               <div className="flex justify-between">
                 <span className="text-[var(--text-secondary)]">Valor Fijo</span>
-                <span className="text-white">${resultado.valorFijo.toFixed(2)}</span>
+                <span className="text-text-primary">${resultado.valorFijo.toFixed(2)}</span>
               </div>
             </div>
           </div>
@@ -222,23 +222,23 @@ export function ConsejoProvincialCalculatorWidget() {
           {/* Total */}
           <Card className="p-6 bg-gradient-to-br from-[var(--accent-primary)]/20 to-[var(--accent-primary)]/5 border-[var(--accent-primary)]/30">
             <div className="text-center">
-              <p className="text-sm text-white/70 mb-2">Total Impuestos Municipales</p>
-              <div className="text-5xl font-bold text-white">
+              <p className="text-sm text-text-secondary mb-2">Total Impuestos Municipales</p>
+              <div className="text-5xl font-bold text-text-primary">
                 $<AnimatedCounter value={resultadoCompleto.totalImpuestos} duration={0.8} />
               </div>
             </div>
           </Card>
 
           {/* Alcabala */}
-          <Card className="p-5 bg-white/5 border-white/10">
-            <h4 className="font-semibold text-white mb-4 flex items-center gap-2">
+          <Card className="p-5">
+            <h4 className="font-semibold text-text-primary mb-4 flex items-center gap-2">
               <span className="w-2 h-2 rounded-full bg-blue-400" />
               Impuesto de Alcabala
             </h4>
             <div className="space-y-2 text-sm">
               <div className="flex justify-between">
                 <span className="text-[var(--text-secondary)]">Base Imponible</span>
-                <span className="text-white">
+                <span className="text-text-primary">
                   ${resultadoCompleto.baseImponibleAlcabala.toLocaleString()}
                 </span>
               </div>
@@ -257,8 +257,8 @@ export function ConsejoProvincialCalculatorWidget() {
                   </span>
                 </div>
               )}
-              <div className="flex justify-between pt-2 border-t border-white/10">
-                <span className="font-medium text-white">Alcabala</span>
+              <div className="flex justify-between pt-2 border-t border-[var(--glass-border)]">
+                <span className="font-medium text-text-primary">Alcabala</span>
                 <span className="font-semibold text-blue-400">
                   ${resultadoCompleto.impuestoAlcabala.toFixed(2)}
                 </span>
@@ -267,30 +267,30 @@ export function ConsejoProvincialCalculatorWidget() {
           </Card>
 
           {/* Consejo Provincial */}
-          <Card className="p-5 bg-white/5 border-white/10">
-            <h4 className="font-semibold text-white mb-4 flex items-center gap-2">
+          <Card className="p-5">
+            <h4 className="font-semibold text-text-primary mb-4 flex items-center gap-2">
               <span className="w-2 h-2 rounded-full bg-purple-400" />
               Consejo Provincial de Pichincha
             </h4>
             <div className="space-y-2 text-sm">
               <div className="flex justify-between">
                 <span className="text-[var(--text-secondary)]">Base (Alcabala)</span>
-                <span className="text-white">
+                <span className="text-text-primary">
                   ${resultadoCompleto.baseConsejoProvincial.toFixed(2)}
                 </span>
               </div>
               <div className="flex justify-between">
                 <span className="text-[var(--text-secondary)]">10% de Alcabala</span>
-                <span className="text-white">
+                <span className="text-text-primary">
                   ${resultadoCompleto.valorPorcentaje.toFixed(2)}
                 </span>
               </div>
               <div className="flex justify-between">
                 <span className="text-[var(--text-secondary)]">Valor Fijo</span>
-                <span className="text-white">${resultadoCompleto.valorFijo.toFixed(2)}</span>
+                <span className="text-text-primary">${resultadoCompleto.valorFijo.toFixed(2)}</span>
               </div>
-              <div className="flex justify-between pt-2 border-t border-white/10">
-                <span className="font-medium text-white">Consejo Provincial</span>
+              <div className="flex justify-between pt-2 border-t border-[var(--glass-border)]">
+                <span className="font-medium text-text-primary">Consejo Provincial</span>
                 <span className="font-semibold text-purple-400">
                   ${resultadoCompleto.impuestoConsejoProvincial.toFixed(2)}
                 </span>
@@ -301,27 +301,27 @@ export function ConsejoProvincialCalculatorWidget() {
       )}
 
       {/* Fórmula explicada */}
-      <Card className="p-5 bg-white/5 border-white/10">
-        <h4 className="font-semibold text-white mb-3 flex items-center gap-2">
+      <Card className="p-5">
+        <h4 className="font-semibold text-text-primary mb-3 flex items-center gap-2">
           <Building className="w-4 h-4" />
           ¿Cómo se calcula?
         </h4>
         <div className="space-y-2 text-sm text-[var(--text-secondary)]">
           <p>
-            <strong className="text-white">Fórmula:</strong>
+            <strong className="text-text-primary">Fórmula:</strong>
           </p>
-          <code className="block p-3 bg-black/30 rounded-lg text-[var(--accent-primary)]">
-            Consejo Provincial = (Alcabala × 10%) + $1.60
+          <code className="block p-3 bg-bg-tertiary rounded-lg text-[var(--accent-primary)]">
+            Consejo Provincial = (Alcabala × 10%) + $1.80
           </code>
           <p className="mt-3">
             La contribución al Consejo Provincial de Pichincha se calcula sobre el valor pagado por
-            el impuesto de alcabala, aplicando un 10% más un valor fijo de $1.60.
+            el impuesto de alcabala, aplicando un 10% más un valor fijo de $1.80.
           </p>
         </div>
       </Card>
 
       {/* Nota legal */}
-      <div className="flex items-start gap-2 text-xs text-[var(--text-secondary)] bg-white/5 p-3 rounded-lg">
+      <div className="flex items-start gap-2 text-xs text-[var(--text-secondary)] bg-bg-secondary p-3 rounded-lg">
         <Info className="w-4 h-4 flex-shrink-0 mt-0.5" />
         <p>
           Esta calculadora aplica para inmuebles ubicados en el Distrito Metropolitano de Quito

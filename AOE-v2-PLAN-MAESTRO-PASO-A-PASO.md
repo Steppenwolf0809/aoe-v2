@@ -1,7 +1,7 @@
 # AOE v2 — Plan Maestro de Implementación
 
-> **Estado actual:** ✅ PROMPTs 01-09 completados (Fase 1 + Fase 2 + Fórmulas base)
-> **Siguiente paso:** PROMPT 10 — Componentes UI calculadoras + inmobiliario aggregator
+> **Estado actual:** ✅ PROMPTs 01-10 completados (Fase 1 + Fase 2 + Fórmulas base + UI Calculadoras)
+> **Siguiente paso:** PROMPT 11 — Presupuestador Inmobiliario (Producto Principal)
 > **Estimación total:** 8 semanas / ~20 prompts para Claude Code
 > **Estrategia SEO:** Ver `docs/plans/2026-02-08-seo-calculadoras-strategy.md`
 
@@ -438,7 +438,7 @@ Ejecuta `npx vitest run` y confirma que TODOS los tests pasan.
 
 ---
 
-### 🔲 PROMPT 10 — Componentes UI + Sistema de Lead Capture
+### ✅ PROMPT 10 — Componentes UI + Sistema de Lead Capture (COMPLETADO)
 
 ```
 Lee el brain.md (sección diseño glass) y docs/plans/2026-02-07-calculadoras-lead-magnet-design.md.
@@ -491,7 +491,7 @@ Todos "use client" donde necesario. Mobile-first OBLIGATORIO.
 
 ---
 
-### 🔲 PROMPT 11 — Presupuestador Inmobiliario (Producto Principal)
+### ✅ PROMPT 11 — Presupuestador Inmobiliario (Producto Principal) (COMPLETADO)
 
 ```
 Lee brain.md y docs/plans/2026-02-07-calculadoras-lead-magnet-design.md.
@@ -1006,8 +1006,8 @@ Estas tareas NO las hace Claude Code — las haces tú en dashboards web:
 | 07 | ✅ Landing: Stats + Testimonios + FAQ + CTA | 2 | 3 |
 | 08 | ✅ Páginas servicios, precios, contacto | 2 | 3 |
 | 09 | ✅ Fórmulas puras + tests Vitest | 3 | 4 |
-| 10 | 🔲 Componentes calculadora + hooks | 3 | 4 |
-| 11 | 🔲 Calculadora Notarial completa | 3 | 4 |
+| 10 | ✅ Componentes calculadora + hooks | 3 | 4 |
+| 11 | ✅ Presupuestador Inmobiliario completo | 3 | 4 |
 | 12 | 🔲 Calculadoras Municipal + Registro + Hub | 3 | 4 |
 | 13 | 🔲 Sistema de autenticación | 4 | 5 |
 | 14 | 🔲 Dashboard: layout + perfil + suscripción | 4 | 5 |
