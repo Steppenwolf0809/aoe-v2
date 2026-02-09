@@ -12,7 +12,12 @@
       "Bash(git rm:*)",
       "Bash(git ls-tree:*)",
       "Bash(npx vitest run:*)",
-      "WebFetch(domain:docs.google.com)"
+      "WebFetch(domain:docs.google.com)",
+      "Bash(npm test:*)",
+      "Bash(npm run test:formulas:*)",
+      "Bash(npm run:*)",
+      "Bash(find:*)",
+      "Bash(powershell -Command:*)"
     ]
   }
 }

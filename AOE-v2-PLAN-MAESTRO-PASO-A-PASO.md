@@ -614,7 +614,7 @@ mobile-first, internal links.
 
 ---
 
-### 🔲 PROMPT 12.5 — Lead Magnets: PDFs y Emails
+### ✅ PROMPT 12.5 — Lead Magnets: PDFs y Emails
 
 ```
 Lee docs/plans/2026-02-07-calculadoras-lead-magnet-design.md.

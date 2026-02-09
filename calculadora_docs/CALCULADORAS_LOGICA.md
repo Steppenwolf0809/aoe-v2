@@ -99,7 +99,7 @@ if (tipo === 'reconocimientoFirma' || tipo === 'compraventaVehiculos') {
 
 ```json
 {
-  "remuneracionBasica": 470.00,
+  "remuneracionBasica": 482.00,
   "iva": 0.15,
   "tablas": {
     "transferenciaDominio": {
@@ -893,7 +893,7 @@ describe('Calculadora Notarial', () => {
 
   test('Aplica fórmula de excedente para montos altos', () => {
     const result = calcularTarifaDeterminada(5000000, 'transferenciaDominio');
-    // 20 * 470 + (5000000 - 4000000) * 0.001
+    // 20 * 482 + (5000000 - 4000000) * 0.001
     expect(result).toBeCloseTo(10400, 0);
   });
 });

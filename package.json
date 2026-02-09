@@ -11,6 +11,9 @@
   "dependencies": {
     "@hookform/resolvers": "^5.2.2",
     "@radix-ui/react-slot": "^1.2.4",
+    "@react-email/components": "^1.0.7",
+    "@react-email/render": "^2.0.4",
+    "@react-pdf/renderer": "^4.3.2",
     "@supabase/ssr": "^0.8.0",
     "@supabase/supabase-js": "^2.95.3",
     "clsx": "^2.1.1",
@@ -21,6 +24,7 @@
     "postgres": "^3.4.8",
     "react": "19.2.3",
     "react-dom": "19.2.3",
+    "react-email": "^5.2.8",
     "react-hook-form": "^7.71.1",
     "resend": "^6.9.1",
     "tailwind-merge": "^3.4.0",

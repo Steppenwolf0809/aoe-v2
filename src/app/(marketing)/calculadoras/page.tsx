@@ -1,6 +1,6 @@
 import type { Metadata } from 'next'
 import Link from 'next/link'
-import { Calculator, Building, TrendingUp, Landmark, Building2, Home, Star, ArrowRight } from 'lucide-react'
+import { Calculator, Building, TrendingUp, Landmark, Building2, Home, Star, ArrowRight, Car } from 'lucide-react'
 import { Card, CardContent } from '@/components/ui/card'
 import { Badge } from '@/components/ui/badge'
 
@@ -55,6 +55,12 @@ const calculadoras = [
     title: 'Calculadora de Plusvalía',
     description: 'Impuesto a la utilidad municipal por venta de inmuebles.',
     icon: TrendingUp,
+  },
+  {
+    href: '/calculadoras/vehiculos',
+    title: 'Cotizador Vehicular',
+    description: 'Contrato de compraventa vehicular con reconocimiento de firmas + impuesto fiscal.',
+    icon: Car,
   },
 ]
 
