@@ -1,7 +1,7 @@
 'use server';
 
 import { Resend } from 'resend';
-import { renderAsync } from '@react-pdf/renderer';
+import { renderToBuffer } from '@react-pdf/renderer';
 import { render } from '@react-email/render';
 import { PresupuestoDetalladoEmail } from '@/emails/presupuesto-detallado';
 import { PresupuestoDetallado } from '@/lib/pdf/generate-presupuesto';
@@ -53,15 +53,12 @@ export async function sendPresupuestoDetallado(params: SendPresupuestoParams) {
       total: params.total,
     };
 
-    const pdfStream = await renderAsync(
+    const pdfBuffer = await renderToBuffer(
       PresupuestoDetallado({ data: pdfData })
     );
 
-    // Convertir stream a buffer para Resend
-    const pdfBuffer = Buffer.from(pdfStream);
-
     // 2. Renderizar email HTML
-    const emailHtml = render(
+    const emailHtml = await render(
       PresupuestoDetalladoEmail({
         clientName: params.clientName,
         rol: params.rol,
@@ -120,13 +117,11 @@ export async function sendLeadMagnet(params: SendLeadMagnetParams) {
 
     // 1. Generar el PDF correspondiente
     if (params.type === 'checklist') {
-      const pdfStream = await renderAsync(ChecklistEscrituracion());
-      pdfBuffer = Buffer.from(pdfStream);
+      pdfBuffer = await renderToBuffer(ChecklistEscrituracion());
       subject = '✓ Tu Checklist de Escrituración - Abogados Online Ecuador';
       pdfFilename = 'checklist-escrituracion.pdf';
     } else {
-      const pdfStream = await renderAsync(Guia5Errores());
-      pdfBuffer = Buffer.from(pdfStream);
+      pdfBuffer = await renderToBuffer(Guia5Errores());
       subject = '⚠️ 5 Errores que Encarecen tu Escrituración';
       pdfFilename = 'guia-5-errores-escritura.pdf';
     }
@@ -277,13 +272,13 @@ export async function generatePresupuestoPDF(params: SendPresupuestoParams) {
       total: params.total,
     };
 
-    const pdfStream = await renderAsync(
+    const pdfBuffer = await renderToBuffer(
       PresupuestoDetallado({ data: pdfData })
     );
 
     return {
       success: true,
-      pdf: Buffer.from(pdfStream),
+      pdf: pdfBuffer,
     };
   } catch (error) {
     console.error('Error generating PDF:', error);

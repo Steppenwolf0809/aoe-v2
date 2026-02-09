@@ -145,7 +145,7 @@ export const PresupuestoDetalladoEmail = ({
               </Column>
             </Row>
 
-            <Row style={[tableRow, totalRow]}>
+            <Row style={{ ...tableRow, ...totalRow }}>
               <Column style={tableColConcept}>
                 <Text style={totalText}>TOTAL</Text>
               </Column>
