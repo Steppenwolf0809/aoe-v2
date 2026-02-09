@@ -1,6 +1,7 @@
 'use client'
 
 import Link from 'next/link'
+import Image from 'next/image'
 import { usePathname } from 'next/navigation'
 import { LayoutDashboard, FileText, User, CreditCard, FolderOpen } from 'lucide-react'
 import { cn } from '@/lib/utils'
@@ -19,12 +20,16 @@ export function Sidebar() {
   return (
     <>
       <aside className="w-64 min-h-screen sticky top-0 border-r border-[var(--glass-border)] bg-[var(--bg-secondary)]/80 backdrop-blur-xl p-4 hidden lg:block">
-        <div className="flex items-center gap-2.5 px-3 mb-8">
-          <div className="w-8 h-8 rounded-lg bg-gradient-to-br from-[var(--accent-primary)] to-[var(--accent-secondary)] flex items-center justify-center">
-            <span className="text-white font-bold text-sm">AO</span>
-          </div>
-          <span className="font-semibold text-text-primary text-sm">Dashboard</span>
-        </div>
+        <Link href="/" className="block px-3 mb-8">
+          <Image
+            src="/logo/logo-horizontal.svg"
+            alt="Abogados Online Ecuador"
+            width={150}
+            height={60}
+            className="h-9 w-auto"
+            priority
+          />
+        </Link>
 
         <nav className="space-y-1">
           {sidebarLinks.map((link) => {
