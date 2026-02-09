@@ -20,9 +20,9 @@ export function ResultsChart({ items, maxValue }: ResultsChartProps) {
         <div key={item.label}>
           <div className="flex items-center justify-between text-sm mb-1">
             <span className="text-[var(--text-secondary)]">{item.label}</span>
-            <span className="text-white font-medium">${item.value.toFixed(2)}</span>
+            <span className="text-text-primary font-medium">${item.value.toFixed(2)}</span>
           </div>
-          <div className="w-full h-2 rounded-full bg-white/10">
+          <div className="w-full h-2 rounded-full bg-bg-tertiary">
             <div
               className={cn('h-full rounded-full transition-all duration-500', item.color)}
               style={{ width: `${Math.min((item.value / maxValue) * 100, 100)}%` }}

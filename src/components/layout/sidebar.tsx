@@ -17,12 +17,12 @@ export function Sidebar() {
   const pathname = usePathname()
 
   return (
-    <aside className="w-64 h-screen sticky top-0 border-r border-white/[0.05] bg-[var(--bg-secondary)] p-4 hidden lg:block">
+    <aside className="w-64 h-screen sticky top-0 border-r border-[var(--glass-border)] bg-[var(--bg-secondary)] p-4 hidden lg:block">
       <div className="flex items-center gap-2.5 px-3 mb-8">
         <div className="w-8 h-8 rounded-lg bg-gradient-to-br from-[var(--accent-primary)] to-[var(--accent-secondary)] flex items-center justify-center">
           <span className="text-white font-bold text-sm">AO</span>
         </div>
-        <span className="font-semibold text-white text-sm">Dashboard</span>
+        <span className="font-semibold text-text-primary text-sm">Dashboard</span>
       </div>
 
       <nav className="space-y-1">
@@ -37,7 +37,7 @@ export function Sidebar() {
                 'flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm transition-all',
                 isActive
                   ? 'bg-[var(--accent-primary)]/10 text-[var(--accent-primary)]'
-                  : 'text-[var(--text-secondary)] hover:text-white hover:bg-white/5'
+                  : 'text-[var(--text-secondary)] hover:text-text-primary hover:bg-bg-tertiary'
               )}
             >
               <Icon className="w-4 h-4" />

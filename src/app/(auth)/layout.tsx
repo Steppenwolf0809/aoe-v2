@@ -11,7 +11,7 @@ export default function AuthLayout({
         <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-[var(--accent-primary)] to-[var(--accent-secondary)] flex items-center justify-center">
           <span className="text-white font-bold">AO</span>
         </div>
-        <span className="text-lg font-semibold text-white">Abogados Online</span>
+        <span className="text-lg font-semibold text-text-primary">Abogados Online</span>
       </Link>
       {children}
     </div>

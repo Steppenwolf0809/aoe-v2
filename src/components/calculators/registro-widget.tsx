@@ -24,19 +24,19 @@ export function RegistroCalculatorWidget() {
     <div className="space-y-6">
       {/* Valor del Contrato */}
       <div className="space-y-3">
-        <label className="text-sm font-medium text-white flex items-center gap-2">
+        <label className="text-sm font-medium text-text-primary flex items-center gap-2">
           <Landmark className="w-4 h-4" />
           Valor del Contrato o Avalúo
         </label>
         <div className="relative">
-          <span className="absolute left-4 top-1/2 -translate-y-1/2 text-white/50">$</span>
+          <span className="absolute left-4 top-1/2 -translate-y-1/2 text-text-muted">$</span>
           <input
             type="number"
             value={valorContrato}
             onChange={(e) => setValorContrato(Number(e.target.value))}
             min={0}
             step={100}
-            className="w-full pl-8 pr-4 py-3 bg-white/5 border border-white/10 rounded-lg text-white focus:ring-2 focus:ring-[var(--accent-primary)] focus:border-transparent"
+            className="w-full pl-8 pr-4 py-3 bg-bg-secondary border border-[var(--glass-border)] rounded-lg text-text-primary focus:ring-2 focus:ring-[var(--accent-primary)] focus:border-transparent"
             placeholder="0.00"
           />
         </div>
@@ -54,30 +54,30 @@ export function RegistroCalculatorWidget() {
 
       {/* Descuentos */}
       <div className="space-y-3">
-        <label className="text-sm font-medium text-white">Descuentos Especiales</label>
+        <label className="text-sm font-medium text-text-primary">Descuentos Especiales</label>
 
-        <label className="flex items-center gap-3 cursor-pointer group p-3 bg-white/5 rounded-lg hover:bg-white/10 transition-colors">
+        <label className="flex items-center gap-3 cursor-pointer group p-3 bg-bg-secondary rounded-lg hover:bg-bg-tertiary transition-colors">
           <input
             type="checkbox"
             checked={esTerceraEdad}
             onChange={(e) => setEsTerceraEdad(e.target.checked)}
-            className="w-5 h-5 rounded border-white/20 bg-white/5 text-[var(--accent-primary)] focus:ring-[var(--accent-primary)]"
+            className="w-5 h-5 rounded border-[var(--glass-border)] bg-white text-[var(--accent-primary)] focus:ring-[var(--accent-primary)]"
           />
           <div className="flex-1">
-            <span className="text-sm text-white block">Adulto Mayor (65+ años)</span>
+            <span className="text-sm text-text-primary block">Adulto Mayor (65+ años)</span>
             <span className="text-xs text-green-400">50% de descuento</span>
           </div>
         </label>
 
-        <label className="flex items-center gap-3 cursor-pointer group p-3 bg-white/5 rounded-lg hover:bg-white/10 transition-colors">
+        <label className="flex items-center gap-3 cursor-pointer group p-3 bg-bg-secondary rounded-lg hover:bg-bg-tertiary transition-colors">
           <input
             type="checkbox"
             checked={esDiscapacitado}
             onChange={(e) => setEsDiscapacitado(e.target.checked)}
-            className="w-5 h-5 rounded border-white/20 bg-white/5 text-[var(--accent-primary)] focus:ring-[var(--accent-primary)]"
+            className="w-5 h-5 rounded border-[var(--glass-border)] bg-white text-[var(--accent-primary)] focus:ring-[var(--accent-primary)]"
           />
           <div className="flex-1">
-            <span className="text-sm text-white block">Persona con Discapacidad</span>
+            <span className="text-sm text-text-primary block">Persona con Discapacidad</span>
             <span className="text-xs text-green-400">50% de descuento</span>
           </div>
         </label>
@@ -98,8 +98,8 @@ export function RegistroCalculatorWidget() {
           <div className="space-y-6">
             {/* Total */}
             <div className="text-center">
-              <p className="text-sm text-white/70 mb-2">Arancel de Inscripción</p>
-              <div className="text-5xl font-bold text-white">
+              <p className="text-sm text-text-secondary mb-2">Arancel de Inscripción</p>
+              <div className="text-5xl font-bold text-text-primary">
                 $<AnimatedCounter value={resultado.arancelFinal} duration={0.8} />
               </div>
               {resultado.excedeMaximo && (
@@ -110,26 +110,26 @@ export function RegistroCalculatorWidget() {
             </div>
 
             {/* Detalles */}
-            <div className="space-y-3 pt-4 border-t border-white/10 text-sm">
+            <div className="space-y-3 pt-4 border-t border-[var(--glass-border)] text-sm">
               <div className="flex justify-between">
                 <span className="text-[var(--text-secondary)]">Rango Aplicado</span>
-                <span className="text-white font-medium">Rango {resultado.rango}</span>
+                <span className="text-text-primary font-medium">Rango {resultado.rango}</span>
               </div>
 
               <div className="flex justify-between">
                 <span className="text-[var(--text-secondary)]">Arancel Base</span>
-                <span className="text-white">${resultado.arancelBase.toFixed(2)}</span>
+                <span className="text-text-primary">${resultado.arancelBase.toFixed(2)}</span>
               </div>
 
               {resultado.exceso && resultado.exceso > 0 && (
                 <div className="flex justify-between">
                   <span className="text-[var(--text-secondary)]">Excedente</span>
-                  <span className="text-white">${resultado.exceso.toLocaleString()}</span>
+                  <span className="text-text-primary">${resultado.exceso.toLocaleString()}</span>
                 </div>
               )}
 
               {resultado.descuentos.length > 0 && (
-                <div className="space-y-2 pt-2 border-t border-white/10">
+                <div className="space-y-2 pt-2 border-t border-[var(--glass-border)]">
                   {resultado.descuentos.map((descuento, i) => (
                     <div key={i} className="flex justify-between">
                       <span className="text-green-400">
@@ -141,8 +141,8 @@ export function RegistroCalculatorWidget() {
                 </div>
               )}
 
-              <div className="flex justify-between pt-2 border-t border-white/10">
-                <span className="font-medium text-white">Total a Pagar</span>
+              <div className="flex justify-between pt-2 border-t border-[var(--glass-border)]">
+                <span className="font-medium text-text-primary">Total a Pagar</span>
                 <span className="font-bold text-[var(--accent-primary)]">
                   ${resultado.arancelFinal.toFixed(2)}
                 </span>
@@ -153,53 +153,53 @@ export function RegistroCalculatorWidget() {
       )}
 
       {/* Información de rangos */}
-      <Card className="p-4 bg-white/5 border-white/10">
-        <h4 className="text-sm font-medium text-white mb-3 flex items-center gap-2">
+      <Card className="p-4">
+        <h4 className="text-sm font-medium text-text-primary mb-3 flex items-center gap-2">
           <Landmark className="w-4 h-4" />
           Tabla de Aranceles del Registro
         </h4>
         <div className="grid grid-cols-2 gap-2 text-xs">
-          <div className="flex justify-between py-1 border-b border-white/5">
+          <div className="flex justify-between py-1 border-b border-[var(--glass-border)]">
             <span className="text-[var(--text-secondary)]">$0 - $3,000</span>
-            <span className="text-white">$22</span>
+            <span className="text-text-primary">$22</span>
           </div>
-          <div className="flex justify-between py-1 border-b border-white/5">
+          <div className="flex justify-between py-1 border-b border-[var(--glass-border)]">
             <span className="text-[var(--text-secondary)]">$3,001 - $6,600</span>
-            <span className="text-white">$30</span>
+            <span className="text-text-primary">$30</span>
           </div>
-          <div className="flex justify-between py-1 border-b border-white/5">
+          <div className="flex justify-between py-1 border-b border-[var(--glass-border)]">
             <span className="text-[var(--text-secondary)]">$6,601 - $10,000</span>
-            <span className="text-white">$35</span>
+            <span className="text-text-primary">$35</span>
           </div>
-          <div className="flex justify-between py-1 border-b border-white/5">
+          <div className="flex justify-between py-1 border-b border-[var(--glass-border)]">
             <span className="text-[var(--text-secondary)]">$10,001 - $15,000</span>
-            <span className="text-white">$40</span>
+            <span className="text-text-primary">$40</span>
           </div>
-          <div className="flex justify-between py-1 border-b border-white/5">
+          <div className="flex justify-between py-1 border-b border-[var(--glass-border)]">
             <span className="text-[var(--text-secondary)]">$15,001 - $25,000</span>
-            <span className="text-white">$50</span>
+            <span className="text-text-primary">$50</span>
           </div>
-          <div className="flex justify-between py-1 border-b border-white/5">
+          <div className="flex justify-between py-1 border-b border-[var(--glass-border)]">
             <span className="text-[var(--text-secondary)]">$25,001 - $30,000</span>
-            <span className="text-white">$100</span>
+            <span className="text-text-primary">$100</span>
           </div>
-          <div className="flex justify-between py-1 border-b border-white/5">
+          <div className="flex justify-between py-1 border-b border-[var(--glass-border)]">
             <span className="text-[var(--text-secondary)]">$30,001 - $35,000</span>
-            <span className="text-white">$160</span>
+            <span className="text-text-primary">$160</span>
           </div>
-          <div className="flex justify-between py-1 border-b border-white/5">
+          <div className="flex justify-between py-1 border-b border-[var(--glass-border)]">
             <span className="text-[var(--text-secondary)]">$35,001 - $40,000</span>
-            <span className="text-white">$200</span>
+            <span className="text-text-primary">$200</span>
           </div>
-          <div className="col-span-2 flex justify-between py-1 border-b border-white/5">
+          <div className="col-span-2 flex justify-between py-1 border-b border-[var(--glass-border)]">
             <span className="text-[var(--text-secondary)]">$40,001 en adelante</span>
-            <span className="text-white">Fórmula especial (Máx. $500)</span>
+            <span className="text-text-primary">Fórmula especial (Máx. $500)</span>
           </div>
         </div>
       </Card>
 
       {/* Nota legal */}
-      <div className="flex items-start gap-2 text-xs text-[var(--text-secondary)] bg-white/5 p-3 rounded-lg">
+      <div className="flex items-start gap-2 text-xs text-[var(--text-secondary)] bg-bg-secondary p-3 rounded-lg">
         <AlertCircle className="w-4 h-4 flex-shrink-0 mt-0.5" />
         <p>
           Los valores son referenciales según la normativa del Registro de la Propiedad del Ecuador.

@@ -12,29 +12,29 @@ import { Badge } from '@/components/ui/badge'
    ---------------------------------------------------------------- */
 const calculators = [
   {
-    title: 'Calculadora Notarial',
+    title: 'Presupuestador Inmobiliario',
     description:
-      'Calcula los aranceles notariales según las tablas oficiales del Consejo de la Judicatura. Incluye IVA y desglose completo.',
+      'Calcula el costo TOTAL de comprar o vender un inmueble: notaría, alcabalas, registro y consejo provincial en un solo clic.',
     icon: Calculator,
-    href: '/calculadoras/notarial',
+    href: '/calculadoras/inmuebles',
     featured: true,
     gradient: 'from-blue-500 to-cyan-500',
+  },
+  {
+    title: 'Calculadora Notarial',
+    description:
+      'Calcula los aranceles notariales según las tablas oficiales del Consejo de la Judicatura. Incluye IVA.',
+    icon: Building,
+    href: '/calculadoras/notarial',
+    featured: false,
+    gradient: 'from-emerald-500 to-teal-500',
   },
   {
     title: 'Impuestos Municipales',
     description:
       'Calcula alcabalas, plusvalía y utilidad para transferencias de dominio en el Municipio de Quito.',
-    icon: Building,
-    href: '/calculadoras/alcabalas',
-    featured: false,
-    gradient: 'from-emerald-500 to-teal-500',
-  },
-  {
-    title: 'Registro de la Propiedad',
-    description:
-      'Calcula los aranceles del Registro de la Propiedad para inscripción de escrituras y contratos.',
     icon: FileSignature,
-    href: '/calculadoras/registro-propiedad',
+    href: '/calculadoras/alcabalas',
     featured: false,
     gradient: 'from-purple-500 to-pink-500',
   },
@@ -80,7 +80,7 @@ export function CalculatorPreview() {
           <Badge variant="success" size="md" className="mb-4">
             100% Gratuito
           </Badge>
-          <h2 className="text-3xl sm:text-4xl font-bold text-white mb-4">
+          <h2 className="text-3xl sm:text-4xl font-bold text-text-primary mb-4">
             Calculadora de Valor de Escrituras
           </h2>
           <p className="text-text-secondary text-lg max-w-2xl mx-auto">
@@ -106,7 +106,7 @@ export function CalculatorPreview() {
                     className={`h-full p-6 relative overflow-hidden cursor-pointer group transition-all duration-200 ${
                       calc.featured
                         ? 'border-accent-primary/30 hover:border-accent-primary/50 bg-accent-primary/[0.04] hover:bg-accent-primary/[0.08]'
-                        : 'hover:bg-white/[0.05] hover:border-white/[0.12]'
+                        : 'hover:bg-bg-tertiary hover:border-[var(--glass-border-hover)]'
                     }`}
                   >
                     {/* Featured badge */}
@@ -135,7 +135,7 @@ export function CalculatorPreview() {
                       </div>
 
                       {/* Title */}
-                      <h3 className="text-lg font-semibold text-white mb-2 group-hover:text-accent-primary transition-colors duration-200">
+                      <h3 className="text-lg font-semibold text-text-primary mb-2 group-hover:text-accent-primary transition-colors duration-200">
                         {calc.title}
                       </h3>
 

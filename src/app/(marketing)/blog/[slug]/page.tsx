@@ -14,7 +14,7 @@ export default async function BlogPostPage({ params }: Props) {
   const { slug } = await params
   return (
     <article className="pt-24 pb-16 px-4 sm:px-6 max-w-3xl mx-auto">
-      <h1 className="text-3xl font-bold text-white mb-4 capitalize">
+      <h1 className="text-3xl font-bold text-text-primary mb-4 capitalize">
         {slug.replace(/-/g, ' ')}
       </h1>
       {/* TODO: implementar renderizado de post */}

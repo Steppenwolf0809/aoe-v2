@@ -17,7 +17,7 @@ export function CategoryFilter({ categories, selected, onSelect }: CategoryFilte
           'px-4 py-2 rounded-full text-sm transition-all cursor-pointer',
           selected === null
             ? 'bg-[var(--accent-primary)] text-white'
-            : 'bg-white/5 text-[var(--text-secondary)] hover:bg-white/10'
+            : 'bg-bg-secondary text-[var(--text-secondary)] hover:bg-bg-tertiary'
         )}
       >
         Todos
@@ -30,7 +30,7 @@ export function CategoryFilter({ categories, selected, onSelect }: CategoryFilte
             'px-4 py-2 rounded-full text-sm transition-all cursor-pointer',
             selected === cat
               ? 'bg-[var(--accent-primary)] text-white'
-              : 'bg-white/5 text-[var(--text-secondary)] hover:bg-white/10'
+              : 'bg-bg-secondary text-[var(--text-secondary)] hover:bg-bg-tertiary'
           )}
         >
           {cat}

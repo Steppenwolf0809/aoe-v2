@@ -20,7 +20,7 @@ export default function Error({
         <div className="inline-flex items-center justify-center w-20 h-20 rounded-2xl bg-[var(--accent-error)]/10 border border-[var(--accent-error)]/20 mb-6">
           <span className="text-3xl">!</span>
         </div>
-        <h1 className="text-2xl font-bold text-white mb-3">Algo salio mal</h1>
+        <h1 className="text-2xl font-bold text-text-primary mb-3">Algo salio mal</h1>
         <p className="text-[var(--text-secondary)] mb-8">
           Ha ocurrido un error inesperado. Por favor, intenta de nuevo.
         </p>

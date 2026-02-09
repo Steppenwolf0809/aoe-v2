@@ -1,6 +1,7 @@
 import type { Metadata } from 'next'
 import { Calculator, Landmark, FileCheck, Users } from 'lucide-react'
 import { RegistroCalculatorWidget } from '@/components/calculators/registro-widget'
+import { CtaPresupuestador } from '@/components/calculators/cta-presupuestador'
 import { JsonLd } from '@/components/seo/json-ld'
 
 export const metadata: Metadata = {
@@ -89,7 +90,7 @@ export default function CalculadoraRegistroPage() {
               Herramienta Gratuita
             </span>
           </div>
-          <h1 className="text-3xl md:text-5xl font-bold text-white mb-4">
+          <h1 className="text-3xl md:text-5xl font-bold text-text-primary mb-4">
             Calculadora Registro de la Propiedad
           </h1>
           <p className="text-[var(--text-secondary)] text-lg max-w-2xl mx-auto">
@@ -102,28 +103,34 @@ export default function CalculadoraRegistroPage() {
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
           {/* Calculadora Widget */}
           <div className="lg:col-span-2">
-            <div className="bg-white/5 backdrop-blur-sm border border-white/10 rounded-2xl p-6 md:p-8">
+            <div className="bg-bg-secondary border border-[var(--glass-border)] rounded-2xl p-6 md:p-8">
               <div className="flex items-center gap-3 mb-6">
                 <div className="w-10 h-10 rounded-xl bg-[var(--accent-primary)]/10 flex items-center justify-center">
                   <Landmark className="w-5 h-5 text-[var(--accent-primary)]" />
                 </div>
-                <h2 className="text-xl font-semibold text-white">
+                <h2 className="text-xl font-semibold text-text-primary">
                   Calculadora de Aranceles Registrales
                 </h2>
               </div>
               <RegistroCalculatorWidget />
+
+              {/* Funnel CTA → Presupuestador Inmobiliario */}
+              <CtaPresupuestador
+                costoActual="el Registro de la Propiedad"
+                costosFaltantes={['Notaría', 'Alcabalas', 'Consejo Provincial']}
+              />
             </div>
           </div>
 
           {/* Sidebar informativo */}
           <div className="space-y-6">
             {/* Info Card - Límite máximo */}
-            <div className="bg-white/5 backdrop-blur-sm border border-white/10 rounded-2xl p-6">
+            <div className="bg-bg-secondary border border-[var(--glass-border)] rounded-2xl p-6">
               <div className="flex items-center gap-3 mb-4">
                 <div className="w-10 h-10 rounded-xl bg-green-500/10 flex items-center justify-center">
                   <FileCheck className="w-5 h-5 text-green-400" />
                 </div>
-                <h3 className="font-semibold text-white">Límite Máximo Legal</h3>
+                <h3 className="font-semibold text-text-primary">Límite Máximo Legal</h3>
               </div>
               <p className="text-sm text-[var(--text-secondary)] mb-3">
                 La normativa establece que en ningún caso el arancel de inscripción puede superar
@@ -136,20 +143,20 @@ export default function CalculadoraRegistroPage() {
             </div>
 
             {/* Info Card - Descuentos */}
-            <div className="bg-white/5 backdrop-blur-sm border border-white/10 rounded-2xl p-6">
+            <div className="bg-bg-secondary border border-[var(--glass-border)] rounded-2xl p-6">
               <div className="flex items-center gap-3 mb-4">
                 <div className="w-10 h-10 rounded-xl bg-blue-500/10 flex items-center justify-center">
                   <Users className="w-5 h-5 text-blue-400" />
                 </div>
-                <h3 className="font-semibold text-white">Descuentos Especiales</h3>
+                <h3 className="font-semibold text-text-primary">Descuentos Especiales</h3>
               </div>
               <div className="space-y-3 text-sm">
-                <div className="flex items-center justify-between py-2 border-b border-white/5">
-                  <span className="text-white">Adulto Mayor (65+)</span>
+                <div className="flex items-center justify-between py-2 border-b border-[var(--glass-border)]">
+                  <span className="text-text-primary">Adulto Mayor (65+)</span>
                   <span className="text-green-400 font-medium">50%</span>
                 </div>
                 <div className="flex items-center justify-between py-2">
-                  <span className="text-white">Discapacidad</span>
+                  <span className="text-text-primary">Discapacidad</span>
                   <span className="text-green-400 font-medium">50%</span>
                 </div>
               </div>
@@ -159,12 +166,12 @@ export default function CalculadoraRegistroPage() {
             </div>
 
             {/* Trámites frecuentes */}
-            <div className="bg-white/5 backdrop-blur-sm border border-white/10 rounded-2xl p-6">
+            <div className="bg-bg-secondary border border-[var(--glass-border)] rounded-2xl p-6">
               <div className="flex items-center gap-3 mb-4">
                 <div className="w-10 h-10 rounded-xl bg-purple-500/10 flex items-center justify-center">
                   <Landmark className="w-5 h-5 text-purple-400" />
                 </div>
-                <h3 className="font-semibold text-white">Trámites Frecuentes</h3>
+                <h3 className="font-semibold text-text-primary">Trámites Frecuentes</h3>
               </div>
               <ul className="space-y-2 text-sm text-[var(--text-secondary)]">
                 <li className="flex items-center gap-2">
@@ -192,8 +199,8 @@ export default function CalculadoraRegistroPage() {
 
             {/* CTA Contacto */}
             <div className="bg-gradient-to-br from-[var(--accent-primary)]/20 to-[var(--accent-primary)]/5 border border-[var(--accent-primary)]/30 rounded-2xl p-6">
-              <h3 className="font-semibold text-white mb-2">¿Necesita inscribir su escritura?</h3>
-              <p className="text-sm text-white/70 mb-4">
+              <h3 className="font-semibold text-text-primary mb-2">¿Necesita inscribir su escritura?</h3>
+              <p className="text-sm text-text-secondary mb-4">
                 Le asesoramos en todo el proceso de inscripción en el Registro de la Propiedad.
               </p>
               <a
@@ -210,35 +217,35 @@ export default function CalculadoraRegistroPage() {
 
         {/* Sección educativa */}
         <div className="mt-16">
-          <h2 className="text-2xl font-bold text-white mb-8 text-center">
+          <h2 className="text-2xl font-bold text-text-primary mb-8 text-center">
             ¿Cómo funciona el Registro de la Propiedad?
           </h2>
           <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-            <div className="bg-white/5 border border-white/10 rounded-xl p-6">
+            <div className="bg-bg-secondary border border-[var(--glass-border)] rounded-xl p-6">
               <div className="w-12 h-12 rounded-xl bg-[var(--accent-primary)]/10 flex items-center justify-center mb-4">
                 <span className="text-2xl font-bold text-[var(--accent-primary)]">1</span>
               </div>
-              <h3 className="font-semibold text-white mb-2">Presentación</h3>
+              <h3 className="font-semibold text-text-primary mb-2">Presentación</h3>
               <p className="text-sm text-[var(--text-secondary)]">
                 La escritura pública se presenta en el Registro de la Propiedad junto con los
                 documentos requeridos y el pago correspondiente.
               </p>
             </div>
-            <div className="bg-white/5 border border-white/10 rounded-xl p-6">
+            <div className="bg-bg-secondary border border-[var(--glass-border)] rounded-xl p-6">
               <div className="w-12 h-12 rounded-xl bg-[var(--accent-primary)]/10 flex items-center justify-center mb-4">
                 <span className="text-2xl font-bold text-[var(--accent-primary)]">2</span>
               </div>
-              <h3 className="font-semibold text-white mb-2">Calificación</h3>
+              <h3 className="font-semibold text-text-primary mb-2">Calificación</h3>
               <p className="text-sm text-[var(--text-secondary)]">
                 El registrador revisa que el documento cumpla con todos los requisitos legales y
                 registrales para su inscripción.
               </p>
             </div>
-            <div className="bg-white/5 border border-white/10 rounded-xl p-6">
+            <div className="bg-bg-secondary border border-[var(--glass-border)] rounded-xl p-6">
               <div className="w-12 h-12 rounded-xl bg-[var(--accent-primary)]/10 flex items-center justify-center mb-4">
                 <span className="text-2xl font-bold text-[var(--accent-primary)]">3</span>
               </div>
-              <h3 className="font-semibold text-white mb-2">Inscripción</h3>
+              <h3 className="font-semibold text-text-primary mb-2">Inscripción</h3>
               <p className="text-sm text-[var(--text-secondary)]">
                 Una vez calificado favorablemente, el acto se inscribe y queda registrado a nombre
                 del nuevo propietario.
@@ -249,11 +256,11 @@ export default function CalculadoraRegistroPage() {
 
         {/* FAQs */}
         <div className="mt-16">
-          <h2 className="text-2xl font-bold text-white mb-8 text-center">Preguntas Frecuentes</h2>
+          <h2 className="text-2xl font-bold text-text-primary mb-8 text-center">Preguntas Frecuentes</h2>
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6 max-w-4xl mx-auto">
             {faqs.map((faq, i) => (
-              <div key={i} className="bg-white/5 border border-white/10 rounded-xl p-6">
-                <h3 className="font-semibold text-white mb-2">{faq.question}</h3>
+              <div key={i} className="bg-bg-secondary border border-[var(--glass-border)] rounded-xl p-6">
+                <h3 className="font-semibold text-text-primary mb-2">{faq.question}</h3>
                 <p className="text-sm text-[var(--text-secondary)]">{faq.answer}</p>
               </div>
             ))}
@@ -262,7 +269,7 @@ export default function CalculadoraRegistroPage() {
 
         {/* Nota legal */}
         <div className="mt-12 p-6 bg-amber-500/5 border border-amber-500/20 rounded-xl">
-          <p className="text-sm text-amber-200/80 text-center">
+          <p className="text-sm text-amber-700 text-center">
             <strong>Nota Legal:</strong> Los valores calculados son referenciales y tienen carácter
             informativo. Los aranceles definitivos pueden variar según la normativa vigente del
             Registro de la Propiedad. Se recomienda verificar los valores actualizados antes de

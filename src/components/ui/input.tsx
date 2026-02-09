@@ -24,10 +24,10 @@ const Input = forwardRef<HTMLInputElement, InputProps>(
           id={id}
           type={type}
           className={cn(
-            'w-full h-10 px-3 rounded-[var(--radius-md)] text-sm text-white',
-            'bg-white/[0.03] border border-white/[0.08]',
+            'w-full h-10 px-3 rounded-[var(--radius-md)] text-sm text-text-primary',
+            'bg-bg-secondary border border-[var(--glass-border)]',
             'placeholder:text-text-muted',
-            'hover:bg-white/[0.05] hover:border-white/[0.12]',
+            'hover:bg-bg-tertiary hover:border-[var(--glass-border-hover)]',
             'focus:outline-none focus:ring-2 focus:ring-accent-primary focus:border-transparent',
             'transition-all duration-200',
             'disabled:opacity-50 disabled:cursor-not-allowed',

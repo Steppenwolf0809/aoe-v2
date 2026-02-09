@@ -7,7 +7,7 @@ export const metadata: Metadata = {
 export default function VerificarEmailPage() {
   return (
     <div className="w-full max-w-sm text-center">
-      <h1 className="text-2xl font-bold text-white mb-2">Revisa tu correo</h1>
+      <h1 className="text-2xl font-bold text-text-primary mb-2">Revisa tu correo</h1>
       <p className="text-[var(--text-secondary)]">
         Te hemos enviado un enlace de verificacion a tu correo electronico.
       </p>

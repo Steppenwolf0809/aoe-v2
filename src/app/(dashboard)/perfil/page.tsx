@@ -7,7 +7,7 @@ export const metadata: Metadata = {
 export default function PerfilPage() {
   return (
     <div>
-      <h1 className="text-2xl font-bold text-white mb-6">Mi Perfil</h1>
+      <h1 className="text-2xl font-bold text-text-primary mb-6">Mi Perfil</h1>
       {/* TODO: implementar ProfileForm */}
     </div>
   )

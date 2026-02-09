@@ -87,10 +87,10 @@ export function ToastProvider({ children }: { children: React.ReactNode }) {
                 role="alert"
               >
                 <Icon className="w-5 h-5 shrink-0" />
-                <p className="text-sm text-white flex-1">{t.message}</p>
+                <p className="text-sm text-text-primary flex-1">{t.message}</p>
                 <button
                   onClick={() => removeToast(t.id)}
-                  className="p-0.5 rounded-[var(--radius-sm)] hover:bg-white/5 transition-colors duration-200 cursor-pointer"
+                  className="p-0.5 rounded-[var(--radius-sm)] hover:bg-bg-tertiary transition-colors duration-200 cursor-pointer"
                   aria-label="Cerrar notificacion"
                 >
                   <X className="w-4 h-4 text-text-muted" />

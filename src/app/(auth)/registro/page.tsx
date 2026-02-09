@@ -7,7 +7,7 @@ export const metadata: Metadata = {
 export default function RegistroPage() {
   return (
     <div className="w-full max-w-sm">
-      <h1 className="text-2xl font-bold text-white text-center mb-2">
+      <h1 className="text-2xl font-bold text-text-primary text-center mb-2">
         Crear cuenta
       </h1>
       <p className="text-[var(--text-secondary)] text-center mb-8">

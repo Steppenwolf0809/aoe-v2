@@ -44,28 +44,28 @@ export function MunicipalCalculatorWidget() {
       {/* Fechas */}
       <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
         <div className="space-y-2">
-          <label className="text-sm font-medium text-white">Fecha de Adquisición</label>
+          <label className="text-sm font-medium text-text-primary">Fecha de Adquisición</label>
           <input
             type="date"
             value={fechaAdquisicion}
             onChange={(e) => setFechaAdquisicion(e.target.value)}
-            className="w-full px-4 py-3 bg-white/5 border border-white/10 rounded-lg text-white focus:ring-2 focus:ring-[var(--accent-primary)] focus:border-transparent"
+            className="w-full px-4 py-3 bg-bg-secondary border border-[var(--glass-border)] rounded-lg text-text-primary focus:ring-2 focus:ring-[var(--accent-primary)] focus:border-transparent"
           />
         </div>
         <div className="space-y-2">
-          <label className="text-sm font-medium text-white">Fecha de Transferencia</label>
+          <label className="text-sm font-medium text-text-primary">Fecha de Transferencia</label>
           <input
             type="date"
             value={fechaTransferencia}
             onChange={(e) => setFechaTransferencia(e.target.value)}
-            className="w-full px-4 py-3 bg-white/5 border border-white/10 rounded-lg text-white focus:ring-2 focus:ring-[var(--accent-primary)] focus:border-transparent"
+            className="w-full px-4 py-3 bg-bg-secondary border border-[var(--glass-border)] rounded-lg text-text-primary focus:ring-2 focus:ring-[var(--accent-primary)] focus:border-transparent"
           />
         </div>
       </div>
 
       {/* Tipo de Transferencia */}
       <div className="space-y-3">
-        <label className="text-sm font-medium text-white">Tipo de Transferencia</label>
+        <label className="text-sm font-medium text-text-primary">Tipo de Transferencia</label>
         <div className="grid grid-cols-3 gap-2">
           {(['Compraventa', 'Donación', 'Dación en pago'] as const).map((tipo) => (
             <button
@@ -74,7 +74,7 @@ export function MunicipalCalculatorWidget() {
               className={`px-4 py-3 rounded-lg text-sm font-medium transition-all ${
                 tipoTransferencia === tipo
                   ? 'bg-[var(--accent-primary)] text-white'
-                  : 'bg-white/5 text-white/70 hover:bg-white/10'
+                  : 'bg-bg-secondary text-text-secondary hover:bg-bg-tertiary'
               }`}
             >
               {tipo}
@@ -85,7 +85,7 @@ export function MunicipalCalculatorWidget() {
 
       {/* Tipo de Transferente */}
       <div className="space-y-3">
-        <label className="text-sm font-medium text-white">Tipo de Transferente (Vendedor)</label>
+        <label className="text-sm font-medium text-text-primary">Tipo de Transferente (Vendedor)</label>
         <div className="grid grid-cols-2 gap-2">
           {(['Natural', 'Inmobiliaria'] as const).map((tipo) => (
             <button
@@ -94,7 +94,7 @@ export function MunicipalCalculatorWidget() {
               className={`px-4 py-3 rounded-lg text-sm font-medium transition-all ${
                 tipoTransferente === tipo
                   ? 'bg-[var(--accent-primary)] text-white'
-                  : 'bg-white/5 text-white/70 hover:bg-white/10'
+                  : 'bg-bg-secondary text-text-secondary hover:bg-bg-tertiary'
               }`}
             >
               {tipo === 'Natural' ? 'Persona Natural' : 'Inmobiliaria'}
@@ -106,17 +106,17 @@ export function MunicipalCalculatorWidget() {
       {/* Valores */}
       <div className="space-y-4">
         <div className="space-y-2">
-          <label className="text-sm font-medium text-white flex items-center gap-2">
+          <label className="text-sm font-medium text-text-primary flex items-center gap-2">
             <ArrowRightLeft className="w-4 h-4" />
             Valor de Transferencia (Venta)
           </label>
           <div className="relative">
-            <span className="absolute left-4 top-1/2 -translate-y-1/2 text-white/50">$</span>
+            <span className="absolute left-4 top-1/2 -translate-y-1/2 text-text-muted">$</span>
             <input
               type="number"
               value={valorTransferencia}
               onChange={(e) => setValorTransferencia(Number(e.target.value))}
-              className="w-full pl-8 pr-4 py-3 bg-white/5 border border-white/10 rounded-lg text-white focus:ring-2 focus:ring-[var(--accent-primary)] focus:border-transparent"
+              className="w-full pl-8 pr-4 py-3 bg-bg-secondary border border-[var(--glass-border)] rounded-lg text-text-primary focus:ring-2 focus:ring-[var(--accent-primary)] focus:border-transparent"
             />
           </div>
           <Slider
@@ -129,14 +129,14 @@ export function MunicipalCalculatorWidget() {
         </div>
 
         <div className="space-y-2">
-          <label className="text-sm font-medium text-white">Valor de Adquisición (Compra)</label>
+          <label className="text-sm font-medium text-text-primary">Valor de Adquisición (Compra)</label>
           <div className="relative">
-            <span className="absolute left-4 top-1/2 -translate-y-1/2 text-white/50">$</span>
+            <span className="absolute left-4 top-1/2 -translate-y-1/2 text-text-muted">$</span>
             <input
               type="number"
               value={valorAdquisicion}
               onChange={(e) => setValorAdquisicion(Number(e.target.value))}
-              className="w-full pl-8 pr-4 py-3 bg-white/5 border border-white/10 rounded-lg text-white focus:ring-2 focus:ring-[var(--accent-primary)] focus:border-transparent"
+              className="w-full pl-8 pr-4 py-3 bg-bg-secondary border border-[var(--glass-border)] rounded-lg text-text-primary focus:ring-2 focus:ring-[var(--accent-primary)] focus:border-transparent"
             />
           </div>
           <Slider
@@ -149,17 +149,17 @@ export function MunicipalCalculatorWidget() {
         </div>
 
         <div className="space-y-2">
-          <label className="text-sm font-medium text-white flex items-center gap-2">
+          <label className="text-sm font-medium text-text-primary flex items-center gap-2">
             <Home className="w-4 h-4" />
             Avalúo Catastral
           </label>
           <div className="relative">
-            <span className="absolute left-4 top-1/2 -translate-y-1/2 text-white/50">$</span>
+            <span className="absolute left-4 top-1/2 -translate-y-1/2 text-text-muted">$</span>
             <input
               type="number"
               value={avaluoCatastral}
               onChange={(e) => setAvaluoCatastral(Number(e.target.value))}
-              className="w-full pl-8 pr-4 py-3 bg-white/5 border border-white/10 rounded-lg text-white focus:ring-2 focus:ring-[var(--accent-primary)] focus:border-transparent"
+              className="w-full pl-8 pr-4 py-3 bg-bg-secondary border border-[var(--glass-border)] rounded-lg text-text-primary focus:ring-2 focus:ring-[var(--accent-primary)] focus:border-transparent"
             />
           </div>
           <Slider
@@ -172,14 +172,14 @@ export function MunicipalCalculatorWidget() {
         </div>
 
         <div className="space-y-2">
-          <label className="text-sm font-medium text-white">Valor de Mejoras (opcional)</label>
+          <label className="text-sm font-medium text-text-primary">Valor de Mejoras (opcional)</label>
           <div className="relative">
-            <span className="absolute left-4 top-1/2 -translate-y-1/2 text-white/50">$</span>
+            <span className="absolute left-4 top-1/2 -translate-y-1/2 text-text-muted">$</span>
             <input
               type="number"
               value={mejoras}
               onChange={(e) => setMejoras(Number(e.target.value))}
-              className="w-full pl-8 pr-4 py-3 bg-white/5 border border-white/10 rounded-lg text-white focus:ring-2 focus:ring-[var(--accent-primary)] focus:border-transparent"
+              className="w-full pl-8 pr-4 py-3 bg-bg-secondary border border-[var(--glass-border)] rounded-lg text-text-primary focus:ring-2 focus:ring-[var(--accent-primary)] focus:border-transparent"
             />
           </div>
         </div>
@@ -201,22 +201,22 @@ export function MunicipalCalculatorWidget() {
           {/* Resumen General */}
           <Card className="p-6 bg-gradient-to-br from-[var(--accent-primary)]/20 to-[var(--accent-primary)]/5 border-[var(--accent-primary)]/30">
             <div className="text-center mb-6">
-              <p className="text-sm text-white/70 mb-2">Total Impuestos a Pagar</p>
-              <div className="text-5xl font-bold text-white">
+              <p className="text-sm text-text-secondary mb-2">Total Impuestos a Pagar</p>
+              <div className="text-5xl font-bold text-text-primary">
                 $<AnimatedCounter value={resultado.total} duration={0.8} />
               </div>
             </div>
 
-            <div className="grid grid-cols-2 gap-4 pt-4 border-t border-white/10">
+            <div className="grid grid-cols-2 gap-4 pt-4 border-t border-[var(--glass-border)]">
               <div className="text-center">
-                <p className="text-xs text-white/60 mb-1">Vendedor (Utilidad)</p>
-                <p className="text-xl font-semibold text-white">
+                <p className="text-xs text-text-muted mb-1">Vendedor (Utilidad)</p>
+                <p className="text-xl font-semibold text-text-primary">
                   ${resultado.totalVendedor.toLocaleString()}
                 </p>
               </div>
               <div className="text-center">
-                <p className="text-xs text-white/60 mb-1">Comprador (Alcabala)</p>
-                <p className="text-xl font-semibold text-white">
+                <p className="text-xs text-text-muted mb-1">Comprador (Alcabala)</p>
+                <p className="text-xl font-semibold text-text-primary">
                   ${resultado.totalComprador.toLocaleString()}
                 </p>
               </div>
@@ -225,19 +225,19 @@ export function MunicipalCalculatorWidget() {
 
           {/* Detalle de Utilidad (Vendedor) */}
           {resultado.utilidad.impuesto > 0 && (
-            <Card className="p-5 bg-white/5 border-white/10">
-              <h4 className="font-semibold text-white mb-4 flex items-center gap-2">
-                <span className="w-2 h-2 rounded-full bg-orange-400" />
+            <Card className="p-5">
+              <h4 className="font-semibold text-text-primary mb-4 flex items-center gap-2">
+              <span className="w-2 h-2 rounded-full bg-orange-400" />
                 Impuesto a la Utilidad (Vendedor)
               </h4>
               <div className="space-y-2 text-sm">
                 <div className="flex justify-between">
                   <span className="text-[var(--text-secondary)]">Utilidad Bruta</span>
-                  <span className="text-white">${resultado.utilidad.utilidadBruta.toLocaleString()}</span>
+                  <span className="text-text-primary">${resultado.utilidad.utilidadBruta.toLocaleString()}</span>
                 </div>
                 <div className="flex justify-between">
                   <span className="text-[var(--text-secondary)]">Años de Tenencia</span>
-                  <span className="text-white">{resultado.utilidad.añosTranscurridos} años</span>
+                  <span className="text-text-primary">{resultado.utilidad.añosTranscurridos} años</span>
                 </div>
                 <div className="flex justify-between">
                   <span className="text-[var(--text-secondary)]">Deducción por Tiempo</span>
@@ -245,16 +245,16 @@ export function MunicipalCalculatorWidget() {
                     -${resultado.utilidad.deduccionTiempo.toLocaleString()}
                   </span>
                 </div>
-                <div className="flex justify-between pt-2 border-t border-white/10">
+                <div className="flex justify-between pt-2 border-t border-[var(--glass-border)]">
                   <span className="text-[var(--text-secondary)]">Base Imponible</span>
-                  <span className="text-white">${resultado.utilidad.baseImponible.toLocaleString()}</span>
+                  <span className="text-text-primary">${resultado.utilidad.baseImponible.toLocaleString()}</span>
                 </div>
                 <div className="flex justify-between">
                   <span className="text-[var(--text-secondary)]">Tarifa Aplicada</span>
-                  <span className="text-white">{resultado.utilidad.tarifaDescripcion}</span>
+                  <span className="text-text-primary">{resultado.utilidad.tarifaDescripcion}</span>
                 </div>
-                <div className="flex justify-between pt-2 border-t border-white/10">
-                  <span className="font-medium text-white">Impuesto a la Utilidad</span>
+                <div className="flex justify-between pt-2 border-t border-[var(--glass-border)]">
+                  <span className="font-medium text-text-primary">Impuesto a la Utilidad</span>
                   <span className="font-semibold text-orange-400">
                     ${resultado.utilidad.impuesto.toLocaleString()}
                   </span>
@@ -264,23 +264,23 @@ export function MunicipalCalculatorWidget() {
           )}
 
           {/* Detalle de Alcabala (Comprador) */}
-          <Card className="p-5 bg-white/5 border-white/10">
-            <h4 className="font-semibold text-white mb-4 flex items-center gap-2">
+          <Card className="p-5">
+            <h4 className="font-semibold text-text-primary mb-4 flex items-center gap-2">
               <span className="w-2 h-2 rounded-full bg-blue-400" />
               Impuesto de Alcabala (Comprador)
             </h4>
             <div className="space-y-2 text-sm">
               <div className="flex justify-between">
                 <span className="text-[var(--text-secondary)]">Base Imponible</span>
-                <span className="text-white">${resultado.alcabala.baseImponible.toLocaleString()}</span>
+                <span className="text-text-primary">${resultado.alcabala.baseImponible.toLocaleString()}</span>
               </div>
               <div className="flex justify-between">
                 <span className="text-[var(--text-secondary)]">Tarifa Base</span>
-                <span className="text-white">1%</span>
+                <span className="text-text-primary">1%</span>
               </div>
               <div className="flex justify-between">
                 <span className="text-[var(--text-secondary)]">Meses Transcurridos</span>
-                <span className="text-white">{resultado.alcabala.mesesTranscurridos} meses</span>
+                <span className="text-text-primary">{resultado.alcabala.mesesTranscurridos} meses</span>
               </div>
               <div className="flex justify-between">
                 <span className="text-[var(--text-secondary)]">Rebaja Aplicada</span>
@@ -292,8 +292,8 @@ export function MunicipalCalculatorWidget() {
                   <span className="text-green-400">-${resultado.alcabala.rebaja.toLocaleString()}</span>
                 </div>
               )}
-              <div className="flex justify-between pt-2 border-t border-white/10">
-                <span className="font-medium text-white">Impuesto de Alcabala</span>
+              <div className="flex justify-between pt-2 border-t border-[var(--glass-border)]">
+                <span className="font-medium text-text-primary">Impuesto de Alcabala</span>
                 <span className="font-semibold text-blue-400">
                   ${resultado.alcabala.impuesto.toLocaleString()}
                 </span>
@@ -304,7 +304,7 @@ export function MunicipalCalculatorWidget() {
       )}
 
       {/* Nota legal */}
-      <div className="flex items-start gap-2 text-xs text-[var(--text-secondary)] bg-white/5 p-3 rounded-lg">
+      <div className="flex items-start gap-2 text-xs text-[var(--text-secondary)] bg-bg-secondary p-3 rounded-lg">
         <AlertCircle className="w-4 h-4 flex-shrink-0 mt-0.5" />
         <p>
           Los cálculos son referenciales para la ciudad de Quito. Las tarifas de impuestos municipales

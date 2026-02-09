@@ -224,24 +224,7 @@ export function Hero() {
               </Link>
             </motion.div>
 
-            {/* Trust indicators */}
-            <motion.div
-              initial={{ opacity: 0 }}
-              animate={{ opacity: 1 }}
-              transition={{ duration: 0.5, delay: 0.5 }}
-              className="flex items-center gap-6 mt-10 pt-8 border-t border-slate-200"
-            >
-              {[
-                { value: '500+', label: 'Clientes' },
-                { value: '12+', label: 'Años exp.' },
-                { value: '24/7', label: 'Disponible' },
-              ].map((stat) => (
-                <div key={stat.label} className="text-center">
-                  <div className="text-lg font-bold text-text-primary">{stat.value}</div>
-                  <div className="text-xs text-text-muted">{stat.label}</div>
-                </div>
-              ))}
-            </motion.div>
+            
           </div>
 
           {/* Right — animated document visual */}

@@ -177,14 +177,14 @@ export function NotarialCalculatorWidget() {
     <div className="space-y-6">
       {/* Selector de Tipo de Servicio */}
       <div className="space-y-3">
-        <label className="text-sm font-medium text-white">Tipo de Servicio Principal</label>
+        <label className="text-sm font-medium text-text-primary">Tipo de Servicio Principal</label>
         <select
           value={tipoServicio}
           onChange={(e) => {
             setTipoServicio(e.target.value as TipoServicioNotarial)
             setResultado(null)
           }}
-          className="w-full px-4 py-3 bg-[#1a1a2e] border border-white/10 rounded-lg text-white focus:ring-2 focus:ring-[var(--accent-primary)] focus:border-transparent [&>option]:bg-[#1a1a2e] [&>option]:text-white"
+          className="w-full px-4 py-3 bg-white border border-[var(--glass-border)] rounded-lg text-text-primary focus:ring-2 focus:ring-[var(--accent-primary)] focus:border-transparent"
         >
           <optgroup label="Servicios con Cuantía">
             {tramites.conCuantia.map((t) => (
@@ -213,18 +213,18 @@ export function NotarialCalculatorWidget() {
       {/* Input de Cuantía (si aplica) */}
       {requiereCuantia && (
         <div className="space-y-3">
-          <label className="text-sm font-medium text-white">
+          <label className="text-sm font-medium text-text-primary">
             {esArrendamiento ? 'Canon Mensual ($)' : 'Cuantía / Valor del Acto ($)'}
           </label>
           <div className="relative">
-            <span className="absolute left-4 top-1/2 -translate-y-1/2 text-white/50">$</span>
+            <span className="absolute left-4 top-1/2 -translate-y-1/2 text-text-muted">$</span>
             <input
               type="number"
               value={cuantia}
               onChange={(e) => setCuantia(Number(e.target.value))}
               min={0}
               step={100}
-              className="w-full pl-8 pr-4 py-3 bg-white/5 border border-white/10 rounded-lg text-white focus:ring-2 focus:ring-[var(--accent-primary)] focus:border-transparent"
+              className="w-full pl-8 pr-4 py-3 bg-bg-secondary border border-[var(--glass-border)] rounded-lg text-text-primary focus:ring-2 focus:ring-[var(--accent-primary)] focus:border-transparent"
               placeholder="0.00"
             />
           </div>
@@ -241,7 +241,7 @@ export function NotarialCalculatorWidget() {
       {/* Tiempo para arrendamientos */}
       {esArrendamiento && (
         <div className="space-y-3">
-          <label className="text-sm font-medium text-white">Duración (meses)</label>
+          <label className="text-sm font-medium text-text-primary">Duración (meses)</label>
           <div className="flex items-center gap-4">
             <input
               type="number"
@@ -249,7 +249,7 @@ export function NotarialCalculatorWidget() {
               onChange={(e) => setTiempoMeses(Number(e.target.value))}
               min={1}
               max={120}
-              className="w-24 px-3 py-2 bg-white/5 border border-white/10 rounded-lg text-white text-center"
+              className="w-24 px-3 py-2 bg-bg-secondary border border-[var(--glass-border)] rounded-lg text-text-primary text-center"
             />
             <Slider
               value={[tiempoMeses]}
@@ -272,7 +272,7 @@ export function NotarialCalculatorWidget() {
       {/* Cantidad de menores para salida del país */}
       {esSalidaPais && (
         <div className="space-y-3">
-          <label className="text-sm font-medium text-white">Número de Menores</label>
+          <label className="text-sm font-medium text-text-primary">Número de Menores</label>
           <div className="flex items-center gap-4">
             <input
               type="number"
@@ -280,7 +280,7 @@ export function NotarialCalculatorWidget() {
               onChange={(e) => setCantidadMenores(Number(e.target.value))}
               min={1}
               max={10}
-              className="w-24 px-3 py-2 bg-white/5 border border-white/10 rounded-lg text-white text-center"
+              className="w-24 px-3 py-2 bg-bg-secondary border border-[var(--glass-border)] rounded-lg text-text-primary text-center"
             />
             <Slider
               value={[cantidadMenores]}
@@ -302,9 +302,9 @@ export function NotarialCalculatorWidget() {
               type="checkbox"
               checked={esViviendaSocial}
               onChange={(e) => setEsViviendaSocial(e.target.checked)}
-              className="w-5 h-5 rounded border-white/20 bg-white/5 text-[var(--accent-primary)] focus:ring-[var(--accent-primary)]"
+              className="w-5 h-5 rounded border-[var(--glass-border)] bg-white text-[var(--accent-primary)] focus:ring-[var(--accent-primary)]"
             />
-            <span className="text-sm text-white/80 group-hover:text-white transition-colors">
+            <span className="text-sm text-text-secondary group-hover:text-text-primary transition-colors">
               Vivienda de Interés Social (hasta $60,000) - Descuento 25%
             </span>
           </label>
@@ -322,9 +322,9 @@ export function NotarialCalculatorWidget() {
               type="checkbox"
               checked={esTerceraEdad}
               onChange={(e) => setEsTerceraEdad(e.target.checked)}
-              className="w-5 h-5 rounded border-white/20 bg-white/5 text-[var(--accent-primary)] focus:ring-[var(--accent-primary)]"
+              className="w-5 h-5 rounded border-[var(--glass-border)] bg-white text-[var(--accent-primary)] focus:ring-[var(--accent-primary)]"
             />
-            <span className="text-sm text-white/80 group-hover:text-white transition-colors">
+            <span className="text-sm text-text-secondary group-hover:text-text-primary transition-colors">
               Adulto Mayor (acto unilateral) - Descuento 50%
             </span>
           </label>
@@ -332,9 +332,9 @@ export function NotarialCalculatorWidget() {
       </div>
 
       {/* ÍTEMS ADICIONALES */}
-      <div className="pt-4 border-t border-white/10">
+      <div className="pt-4 border-t border-[var(--glass-border)]">
         <div className="flex items-center justify-between mb-4">
-          <h3 className="text-sm font-medium text-white flex items-center gap-2">
+          <h3 className="text-sm font-medium text-text-primary flex items-center gap-2">
             <FileText className="w-4 h-4" />
             Ítems Adicionales
           </h3>
@@ -353,21 +353,21 @@ export function NotarialCalculatorWidget() {
             {itemsAdicionales.map((item) => (
               <div
                 key={item.id}
-                className="flex items-center justify-between p-3 bg-white/5 rounded-lg"
+                className="flex items-center justify-between p-3 bg-bg-secondary rounded-lg"
               >
                 <div className="flex items-center gap-3">
                   <span className="text-[var(--accent-primary)]">
                     {ICONOS_ITEMS[item.tipo]}
                   </span>
                   <div>
-                    <p className="text-sm text-white">{item.descripcion}</p>
+                    <p className="text-sm text-text-primary">{item.descripcion}</p>
                     <p className="text-xs text-[var(--text-secondary)]">
                       {item.cantidad} x ${item.valorUnitario.toFixed(2)}
                     </p>
                   </div>
                 </div>
                 <div className="flex items-center gap-3">
-                  <span className="text-sm font-medium text-white">
+                  <span className="text-sm font-medium text-text-primary">
                     ${item.subtotal.toFixed(2)}
                   </span>
                   <button
@@ -384,13 +384,13 @@ export function NotarialCalculatorWidget() {
 
         {/* Formulario para agregar item */}
         {mostrarAgregarItem && (
-          <div className="p-4 bg-white/5 rounded-lg space-y-3">
+          <div className="p-4 bg-bg-secondary rounded-lg space-y-3">
             <select
               value={nuevoItemTipo}
               onChange={(e) => {
                 setNuevoItemTipo(e.target.value as ItemAdicional['tipo'])
               }}
-              className="w-full px-3 py-2 bg-[#1a1a2e] border border-white/10 rounded-lg text-white text-sm focus:ring-2 focus:ring-[var(--accent-primary)] focus:border-transparent [&>option]:bg-[#1a1a2e] [&>option]:text-white"
+              className="w-full px-3 py-2 bg-white border border-[var(--glass-border)] rounded-lg text-text-primary text-sm focus:ring-2 focus:ring-[var(--accent-primary)] focus:border-transparent"
             >
               <optgroup label="Certificaciones (por foja)">
                 <option value="copia_certificada">Copia Certificada - $1.79/foja</option>
@@ -428,7 +428,7 @@ export function NotarialCalculatorWidget() {
               <div className="flex items-center gap-2">
                 <button
                   onClick={() => setNuevoItemCantidad(Math.max(1, nuevoItemCantidad - 1))}
-                  className="w-8 h-8 flex items-center justify-center bg-white/10 hover:bg-white/20 rounded-lg text-white transition-colors"
+                  className="w-8 h-8 flex items-center justify-center bg-bg-tertiary hover:bg-bg-tertiary/80 rounded-lg text-text-primary transition-colors"
                 >
                   -
                 </button>
@@ -440,11 +440,11 @@ export function NotarialCalculatorWidget() {
                     setNuevoItemCantidad(Math.max(1, val))
                   }}
                   min={1}
-                  className="w-16 px-2 py-2 bg-white/5 border border-white/10 rounded-lg text-white text-center"
+                  className="w-16 px-2 py-2 bg-white border border-[var(--glass-border)] rounded-lg text-text-primary text-center"
                 />
                 <button
                   onClick={() => setNuevoItemCantidad(nuevoItemCantidad + 1)}
-                  className="w-8 h-8 flex items-center justify-center bg-white/10 hover:bg-white/20 rounded-lg text-white transition-colors"
+                  className="w-8 h-8 flex items-center justify-center bg-white hover:bg-white/80 rounded-lg text-text-primary transition-colors"
                 >
                   +
                 </button>
@@ -459,14 +459,14 @@ export function NotarialCalculatorWidget() {
             <div className="flex items-center justify-between pt-2">
               <p className="text-sm text-[var(--text-secondary)]">
                 Subtotal: {' '}
-                <span className="text-white font-medium">
+                <span className="text-text-primary font-medium">
                   ${calcularSubtotalItem(nuevoItemTipo, nuevoItemCantidad).toFixed(2)}
                 </span>
               </p>
               <div className="flex gap-2">
                 <button
                   onClick={() => setMostrarAgregarItem(false)}
-                  className="px-3 py-1.5 text-sm text-[var(--text-secondary)] hover:text-white transition-colors"
+                  className="px-3 py-1.5 text-sm text-[var(--text-secondary)] hover:text-text-primary transition-colors"
                 >
                   Cancelar
                 </button>
@@ -498,7 +498,7 @@ export function NotarialCalculatorWidget() {
             {/* Gran Total */}
             <div className="text-center">
               <p className="text-sm text-[var(--text-secondary)] mb-2">Total a Pagar</p>
-              <div className="text-4xl font-bold text-white">
+              <div className="text-4xl font-bold text-text-primary">
                 $<AnimatedCounter value={resultado.granTotal} duration={0.8} />
               </div>
               {resultado.itemsAdicionales.length > 0 && (
@@ -509,11 +509,11 @@ export function NotarialCalculatorWidget() {
             </div>
 
             {/* Desglose del trámite principal */}
-            <div className="space-y-3 pt-4 border-t border-white/10">
-              <h4 className="text-sm font-medium text-white">Trámite Principal</h4>
+            <div className="space-y-3 pt-4 border-t border-[var(--glass-border)]">
+              <h4 className="text-sm font-medium text-text-primary">Trámite Principal</h4>
               <div className="flex justify-between text-sm">
                 <span className="text-[var(--text-secondary)]">Subtotal</span>
-                <span className="text-white font-medium">${resultado.subtotal.toFixed(2)}</span>
+                <span className="text-text-primary font-medium">${resultado.subtotal.toFixed(2)}</span>
               </div>
 
               {resultado.descuento > 0 && (
@@ -527,30 +527,30 @@ export function NotarialCalculatorWidget() {
 
               <div className="flex justify-between text-sm">
                 <span className="text-[var(--text-secondary)]">IVA (15%)</span>
-                <span className="text-white font-medium">${resultado.iva.toFixed(2)}</span>
+                <span className="text-text-primary font-medium">${resultado.iva.toFixed(2)}</span>
               </div>
 
-              <div className="flex justify-between text-sm pt-2 border-t border-white/10">
-                <span className="font-medium text-white">Total Trámite Principal</span>
-                <span className="font-semibold text-white">${resultado.total.toFixed(2)}</span>
+              <div className="flex justify-between text-sm pt-2 border-t border-[var(--glass-border)]">
+                <span className="font-medium text-text-primary">Total Trámite Principal</span>
+                <span className="font-semibold text-text-primary">${resultado.total.toFixed(2)}</span>
               </div>
             </div>
 
             {/* Ítems adicionales */}
             {resultado.itemsAdicionales.length > 0 && (
-              <div className="space-y-3 pt-4 border-t border-white/10">
-                <h4 className="text-sm font-medium text-white">Ítems Adicionales</h4>
+              <div className="space-y-3 pt-4 border-t border-[var(--glass-border)]">
+                <h4 className="text-sm font-medium text-text-primary">Ítems Adicionales</h4>
                 {resultado.itemsAdicionales.map((item) => (
                   <div key={item.id} className="flex justify-between text-sm">
                     <span className="text-[var(--text-secondary)]">
                       {item.descripcion} ({item.cantidad})
                     </span>
-                    <span className="text-white">${item.subtotal.toFixed(2)}</span>
+                    <span className="text-text-primary">${item.subtotal.toFixed(2)}</span>
                   </div>
                 ))}
-                <div className="flex justify-between text-sm pt-2 border-t border-white/10">
-                  <span className="font-medium text-white">Total Ítems Adicionales</span>
-                  <span className="font-semibold text-white">
+                <div className="flex justify-between text-sm pt-2 border-t border-[var(--glass-border)]">
+                  <span className="font-medium text-text-primary">Total Ítems Adicionales</span>
+                  <span className="font-semibold text-text-primary">
                     ${resultado.totalItemsAdicionales.toFixed(2)}
                   </span>
                 </div>
@@ -558,7 +558,7 @@ export function NotarialCalculatorWidget() {
             )}
 
             {/* Detalles legales */}
-            <div className="pt-4 border-t border-white/10">
+            <div className="pt-4 border-t border-[var(--glass-border)]">
               <div className="flex items-start gap-2 text-xs text-[var(--text-secondary)]">
                 <Info className="w-4 h-4 flex-shrink-0 mt-0.5" />
                 <div className="space-y-1">
@@ -573,7 +573,7 @@ export function NotarialCalculatorWidget() {
       )}
 
       {/* Nota legal */}
-      <div className="flex items-start gap-2 text-xs text-[var(--text-secondary)] bg-white/5 p-3 rounded-lg">
+      <div className="flex items-start gap-2 text-xs text-[var(--text-secondary)] bg-bg-secondary p-3 rounded-lg">
         <Info className="w-4 h-4 flex-shrink-0 mt-0.5" />
         <p>
           Los valores calculados son referenciales y pueden variar según la notaría. SBU 2026: $482.00. 

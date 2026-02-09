@@ -97,7 +97,7 @@ export function Modal({
             exit="exit"
             className={cn(
               'relative w-full rounded-[var(--radius-xl)]',
-              'bg-bg-secondary border border-white/[0.08]',
+              'bg-bg-secondary border border-[var(--glass-border)]',
               'shadow-[0_25px_50px_-12px_rgba(0,0,0,0.6)]',
               sizeStyles[size],
               className,
@@ -105,9 +105,9 @@ export function Modal({
           >
             {/* Header */}
             {title && (
-              <div className="flex items-center justify-between p-6 border-b border-white/[0.08]">
+              <div className="flex items-center justify-between p-6 border-b border-[var(--glass-border)]">
                 <div>
-                  <h2 id="modal-title" className="text-lg font-semibold text-white">
+                  <h2 id="modal-title" className="text-lg font-semibold text-text-primary">
                     {title}
                   </h2>
                   {description && (
@@ -118,7 +118,7 @@ export function Modal({
                 </div>
                 <button
                   onClick={onClose}
-                  className="p-1.5 rounded-[var(--radius-sm)] text-text-muted hover:text-white hover:bg-white/5 transition-colors duration-200 cursor-pointer"
+                  className="p-1.5 rounded-[var(--radius-sm)] text-text-muted hover:text-text-primary hover:bg-bg-tertiary transition-colors duration-200 cursor-pointer"
                   aria-label="Cerrar"
                 >
                   <X className="w-5 h-5" />

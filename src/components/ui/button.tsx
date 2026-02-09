@@ -21,16 +21,16 @@ const variantStyles = {
     'shadow-lg shadow-accent-primary/25',
   ].join(' '),
   secondary: [
-    'bg-white/10 text-white border border-white/10',
-    'hover:bg-white/20 hover:border-white/20',
+    'bg-bg-secondary text-text-primary border border-[var(--glass-border)]',
+    'hover:bg-bg-tertiary hover:border-[var(--glass-border-hover)]',
   ].join(' '),
   ghost: [
     'text-text-secondary',
-    'hover:text-white hover:bg-white/5',
+    'hover:text-text-primary hover:bg-bg-tertiary',
   ].join(' '),
   outline: [
-    'border border-white/[0.08] text-white bg-transparent',
-    'hover:bg-white/[0.04] hover:border-white/[0.16]',
+    'border border-[var(--glass-border)] text-text-primary bg-transparent',
+    'hover:bg-bg-tertiary hover:border-[var(--glass-border-hover)]',
   ].join(' '),
   danger: [
     'bg-accent-error text-white',

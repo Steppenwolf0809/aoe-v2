@@ -5,7 +5,7 @@ import { motion } from 'framer-motion'
 import { cn } from '@/lib/utils'
 
 /* ----------------------------------------------------------------
-   Card — Glass surface with optional hover micro-interaction
+   Card — Light-mode glass surface with optional hover interaction
    ---------------------------------------------------------------- */
 interface CardProps extends HTMLAttributes<HTMLDivElement> {
   hover?: boolean
@@ -18,10 +18,10 @@ const Card = forwardRef<HTMLDivElement, CardProps>(
       whileHover={hover ? { scale: 1.01, y: -2 } : undefined}
       transition={{ duration: 0.2 }}
       className={cn(
-        'rounded-[var(--radius-lg)] bg-white/[0.03] backdrop-blur-xl',
-        'border border-white/[0.08]',
-        'shadow-glass-lg',
-        hover && 'cursor-pointer transition-colors duration-200 hover:bg-white/[0.05] hover:border-white/[0.12]',
+        'rounded-[var(--radius-lg)] bg-white backdrop-blur-xl',
+        'border border-[var(--glass-border)]',
+        'shadow-[var(--glass-shadow)]',
+        hover && 'cursor-pointer transition-colors duration-200 hover:bg-bg-secondary hover:border-[var(--glass-border-hover)]',
         className,
       )}
       {...(props as Record<string, unknown>)}

@@ -11,14 +11,14 @@ export function SubscriptionCard({ plan, active }: SubscriptionCardProps) {
     <Card>
       <CardHeader>
         <div className="flex items-center justify-between">
-          <h3 className="text-lg font-semibold text-white">Mi Suscripcion</h3>
+          <h3 className="text-lg font-semibold text-text-primary">Mi Suscripcion</h3>
           <Badge variant={active ? 'success' : 'default'}>
             {active ? 'Activa' : 'Inactiva'}
           </Badge>
         </div>
       </CardHeader>
       <CardContent>
-        <div className="text-2xl font-bold text-white mb-1">{plan}</div>
+        <div className="text-2xl font-bold text-text-primary mb-1">{plan}</div>
         <p className="text-sm text-[var(--text-secondary)]">
           {plan === 'FREE'
             ? 'Plan gratuito con funcionalidades basicas'

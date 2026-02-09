@@ -26,7 +26,7 @@ export function SliderInput({
     <div className="space-y-2">
       <div className="flex items-center justify-between">
         <label className="text-sm font-medium text-[var(--text-secondary)]">{label}</label>
-        <span className="text-sm font-semibold text-white">
+        <span className="text-sm font-semibold text-text-primary">
           {formatAsCurrency ? formatCurrency(value) : String(value)}
         </span>
       </div>

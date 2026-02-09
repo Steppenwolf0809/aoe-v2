@@ -46,10 +46,10 @@ export function MobileMenu({ isOpen, onClose }: MobileMenuProps) {
             initial="hidden"
             animate="visible"
             exit="exit"
-            className="fixed right-0 top-0 bottom-0 z-50 w-80 max-w-[85vw] bg-bg-secondary border-l border-white/[0.08] flex flex-col md:hidden"
+            className="fixed right-0 top-0 bottom-0 z-50 w-80 max-w-[85vw] bg-bg-secondary border-l border-[var(--glass-border)] flex flex-col md:hidden"
           >
             {/* Panel header */}
-            <div className="flex items-center justify-between p-5 border-b border-white/[0.08]">
+            <div className="flex items-center justify-between p-5 border-b border-[var(--glass-border)]">
               <Image
                 src="/logo/logo-horizontal.svg"
                 alt="Abogados Online Ecuador"
@@ -59,7 +59,7 @@ export function MobileMenu({ isOpen, onClose }: MobileMenuProps) {
               />
               <button
                 onClick={onClose}
-                className="p-2 text-text-muted hover:text-white hover:bg-white/5 rounded-[var(--radius-sm)] transition-colors duration-200 cursor-pointer"
+                className="p-2 text-text-muted hover:text-text-primary hover:bg-bg-tertiary rounded-[var(--radius-sm)] transition-colors duration-200 cursor-pointer"
                 aria-label="Cerrar menu"
               >
                 <X className="w-5 h-5" />
@@ -79,7 +79,7 @@ export function MobileMenu({ isOpen, onClose }: MobileMenuProps) {
                     <Link
                       href={link.href}
                       onClick={onClose}
-                      className="flex items-center justify-between px-4 py-3 rounded-[var(--radius-md)] text-text-secondary hover:text-white hover:bg-white/5 transition-all duration-200"
+                      className="flex items-center justify-between px-4 py-3 rounded-[var(--radius-md)] text-text-secondary hover:text-text-primary hover:bg-bg-tertiary transition-all duration-200"
                     >
                       <span>{link.label}</span>
                       {link.badge && (
@@ -94,7 +94,7 @@ export function MobileMenu({ isOpen, onClose }: MobileMenuProps) {
             </nav>
 
             {/* Bottom actions */}
-            <div className="p-4 space-y-3 border-t border-white/[0.08]">
+            <div className="p-4 space-y-3 border-t border-[var(--glass-border)]">
               <Link href="/iniciar-sesion" onClick={onClose}>
                 <Button variant="outline" className="w-full">
                   Iniciar Sesion

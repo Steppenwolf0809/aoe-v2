@@ -13,12 +13,12 @@ interface PostCardProps {
 export function PostCard({ slug, title, excerpt, category, date }: PostCardProps) {
   return (
     <Link href={`/blog/${slug}`}>
-      <Card className="h-full p-6 hover:bg-white/[0.05] hover:border-white/[0.12] transition-all duration-200 cursor-pointer group">
+      <Card className="h-full p-6 hover:bg-bg-tertiary hover:border-[var(--glass-border-hover)] transition-all duration-200 cursor-pointer group">
         <CardContent className="p-0">
           {category && (
             <Badge variant="info" className="mb-3">{category}</Badge>
           )}
-          <h3 className="text-lg font-semibold text-white mb-2 group-hover:text-[var(--accent-primary)] transition-colors">
+          <h3 className="text-lg font-semibold text-text-primary mb-2 group-hover:text-[var(--accent-primary)] transition-colors">
             {title}
           </h3>
           <p className="text-sm text-[var(--text-secondary)] line-clamp-3 mb-4">{excerpt}</p>

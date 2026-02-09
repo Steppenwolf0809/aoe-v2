@@ -20,20 +20,20 @@ export function CTA() {
           whileInView={{ opacity: 1, y: 0 }}
           viewport={{ once: true, margin: '-60px' }}
           transition={{ duration: 0.6, ease: [0.25, 0.46, 0.45, 0.94] as const }}
-          className="relative overflow-hidden rounded-2xl border border-white/[0.08]"
+          className="relative overflow-hidden rounded-2xl border border-[var(--glass-border)]"
         >
           {/* Gradient background */}
           <div
             className="absolute inset-0"
             style={{
               background:
-                'radial-gradient(ellipse 80% 100% at 50% 100%, rgba(59,130,246,0.15) 0%, transparent 60%), radial-gradient(ellipse 60% 80% at 80% 0%, rgba(139,92,246,0.1) 0%, transparent 50%), rgba(255,255,255,0.03)',
+                'radial-gradient(ellipse 80% 100% at 50% 100%, rgba(59,130,246,0.08) 0%, transparent 60%), radial-gradient(ellipse 60% 80% at 80% 0%, rgba(139,92,246,0.06) 0%, transparent 50%), var(--bg-secondary)',
             }}
           />
 
           {/* Content */}
           <div className="relative z-10 p-10 sm:p-16 text-center">
-            <h2 className="text-3xl sm:text-4xl lg:text-5xl font-bold text-white mb-5 leading-tight">
+            <h2 className="text-3xl sm:text-4xl lg:text-5xl font-bold text-text-primary mb-5 leading-tight">
               ¿Listo para simplificar sus trámites legales?
             </h2>
             <p className="text-text-secondary text-lg sm:text-xl mb-10 max-w-2xl mx-auto leading-relaxed">

@@ -8,9 +8,9 @@ export function Skeleton({ className }: SkeletonProps) {
   return (
     <div
       className={cn(
-        'rounded-[var(--radius-md)] bg-white/[0.06]',
+        'rounded-[var(--radius-md)] bg-slate-200/60',
         'animate-shimmer bg-[length:200%_100%]',
-        'bg-gradient-to-r from-white/[0.06] via-white/[0.10] to-white/[0.06]',
+        'bg-gradient-to-r from-slate-200/60 via-slate-100/80 to-slate-200/60',
         className,
       )}
     />
@@ -20,7 +20,7 @@ export function Skeleton({ className }: SkeletonProps) {
 /* Pre-composed skeleton patterns for common layouts */
 export function SkeletonCard({ className }: SkeletonProps) {
   return (
-    <div className={cn('rounded-[var(--radius-lg)] bg-white/[0.03] border border-white/[0.08] p-6 space-y-4', className)}>
+    <div className={cn('rounded-[var(--radius-lg)] bg-bg-secondary border border-[var(--glass-border)] p-6 space-y-4', className)}>
       <Skeleton className="h-4 w-2/3" />
       <Skeleton className="h-3 w-full" />
       <Skeleton className="h-3 w-4/5" />

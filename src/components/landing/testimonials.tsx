@@ -113,7 +113,7 @@ export function Testimonials() {
           transition={{ duration: 0.5 }}
           className="text-center mb-14"
         >
-          <h2 className="text-3xl sm:text-4xl font-bold text-white mb-4">
+          <h2 className="text-3xl sm:text-4xl font-bold text-text-primary mb-4">
             Lo que dicen nuestros clientes
           </h2>
           <p className="text-text-secondary text-lg max-w-xl mx-auto">
@@ -128,7 +128,7 @@ export function Testimonials() {
           onMouseLeave={() => setIsPaused(false)}
         >
           {/* Card container */}
-          <div className="overflow-hidden rounded-2xl bg-white/[0.03] border border-white/[0.08] backdrop-blur-xl p-8 sm:p-12 min-h-[280px] flex items-center">
+          <div className="overflow-hidden rounded-2xl bg-bg-secondary border border-[var(--glass-border)] p-8 sm:p-12 min-h-[280px] flex items-center">
             <AnimatePresence initial={false} custom={direction} mode="wait">
               <motion.div
                 key={page}
@@ -151,13 +151,13 @@ export function Testimonials() {
                 {/* Author */}
                 <div className="flex items-center gap-4">
                   {/* Avatar placeholder */}
-                  <div className="w-12 h-12 rounded-full bg-gradient-to-br from-accent-primary/30 to-accent-secondary/30 border border-white/[0.08] flex items-center justify-center flex-shrink-0">
-                    <span className="text-sm font-semibold text-white">
+                  <div className="w-12 h-12 rounded-full bg-gradient-to-br from-accent-primary/30 to-accent-secondary/30 border border-[var(--glass-border)] flex items-center justify-center flex-shrink-0">
+                    <span className="text-sm font-semibold text-text-primary">
                       {current.initials}
                     </span>
                   </div>
                   <div>
-                    <div className="font-medium text-white">{current.name}</div>
+                    <div className="font-medium text-text-primary">{current.name}</div>
                     <div className="text-sm text-text-muted">
                       {current.role} — {current.city}
                     </div>
@@ -170,14 +170,14 @@ export function Testimonials() {
           {/* Navigation arrows */}
           <button
             onClick={() => paginate(-1)}
-            className="absolute left-0 top-1/2 -translate-y-1/2 -translate-x-1/2 sm:-translate-x-5 w-10 h-10 rounded-full bg-white/[0.06] border border-white/[0.08] flex items-center justify-center text-text-secondary hover:bg-white/[0.12] hover:text-white transition-all duration-200 cursor-pointer backdrop-blur-sm"
+            className="absolute left-0 top-1/2 -translate-y-1/2 -translate-x-1/2 sm:-translate-x-5 w-10 h-10 rounded-full bg-bg-secondary border border-[var(--glass-border)] flex items-center justify-center text-text-secondary hover:bg-bg-tertiary hover:text-text-primary transition-all duration-200 cursor-pointer backdrop-blur-sm"
             aria-label="Testimonio anterior"
           >
             <ChevronLeft className="w-5 h-5" />
           </button>
           <button
             onClick={() => paginate(1)}
-            className="absolute right-0 top-1/2 -translate-y-1/2 translate-x-1/2 sm:translate-x-5 w-10 h-10 rounded-full bg-white/[0.06] border border-white/[0.08] flex items-center justify-center text-text-secondary hover:bg-white/[0.12] hover:text-white transition-all duration-200 cursor-pointer backdrop-blur-sm"
+            className="absolute right-0 top-1/2 -translate-y-1/2 translate-x-1/2 sm:translate-x-5 w-10 h-10 rounded-full bg-bg-secondary border border-[var(--glass-border)] flex items-center justify-center text-text-secondary hover:bg-bg-tertiary hover:text-text-primary transition-all duration-200 cursor-pointer backdrop-blur-sm"
             aria-label="Siguiente testimonio"
           >
             <ChevronRight className="w-5 h-5" />
@@ -194,7 +194,7 @@ export function Testimonials() {
                 'w-2 h-2 rounded-full transition-all duration-300 cursor-pointer',
                 index === currentIndex
                   ? 'bg-accent-primary w-6'
-                  : 'bg-white/20 hover:bg-white/40',
+                  : 'bg-[var(--glass-border)] hover:bg-text-muted',
               )}
               aria-label={`Ir al testimonio ${index + 1}`}
             />

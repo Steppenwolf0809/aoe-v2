@@ -46,7 +46,7 @@ export function AnimatedCounter({
   if (label) {
     return (
       <div>
-        <div className={`text-2xl font-bold text-white ${className || ''}`}>
+        <div className={`text-2xl font-bold text-text-primary ${className || ''}`}>
           {formatAsCurrency ? formatCurrency(displayValue) : displayValue.toFixed(0)}
         </div>
         <div className="text-xs text-[var(--text-muted)] mt-0.5">{label}</div>

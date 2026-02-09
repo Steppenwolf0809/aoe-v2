@@ -7,7 +7,7 @@ export const metadata: Metadata = {
 export default function ContratosPage() {
   return (
     <div>
-      <h1 className="text-2xl font-bold text-white mb-6">Mis Contratos</h1>
+      <h1 className="text-2xl font-bold text-text-primary mb-6">Mis Contratos</h1>
       {/* TODO: implementar ContractsList */}
     </div>
   )

@@ -15,7 +15,7 @@ export function StepIndicator({ steps, currentStep }: StepIndicatorProps) {
               'w-8 h-8 rounded-full flex items-center justify-center text-sm font-medium transition-colors',
               index <= currentStep
                 ? 'bg-[var(--accent-primary)] text-white'
-                : 'bg-white/10 text-[var(--text-muted)]'
+                : 'bg-bg-tertiary text-[var(--text-muted)]'
             )}
           >
             {index + 1}
@@ -23,7 +23,7 @@ export function StepIndicator({ steps, currentStep }: StepIndicatorProps) {
           <span
             className={cn(
               'text-sm hidden sm:inline',
-              index <= currentStep ? 'text-white' : 'text-[var(--text-muted)]'
+              index <= currentStep ? 'text-text-primary' : 'text-[var(--text-muted)]'
             )}
           >
             {step}
@@ -31,7 +31,7 @@ export function StepIndicator({ steps, currentStep }: StepIndicatorProps) {
           {index < steps.length - 1 && (
             <div className={cn(
               'w-8 h-px',
-              index < currentStep ? 'bg-[var(--accent-primary)]' : 'bg-white/10'
+              index < currentStep ? 'bg-[var(--accent-primary)]' : 'bg-[var(--glass-border)]'
             )} />
           )}
         </div>
