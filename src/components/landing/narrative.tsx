@@ -17,14 +17,14 @@ const narrativeSteps = [
         description:
             'Cada contrato generado en nuestra plataforma ha sido redactado y revisado por notarios y abogados expertos. Garantizamos que tus documentos cumplan con la normativa ecuatoriana vigente (Ley Notarial, Código Civil), listos para firmar en cualquier notaría del país.',
         bulletPoints: [
-            'Cláusulas actualizadas 2024',
+            'Cláusulas actualizadas 2026',
             'Cumplimiento de requisitos SRI y AMT',
             'Formato notarial estándar',
         ],
         icon: Check,
         color: 'text-accent-success',
         bgColor: 'bg-accent-success/10',
-        image: '/assets/landing/validation_process.svg',
+        image: '/assets/landing/validation-people-signing.jpg',
         href: '/servicios/compraventa-inmuebles',
         align: 'left', // Text on left, Image on right
     },
