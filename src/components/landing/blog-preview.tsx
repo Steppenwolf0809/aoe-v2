@@ -7,7 +7,7 @@ import { Card, CardContent } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
 
 /* ----------------------------------------------------------------
-   Blog post preview data — placeholder posts
+   Blog post preview data
    ---------------------------------------------------------------- */
 interface BlogPost {
   title: string
@@ -16,39 +16,46 @@ interface BlogPost {
   author: string
   category: string
   slug: string
-  gradient: string
+  image: string
+  overlay: string
 }
 
 const posts: BlogPost[] = [
   {
-    title: '¿Cuánto cuesta escriturar una casa en Quito en 2026?',
+    title: 'Cuanto cuesta escriturar una casa en Quito en 2026?',
     excerpt:
-      'Guía completa con todos los gastos que debes considerar al escriturar un inmueble: aranceles notariales, impuestos municipales y registro de la propiedad.',
+      'Guia completa con todos los gastos que debes considerar al escriturar un inmueble: aranceles notariales, impuestos municipales y registro de la propiedad.',
     date: '5 Feb 2026',
     author: 'Jose Luis',
     category: 'Inmuebles',
     slug: 'cuanto-cuesta-escriturar-casa-quito-2026',
-    gradient: 'from-blue-500/20 to-cyan-500/20',
+    image:
+      'https://images.unsplash.com/photo-1560518883-ce09059eeffa?auto=format&fit=crop&w=1200&q=80',
+    overlay: 'from-slate-900/60 via-slate-900/20 to-transparent',
   },
   {
-    title: '5 errores al comprar un vehículo usado en Ecuador',
+    title: '5 errores al comprar un vehiculo usado en Ecuador',
     excerpt:
-      'Evita problemas legales al adquirir un vehículo de segunda mano. Conoce los documentos que debes verificar antes de firmar.',
+      'Evita problemas legales al adquirir un vehiculo de segunda mano. Conoce los documentos que debes verificar antes de firmar.',
     date: '1 Feb 2026',
     author: 'Jose Luis',
-    category: 'Vehículos',
+    category: 'Vehiculos',
     slug: '5-errores-comprar-vehiculo-usado-ecuador',
-    gradient: 'from-emerald-500/20 to-teal-500/20',
+    image:
+      'https://images.unsplash.com/photo-1533106418989-88406c7cc8ca?auto=format&fit=crop&w=1200&q=80',
+    overlay: 'from-slate-900/65 via-slate-900/20 to-transparent',
   },
   {
-    title: '¿Qué es la plusvalía y cómo se calcula en Quito?',
+    title: 'Que es la plusvalia y como se calcula en Quito?',
     excerpt:
-      'Entiende el impuesto de plusvalía, cuándo aplica, cómo se calcula y las rebajas por tiempo de posesión del inmueble.',
+      'Entiende el impuesto de plusvalia, cuando aplica, como se calcula y las rebajas por tiempo de posesion del inmueble.',
     date: '28 Ene 2026',
     author: 'Jose Luis',
     category: 'Impuestos',
     slug: 'que-es-plusvalia-como-se-calcula-quito',
-    gradient: 'from-purple-500/20 to-pink-500/20',
+    image:
+      'https://images.unsplash.com/photo-1486406146926-c627a92ad1ab?auto=format&fit=crop&w=1200&q=80',
+    overlay: 'from-slate-950/70 via-slate-950/25 to-transparent',
   },
 ]
 
@@ -78,7 +85,6 @@ export function BlogPreview() {
   return (
     <section className="py-20 sm:py-28 px-4 sm:px-6 bg-slate-50">
       <div className="max-w-7xl mx-auto">
-        {/* Section header */}
         <motion.div
           initial={{ opacity: 0, y: 20 }}
           whileInView={{ opacity: 1, y: 0 }}
@@ -87,14 +93,13 @@ export function BlogPreview() {
           className="text-center mb-14"
         >
           <h2 className="text-3xl sm:text-4xl font-bold text-slate-900 mb-4">
-            Artículos y Recursos Legales
+            Articulos y Recursos Legales
           </h2>
           <p className="text-slate-600 text-lg max-w-2xl mx-auto">
-            Información práctica sobre trámites legales, impuestos y consejos para ecuatorianos.
+            Informacion practica sobre tramites legales, impuestos y consejos para ecuatorianos.
           </p>
         </motion.div>
 
-        {/* Post cards grid */}
         <motion.div
           variants={containerVariants}
           initial="hidden"
@@ -106,12 +111,13 @@ export function BlogPreview() {
             <motion.div key={post.slug} variants={cardVariants}>
               <Link href={`/blog/${post.slug}`} className="block h-full group">
                 <Card className="h-full overflow-hidden bg-white border-slate-200 shadow-sm hover:shadow-lg hover:-translate-y-1 transition-all duration-300 cursor-pointer">
-                  {/* Image placeholder with gradient */}
-                  <div
-                    className={`h-44 bg-gradient-to-br ${post.gradient} relative overflow-hidden`}
-                  >
-                    <div className="absolute inset-0 bg-white/10" />
-                    {/* Category badge */}
+                  <div className="h-44 relative overflow-hidden">
+                    <img
+                      src={post.image}
+                      alt={`Imagen para ${post.title}`}
+                      className="h-full w-full object-cover transition-transform duration-500 group-hover:scale-105"
+                    />
+                    <div className={`absolute inset-0 bg-gradient-to-t ${post.overlay}`} />
                     <div className="absolute top-4 left-4">
                       <span className="px-3 py-1 text-xs font-bold text-slate-700 bg-white/90 backdrop-blur-sm rounded-full shadow-sm">
                         {post.category}
@@ -120,7 +126,6 @@ export function BlogPreview() {
                   </div>
 
                   <CardContent className="p-5">
-                    {/* Meta */}
                     <div className="flex items-center gap-4 text-xs text-slate-500 mb-3">
                       <span className="inline-flex items-center gap-1">
                         <Calendar className="w-3.5 h-3.5" />
@@ -132,12 +137,10 @@ export function BlogPreview() {
                       </span>
                     </div>
 
-                    {/* Title */}
                     <h3 className="text-base font-bold text-slate-900 mb-2 leading-snug group-hover:text-blue-700 transition-colors duration-200">
                       {post.title}
                     </h3>
 
-                    {/* Excerpt */}
                     <p className="text-sm text-slate-600 leading-relaxed line-clamp-3">
                       {post.excerpt}
                     </p>
@@ -148,7 +151,6 @@ export function BlogPreview() {
           ))}
         </motion.div>
 
-        {/* Bottom CTA */}
         <motion.div
           initial={{ opacity: 0, y: 16 }}
           whileInView={{ opacity: 1, y: 0 }}
@@ -157,8 +159,12 @@ export function BlogPreview() {
           className="text-center mt-12"
         >
           <Link href="/blog">
-            <Button variant="outline" size="lg" className="border-slate-300 text-slate-700 hover:bg-white hover:text-blue-700">
-              Ver todos los artículos
+            <Button
+              variant="outline"
+              size="lg"
+              className="border-slate-300 text-slate-700 hover:bg-white hover:text-blue-700"
+            >
+              Ver todos los articulos
               <ArrowRight className="w-4 h-4 ml-2" />
             </Button>
           </Link>
