@@ -1,4 +1,41 @@
-<svg width="800" height="600" xmlns="http://www.w3.org/2000/svg">
-  <rect width="800" height="600" fill="#f1f5f9" />
-  <text x="50%" y="50%" font-family="Arial" font-size="24" fill="#64748b" text-anchor="middle" dy=".3em">Placeholder: Human Speed (Laptop/Coffee)</text>
+<svg width="800" height="600" viewBox="0 0 800 600" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <defs>
+    <linearGradient id="bg" x1="80" y1="40" x2="760" y2="560" gradientUnits="userSpaceOnUse">
+      <stop offset="0" stop-color="#FFF7ED"/>
+      <stop offset="1" stop-color="#FEF3C7"/>
+    </linearGradient>
+    <linearGradient id="screen" x1="188" y1="132" x2="560" y2="430" gradientUnits="userSpaceOnUse">
+      <stop offset="0" stop-color="#0F172A"/>
+      <stop offset="1" stop-color="#1E293B"/>
+    </linearGradient>
+    <linearGradient id="line" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0" stop-color="#22D3EE"/>
+      <stop offset="1" stop-color="#3B82F6"/>
+    </linearGradient>
+  </defs>
+
+  <rect width="800" height="600" rx="28" fill="url(#bg)"/>
+
+  <path d="M74 166H190" stroke="#F97316" stroke-width="14" stroke-linecap="round" stroke-opacity="0.35"/>
+  <path d="M54 218H180" stroke="#F97316" stroke-width="10" stroke-linecap="round" stroke-opacity="0.3"/>
+  <path d="M40 268H154" stroke="#F97316" stroke-width="8" stroke-linecap="round" stroke-opacity="0.25"/>
+
+  <rect x="180" y="118" width="424" height="282" rx="22" fill="url(#screen)"/>
+  <rect x="204" y="142" width="376" height="222" rx="14" fill="#020617"/>
+  <path d="M220 308C250 290 280 256 314 266C348 276 362 322 404 308C446 294 462 232 514 238C546 242 560 266 574 280" stroke="url(#line)" stroke-width="8" stroke-linecap="round"/>
+  <circle cx="314" cy="266" r="7" fill="#22D3EE"/>
+  <circle cx="404" cy="308" r="7" fill="#22D3EE"/>
+  <circle cx="514" cy="238" r="7" fill="#22D3EE"/>
+
+  <path d="M142 420H642L600 500H182L142 420Z" fill="#334155"/>
+  <rect x="210" y="430" width="368" height="52" rx="18" fill="#0F172A"/>
+
+  <circle cx="650" cy="176" r="78" fill="#FFFFFF" fill-opacity="0.92"/>
+  <circle cx="650" cy="176" r="58" fill="#F59E0B" fill-opacity="0.24"/>
+  <path d="M650 148V176L670 194" stroke="#B45309" stroke-width="10" stroke-linecap="round" stroke-linejoin="round"/>
+  <circle cx="650" cy="176" r="8" fill="#B45309"/>
+
+  <rect x="66" y="414" width="120" height="66" rx="18" fill="#FFFFFF" fill-opacity="0.88"/>
+  <path d="M104 414V384C104 372 113 362 126 362C139 362 148 372 148 384V414" stroke="#9CA3AF" stroke-width="10" stroke-linecap="round"/>
+  <rect x="112" y="432" width="70" height="16" rx="8" fill="#D1D5DB"/>
 </svg>

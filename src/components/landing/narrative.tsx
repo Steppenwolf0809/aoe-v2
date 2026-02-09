@@ -3,6 +3,7 @@
 import { motion } from 'framer-motion'
 import { Check, Zap, Shield, ArrowRight } from 'lucide-react'
 import Link from 'next/link'
+import Image from 'next/image'
 import { Button } from '@/components/ui/button'
 
 /* ----------------------------------------------------------------
@@ -24,6 +25,7 @@ const narrativeSteps = [
         color: 'text-accent-success',
         bgColor: 'bg-accent-success/10',
         image: '/assets/landing/validation_process.svg',
+        href: '/servicios/compraventa-inmuebles',
         align: 'left', // Text on left, Image on right
     },
     {
@@ -41,6 +43,7 @@ const narrativeSteps = [
         color: 'text-amber-500',
         bgColor: 'bg-amber-500/10',
         image: '/assets/landing/speed_process.svg',
+        href: '/calculadoras',
         align: 'right', // Image on left, Text on right
     },
     {
@@ -58,6 +61,7 @@ const narrativeSteps = [
         color: 'text-accent-primary',
         bgColor: 'bg-accent-primary/10',
         image: '/assets/landing/security_process.svg',
+        href: '/contacto',
         align: 'left', // Text on left, Image on right
     },
 ]
@@ -69,7 +73,7 @@ export function Narrative() {
     return (
         <section className="py-24 overflow-hidden bg-white">
             <div className="max-w-7xl mx-auto px-4 sm:px-6 space-y-24">
-                {narrativeSteps.map((step, index) => (
+                {narrativeSteps.map((step) => (
                     <div
                         key={step.id}
                         className={`flex flex-col lg:flex-row gap-12 lg:gap-20 items-center ${step.align === 'right' ? 'lg:flex-row-reverse' : ''
@@ -109,9 +113,15 @@ export function Narrative() {
                                 ))}
                             </ul>
 
-                            <Button variant="ghost" className="text-accent-primary hover:text-accent-primary-hover p-0 hover:bg-transparent group">
-                                Conoce más sobre esto
-                                <ArrowRight className="w-4 h-4 ml-2 group-hover:translate-x-1 transition-transform" />
+                            <Button
+                                asChild
+                                variant="ghost"
+                                className="text-accent-primary hover:text-accent-primary-hover p-0 hover:bg-transparent group"
+                            >
+                                <Link href={step.href}>
+                                    Conoce más sobre esto
+                                    <ArrowRight className="w-4 h-4 ml-2 group-hover:translate-x-1 transition-transform" />
+                                </Link>
                             </Button>
                         </motion.div>
 
@@ -124,11 +134,11 @@ export function Narrative() {
                             className="flex-1 w-full"
                         >
                             <div className="relative aspect-[4/3] rounded-2xl overflow-hidden shadow-2xl shadow-slate-200/50 border border-slate-100">
-                                {/* Use standard img for now to avoid next/image static import issues if files don't exist yet, 
-                                     or we can use Next Image with width/height */}
-                                <img
+                                <Image
                                     src={step.image}
                                     alt={step.title}
+                                    fill
+                                    sizes="(max-width: 1024px) 100vw, 50vw"
                                     className="object-cover w-full h-full hover:scale-105 transition-transform duration-700"
                                 />
                                 {/* Gradient overlay for depth */}

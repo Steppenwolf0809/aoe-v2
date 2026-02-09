@@ -1,4 +1,52 @@
-<svg width="800" height="600" xmlns="http://www.w3.org/2000/svg">
-  <rect width="800" height="600" fill="#f1f5f9" />
-  <text x="50%" y="50%" font-family="Arial" font-size="24" fill="#64748b" text-anchor="middle" dy=".3em">Placeholder: Human Security (Tablet/Shield)</text>
+<svg width="800" height="600" viewBox="0 0 800 600" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <defs>
+    <linearGradient id="bg" x1="80" y1="40" x2="760" y2="560" gradientUnits="userSpaceOnUse">
+      <stop offset="0" stop-color="#F0F9FF"/>
+      <stop offset="1" stop-color="#E0F2FE"/>
+    </linearGradient>
+    <linearGradient id="shield" x1="400" y1="124" x2="400" y2="442" gradientUnits="userSpaceOnUse">
+      <stop offset="0" stop-color="#0EA5E9"/>
+      <stop offset="1" stop-color="#1E40AF"/>
+    </linearGradient>
+    <linearGradient id="panel" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0" stop-color="#FFFFFF"/>
+      <stop offset="1" stop-color="#E2E8F0"/>
+    </linearGradient>
+    <filter id="soft" x="0" y="0" width="100%" height="100%">
+      <feDropShadow dx="0" dy="12" stdDeviation="14" flood-color="#0F172A" flood-opacity="0.16"/>
+    </filter>
+  </defs>
+
+  <rect width="800" height="600" rx="28" fill="url(#bg)"/>
+
+  <g filter="url(#soft)">
+    <path d="M400 124L562 182V302C562 380 499 444 400 474C301 444 238 380 238 302V182L400 124Z" fill="url(#shield)"/>
+  </g>
+
+  <path d="M332 292V258C332 220 362 190 400 190C438 190 468 220 468 258V292" stroke="#E0F2FE" stroke-width="16" stroke-linecap="round"/>
+  <rect x="318" y="286" width="164" height="118" rx="24" fill="#F8FAFC"/>
+  <circle cx="400" cy="340" r="18" fill="#0284C7"/>
+  <path d="M400 358V376" stroke="#0284C7" stroke-width="10" stroke-linecap="round"/>
+
+  <rect x="78" y="128" width="118" height="34" rx="12" fill="#FFFFFF" fill-opacity="0.8"/>
+  <rect x="78" y="176" width="94" height="18" rx="9" fill="#FFFFFF" fill-opacity="0.64"/>
+  <rect x="78" y="206" width="84" height="18" rx="9" fill="#FFFFFF" fill-opacity="0.56"/>
+
+  <rect x="606" y="128" width="118" height="34" rx="12" fill="#FFFFFF" fill-opacity="0.8"/>
+  <rect x="630" y="176" width="94" height="18" rx="9" fill="#FFFFFF" fill-opacity="0.64"/>
+  <rect x="640" y="206" width="84" height="18" rx="9" fill="#FFFFFF" fill-opacity="0.56"/>
+
+  <g filter="url(#soft)">
+    <rect x="122" y="362" width="204" height="126" rx="18" fill="url(#panel)"/>
+  </g>
+  <rect x="146" y="394" width="156" height="14" rx="7" fill="#94A3B8"/>
+  <rect x="146" y="422" width="116" height="14" rx="7" fill="#CBD5E1"/>
+  <rect x="146" y="448" width="138" height="14" rx="7" fill="#CBD5E1"/>
+
+  <g filter="url(#soft)">
+    <rect x="474" y="362" width="204" height="126" rx="18" fill="url(#panel)"/>
+  </g>
+  <rect x="498" y="394" width="156" height="14" rx="7" fill="#94A3B8"/>
+  <rect x="498" y="422" width="126" height="14" rx="7" fill="#CBD5E1"/>
+  <rect x="498" y="448" width="146" height="14" rx="7" fill="#CBD5E1"/>
 </svg>
