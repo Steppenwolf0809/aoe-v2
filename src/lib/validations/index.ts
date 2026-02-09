@@ -2,3 +2,4 @@ export { contratoVehicularSchema, vehiculoSchema, personaSchema, type ContratoVe
 export { loginSchema, registerSchema, forgotPasswordSchema, type LoginInput, type RegisterInput, type ForgotPasswordInput } from './auth'
 export { calculatorInputSchema, type CalculatorInputData } from './calculator'
 export { contactSchema, type ContactInput } from './contact'
+export { leadCaptureSchema, calculatorSessionSchema, type LeadCaptureInput, type CalculatorSessionInput } from './leads'

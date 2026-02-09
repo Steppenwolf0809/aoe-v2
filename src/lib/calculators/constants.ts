@@ -1,9 +1,6 @@
 import { RangoRegistro, TarifasNotariales } from '@/types/calculators';
 
-export const SBU_2024 = 460;
-export const SBU_2025 = 470; // Usamos 470 como en el doc, o el actualizado.
-// Nota: El usuario mencionó "actualizar salario básico a $482" en un prompt anterior (Conversation ee0814... de 2026-02-07).
-// Usaré 482 si es la instrucción más reciente. "Conversation Summary: They also want to update the basic salary to $482."
+// Salario Básico Unificado vigente
 export const SBU_VIGENTE = 482;
 
 export const IVA_RATE = 0.15;
