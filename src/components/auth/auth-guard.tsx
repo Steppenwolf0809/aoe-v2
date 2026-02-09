@@ -1,42 +1,32 @@
-'use client'
-
-import { useEffect, useState, type ReactNode } from 'react'
-import { useRouter } from 'next/navigation'
-import { createClient } from '@/lib/supabase/client'
-import { Skeleton } from '@/components/ui/skeleton'
+import type { User } from '@supabase/supabase-js'
+import type { ReactNode } from 'react'
+import { redirect } from 'next/navigation'
+import { createClient } from '@/lib/supabase/server'
 
 interface AuthGuardProps {
   children: ReactNode
+  redirectTo?: string
 }
 
-export function AuthGuard({ children }: AuthGuardProps) {
-  const [loading, setLoading] = useState(true)
-  const [authenticated, setAuthenticated] = useState(false)
-  const router = useRouter()
+export async function getAuthenticatedUser(
+  redirectTo: string = '/iniciar-sesion'
+): Promise<User> {
+  const supabase = await createClient()
+  const {
+    data: { user },
+  } = await supabase.auth.getUser()
 
-  useEffect(() => {
-    const supabase = createClient()
-    supabase.auth.getUser().then(({ data: { user } }) => {
-      if (user) {
-        setAuthenticated(true)
-      } else {
-        router.push('/iniciar-sesion')
-      }
-      setLoading(false)
-    })
-  }, [router])
-
-  if (loading) {
-    return (
-      <div className="space-y-4 p-8">
-        <Skeleton className="h-8 w-48" />
-        <Skeleton className="h-4 w-96" />
-        <Skeleton className="h-64 w-full" />
-      </div>
-    )
+  if (!user) {
+    redirect(redirectTo)
   }
 
-  if (!authenticated) return null
+  return user
+}
 
+export async function AuthGuard({
+  children,
+  redirectTo = '/iniciar-sesion',
+}: AuthGuardProps) {
+  await getAuthenticatedUser(redirectTo)
   return <>{children}</>
 }

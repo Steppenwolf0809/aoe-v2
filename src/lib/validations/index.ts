@@ -3,3 +3,4 @@ export { loginSchema, registerSchema, forgotPasswordSchema, type LoginInput, typ
 export { calculatorInputSchema, type CalculatorInputData } from './calculator'
 export { contactSchema, type ContactInput } from './contact'
 export { leadCaptureSchema, calculatorSessionSchema, type LeadCaptureInput, type CalculatorSessionInput } from './leads'
+export { profileSchema, type ProfileInput } from './profile'
