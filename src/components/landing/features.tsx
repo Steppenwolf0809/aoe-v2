@@ -1,5 +1,6 @@
 'use client'
 
+import { useEffect, useRef } from 'react'
 import { motion } from 'framer-motion'
 import {
   FileText,
@@ -89,14 +90,165 @@ const cardVariants = {
   },
 }
 
+interface Star {
+  x: number
+  y: number
+  radius: number
+  opacity: number
+  twinkleOffset: number
+  twinkleSpeed: number
+  driftOffset: number
+  driftAmount: number
+}
+
+function createStars(width: number, height: number, count: number): Star[] {
+  return Array.from({ length: count }, () => ({
+    x: Math.random() * width,
+    y: Math.random() * height,
+    radius: Math.random() * 1.8 + 0.4,
+    opacity: Math.random() * 0.45 + 0.2,
+    twinkleOffset: Math.random() * Math.PI * 2,
+    twinkleSpeed: Math.random() * 1.7 + 0.7,
+    driftOffset: Math.random() * Math.PI * 2,
+    driftAmount: Math.random() * 1.8 + 0.4,
+  }))
+}
+
+function InteractiveStarsBackground() {
+  const canvasRef = useRef<HTMLCanvasElement | null>(null)
+
+  useEffect(() => {
+    const canvas = canvasRef.current
+    if (!canvas) return
+
+    const reducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches
+    const ctx = canvas.getContext('2d')
+    if (!ctx) return
+
+    const cursor = { x: -1000, y: -1000, active: false }
+    const pointerRadius = 120
+    const pointerPush = 15
+    const deviceScale = Math.min(window.devicePixelRatio || 1, 2)
+    let stars: Star[] = []
+    let width = 0
+    let height = 0
+    let frameId = 0
+
+    const setCanvasSize = () => {
+      const parent = canvas.parentElement
+      if (!parent) return
+
+      const rect = parent.getBoundingClientRect()
+      width = Math.max(rect.width, 1)
+      height = Math.max(rect.height, 1)
+
+      canvas.width = Math.floor(width * deviceScale)
+      canvas.height = Math.floor(height * deviceScale)
+      canvas.style.width = `${width}px`
+      canvas.style.height = `${height}px`
+      ctx.setTransform(deviceScale, 0, 0, deviceScale, 0, 0)
+
+      const starCount = width < 640 ? 64 : 140
+      stars = createStars(width, height, starCount)
+    }
+
+    const onPointerMove = (event: PointerEvent) => {
+      const rect = canvas.getBoundingClientRect()
+      const inside =
+        event.clientX >= rect.left &&
+        event.clientX <= rect.right &&
+        event.clientY >= rect.top &&
+        event.clientY <= rect.bottom
+
+      if (!inside) {
+        cursor.active = false
+        return
+      }
+
+      cursor.x = event.clientX - rect.left
+      cursor.y = event.clientY - rect.top
+      cursor.active = true
+    }
+
+    const onPointerLeave = () => {
+      cursor.active = false
+    }
+
+    const render = (time: number) => {
+      ctx.clearRect(0, 0, width, height)
+
+      for (const star of stars) {
+        const twinkle = 0.55 + 0.45 * Math.sin(time * 0.0012 * star.twinkleSpeed + star.twinkleOffset)
+        const driftX = Math.sin(time * 0.00018 + star.driftOffset) * star.driftAmount
+        const driftY = Math.cos(time * 0.00014 + star.driftOffset) * star.driftAmount * 0.75
+
+        let pushX = 0
+        let pushY = 0
+
+        if (cursor.active) {
+          const dx = star.x - cursor.x
+          const dy = star.y - cursor.y
+          const distance = Math.hypot(dx, dy)
+
+          if (distance < pointerRadius && distance > 0.001) {
+            const force = (pointerRadius - distance) / pointerRadius
+            pushX = (dx / distance) * force * pointerPush
+            pushY = (dy / distance) * force * pointerPush
+          }
+        }
+
+        const drawX = star.x + driftX + pushX
+        const drawY = star.y + driftY + pushY
+        const alpha = star.opacity * twinkle
+
+        ctx.beginPath()
+        ctx.fillStyle = `rgba(255, 255, 255, ${alpha})`
+        ctx.arc(drawX, drawY, star.radius, 0, Math.PI * 2)
+        ctx.fill()
+      }
+
+      if (!reducedMotion) {
+        frameId = window.requestAnimationFrame(render)
+      }
+    }
+
+    setCanvasSize()
+    window.addEventListener('resize', setCanvasSize)
+    window.addEventListener('pointermove', onPointerMove)
+    window.addEventListener('pointerleave', onPointerLeave)
+    render(performance.now())
+
+    if (!reducedMotion) {
+      frameId = window.requestAnimationFrame(render)
+    }
+
+    return () => {
+      window.removeEventListener('resize', setCanvasSize)
+      window.removeEventListener('pointermove', onPointerMove)
+      window.removeEventListener('pointerleave', onPointerLeave)
+      if (frameId) {
+        window.cancelAnimationFrame(frameId)
+      }
+    }
+  }, [])
+
+  return (
+    <canvas
+      ref={canvasRef}
+      className="absolute inset-0 pointer-events-none opacity-70"
+      aria-hidden="true"
+    />
+  )
+}
+
 /* ----------------------------------------------------------------
    Features / Servicios Section
    ---------------------------------------------------------------- */
 export function Features() {
   return (
     <section className="py-20 sm:py-28 px-4 sm:px-6 bg-[#024089] relative overflow-hidden">
-      {/* Background patterns */}
-      <div className="absolute inset-0 opacity-10" style={{ backgroundImage: 'radial-gradient(#ffffff 1px, transparent 1px)', backgroundSize: '32px 32px' }}></div>
+      <InteractiveStarsBackground />
+      <div className="absolute inset-0 bg-gradient-to-b from-blue-900/5 via-transparent to-slate-950/15 pointer-events-none" />
 
       <div className="max-w-7xl mx-auto relative z-10">
         {/* Section header */}
