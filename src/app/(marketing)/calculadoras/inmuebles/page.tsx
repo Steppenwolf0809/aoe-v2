@@ -336,27 +336,31 @@ export default function PresupuestadorInmobiliarioPage() {
             <ul className="space-y-2 list-none pl-0">
               <li className="flex items-start gap-2">
                 <CheckCircle2 className="w-4 h-4 text-accent-success shrink-0 mt-1" />
-                Cédulas de identidad de comprador y vendedor
+                Original y copia a color de cedula y certificado de votacion de comprador y vendedor
               </li>
               <li className="flex items-start gap-2">
                 <CheckCircle2 className="w-4 h-4 text-accent-success shrink-0 mt-1" />
-                Certificado de gravámenes del Registro de la Propiedad
+                Certificado de gravamenes del Registro de la Propiedad
               </li>
               <li className="flex items-start gap-2">
                 <CheckCircle2 className="w-4 h-4 text-accent-success shrink-0 mt-1" />
-                Certificado de no adeudar al Municipio
+                Pago del impuesto predial del ano actual y del ano anterior
               </li>
               <li className="flex items-start gap-2">
                 <CheckCircle2 className="w-4 h-4 text-accent-success shrink-0 mt-1" />
-                Pago de alcabalas y consejo provincial
+                Ficha catastral
               </li>
               <li className="flex items-start gap-2">
                 <CheckCircle2 className="w-4 h-4 text-accent-success shrink-0 mt-1" />
-                Carta de pago del impuesto predial al día
+                Minuta de abogado/a
               </li>
               <li className="flex items-start gap-2">
                 <CheckCircle2 className="w-4 h-4 text-accent-success shrink-0 mt-1" />
-                Escritura anterior del inmueble (título de propiedad del vendedor)
+                Liquidacion y pago de impuestos de transferencia de dominio (alcabala, plusvalia y consejo provincial, segun corresponda)
+              </li>
+              <li className="flex items-start gap-2">
+                <CheckCircle2 className="w-4 h-4 text-accent-success shrink-0 mt-1" />
+                Hoja de rentas (se descarga despues del pago; normalmente la gestiona la notaria)
               </li>
             </ul>
 

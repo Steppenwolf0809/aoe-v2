@@ -4,96 +4,129 @@ import {
   Text,
   View,
   StyleSheet,
-  Image,
 } from '@react-pdf/renderer';
+
+const SECTIONS = [
+  {
+    title: 'Requisitos Basicos',
+    items: [
+      'Pago del impuesto predial del ano en curso y del ano anterior.',
+      'Certificado de gravamenes actualizado y vigente.',
+      'Ficha catastral.',
+      'Original y copia a color de cedula y certificado de votacion de los comparecientes (vendedor y comprador).',
+      'Minuta elaborada y suscrita por abogado/a.',
+    ],
+  },
+  {
+    title: 'Secuencia Municipal (Transferencia de Dominio)',
+    items: [
+      'Liquidacion de impuestos de transferencia de dominio.',
+      'Pago de impuestos: alcabala, plusvalia y consejo provincial (segun corresponda).',
+      'Hoja de rentas emitida por el Municipio luego del pago (normalmente la gestiona la notaria).',
+    ],
+  },
+  {
+    title: 'Plazos Estimados',
+    items: [
+      'Recopilacion de documentos: 7 a 15 dias habiles.',
+      'Liquidacion y pago municipal: 1 a 2 dias habiles.',
+      'Firma de escritura ante notario: 1 dia (con cita previa).',
+      'Inscripcion en Registro de la Propiedad: 3 a 5 dias habiles.',
+    ],
+  },
+] as const;
 
 const styles = StyleSheet.create({
   page: {
-    padding: 40,
-    fontSize: 11,
+    paddingTop: 32,
+    paddingRight: 32,
+    paddingBottom: 74,
+    paddingLeft: 32,
+    fontSize: 10,
     fontFamily: 'Helvetica',
     backgroundColor: '#ffffff',
   },
   header: {
-    marginBottom: 30,
+    marginBottom: 18,
     borderBottom: 2,
     borderBottomColor: '#2563eb',
-    paddingBottom: 15,
-  },
-  logo: {
-    width: 180,
-    marginBottom: 10,
+    paddingBottom: 10,
   },
   title: {
-    fontSize: 24,
+    fontSize: 20,
     fontWeight: 'bold',
     color: '#1e293b',
-    marginBottom: 5,
+    marginBottom: 4,
   },
   subtitle: {
-    fontSize: 12,
+    fontSize: 10,
     color: '#64748b',
-    marginBottom: 20,
+    marginBottom: 4,
+  },
+  updatedAt: {
+    fontSize: 8,
+    color: '#64748b',
   },
   section: {
-    marginBottom: 20,
+    marginBottom: 10,
   },
   sectionTitle: {
-    fontSize: 14,
+    fontSize: 11,
     fontWeight: 'bold',
     color: '#1e40af',
-    marginBottom: 10,
+    marginBottom: 7,
     backgroundColor: '#eff6ff',
-    padding: 8,
-    borderRadius: 4,
+    paddingVertical: 5,
+    paddingHorizontal: 7,
+    borderRadius: 3,
   },
   checklistItem: {
     flexDirection: 'row',
-    marginBottom: 8,
-    paddingLeft: 10,
+    marginBottom: 5,
+    paddingLeft: 6,
   },
   checkbox: {
-    width: 12,
-    height: 12,
+    width: 10,
+    height: 10,
     border: 1,
     borderColor: '#94a3b8',
     marginRight: 8,
-    marginTop: 2,
+    marginTop: 1,
   },
   itemText: {
     flex: 1,
-    fontSize: 10,
+    fontSize: 9,
     color: '#334155',
-    lineHeight: 1.5,
+    lineHeight: 1.4,
   },
   note: {
     backgroundColor: '#fef3c7',
-    padding: 10,
-    marginTop: 15,
+    padding: 8,
+    marginTop: 6,
     borderLeft: 3,
     borderLeftColor: '#f59e0b',
   },
   noteText: {
-    fontSize: 9,
+    fontSize: 8.5,
     color: '#92400e',
     lineHeight: 1.4,
   },
   footer: {
     position: 'absolute',
     bottom: 30,
-    left: 40,
-    right: 40,
+    left: 32,
+    right: 32,
     borderTop: 1,
     borderTopColor: '#e2e8f0',
     paddingTop: 10,
   },
   footerText: {
-    fontSize: 9,
+    fontSize: 8.5,
     color: '#64748b',
     textAlign: 'center',
   },
   contactInfo: {
-    fontSize: 9,
+    fontSize: 8,
     color: '#2563eb',
     textAlign: 'center',
     marginTop: 3,
@@ -101,184 +134,50 @@ const styles = StyleSheet.create({
 });
 
 export const ChecklistEscrituracion = () => {
+  const updatedDate = new Date().toLocaleDateString('es-EC', {
+    year: 'numeric',
+    month: 'long',
+    day: 'numeric',
+  });
+
   return (
     <Document>
       <Page size="A4" style={styles.page}>
         <View style={styles.header}>
-          <Text style={styles.title}>
-            ✓ Checklist de Escrituración de Inmueble
-          </Text>
+          <Text style={styles.title}>Checklist de Escrituracion de Inmueble</Text>
           <Text style={styles.subtitle}>
             Documentos necesarios para escriturar tu propiedad en Ecuador
           </Text>
+          <Text style={styles.updatedAt}>Actualizado: {updatedDate}</Text>
         </View>
 
-        {/* DOCUMENTOS DEL COMPRADOR */}
-        <View style={styles.section}>
-          <Text style={styles.sectionTitle}>📋 Documentos del Comprador</Text>
-          <View style={styles.checklistItem}>
-            <View style={styles.checkbox} />
-            <Text style={styles.itemText}>
-              Cédula de identidad y certificado de votación (originales y
-              copias a color)
-            </Text>
+        {SECTIONS.map((section) => (
+          <View key={section.title} style={styles.section}>
+            <Text style={styles.sectionTitle}>{section.title}</Text>
+            {section.items.map((item) => (
+              <View key={item} style={styles.checklistItem}>
+                <View style={styles.checkbox} />
+                <Text style={styles.itemText}>{item}</Text>
+              </View>
+            ))}
           </View>
-          <View style={styles.checklistItem}>
-            <View style={styles.checkbox} />
-            <Text style={styles.itemText}>
-              Estado civil actualizado (Registro Civil, no mayor a 3 meses)
-            </Text>
-          </View>
-          <View style={styles.checklistItem}>
-            <View style={styles.checkbox} />
-            <Text style={styles.itemText}>
-              Si es casado: Cédula y certificado de votación del cónyuge
-            </Text>
-          </View>
-          <View style={styles.checklistItem}>
-            <View style={styles.checkbox} />
-            <Text style={styles.itemText}>
-              Planilla de servicio básico (luz, agua o teléfono) del domicilio
-              actual
-            </Text>
-          </View>
-          <View style={styles.checklistItem}>
-            <View style={styles.checkbox} />
-            <Text style={styles.itemText}>
-              Carta de aprobación del crédito hipotecario (si aplica)
-            </Text>
-          </View>
-        </View>
+        ))}
 
-        {/* DOCUMENTOS DEL VENDEDOR */}
-        <View style={styles.section}>
-          <Text style={styles.sectionTitle}>🏠 Documentos del Vendedor</Text>
-          <View style={styles.checklistItem}>
-            <View style={styles.checkbox} />
-            <Text style={styles.itemText}>
-              Cédula de identidad y certificado de votación (originales y
-              copias)
-            </Text>
-          </View>
-          <View style={styles.checklistItem}>
-            <View style={styles.checkbox} />
-            <Text style={styles.itemText}>
-              Estado civil actualizado (no mayor a 3 meses)
-            </Text>
-          </View>
-          <View style={styles.checklistItem}>
-            <View style={styles.checkbox} />
-            <Text style={styles.itemText}>
-              Si es casado: Autorización del cónyuge y sus documentos
-            </Text>
-          </View>
-          <View style={styles.checklistItem}>
-            <View style={styles.checkbox} />
-            <Text style={styles.itemText}>
-              Escritura de propiedad original inscrita en el Registro
-            </Text>
-          </View>
-          <View style={styles.checklistItem}>
-            <View style={styles.checkbox} />
-            <Text style={styles.itemText}>
-              Certificados del Registro de la Propiedad (no mayor a 15 días)
-            </Text>
-          </View>
-        </View>
-
-        {/* DOCUMENTOS DEL INMUEBLE */}
-        <View style={styles.section}>
-          <Text style={styles.sectionTitle}>🏢 Documentos del Inmueble</Text>
-          <View style={styles.checklistItem}>
-            <View style={styles.checkbox} />
-            <Text style={styles.itemText}>
-              Certificado de gravámenes del Registro de la Propiedad (vigente)
-            </Text>
-          </View>
-          <View style={styles.checklistItem}>
-            <View style={styles.checkbox} />
-            <Text style={styles.itemText}>
-              Certificado de no adeudar impuestos prediales (Municipio)
-            </Text>
-          </View>
-          <View style={styles.checklistItem}>
-            <View style={styles.checkbox} />
-            <Text style={styles.itemText}>
-              Avalúo catastral actualizado (Municipio o Catastro)
-            </Text>
-          </View>
-          <View style={styles.checklistItem}>
-            <View style={styles.checkbox} />
-            <Text style={styles.itemText}>
-              Pago de plusvalía (si el vendedor compró hace menos de 2 años)
-            </Text>
-          </View>
-          <View style={styles.checklistItem}>
-            <View style={styles.checkbox} />
-            <Text style={styles.itemText}>
-              Solvencia de expensas de condominio (si es departamento)
-            </Text>
-          </View>
-          <View style={styles.checklistItem}>
-            <View style={styles.checkbox} />
-            <Text style={styles.itemText}>
-              Solvencia de servicios básicos (luz, agua, teléfono)
-            </Text>
-          </View>
-        </View>
-
-        {/* PLAZOS ESTIMADOS */}
-        <View style={styles.section}>
-          <Text style={styles.sectionTitle}>⏱️ Plazos Estimados</Text>
-          <View style={styles.checklistItem}>
-            <View style={styles.checkbox} />
-            <Text style={styles.itemText}>
-              Recopilación de documentos: 7 a 15 días hábiles
-            </Text>
-          </View>
-          <View style={styles.checklistItem}>
-            <View style={styles.checkbox} />
-            <Text style={styles.itemText}>
-              Elaboración de minuta notarial: 2 a 3 días hábiles
-            </Text>
-          </View>
-          <View style={styles.checklistItem}>
-            <View style={styles.checkbox} />
-            <Text style={styles.itemText}>
-              Firma de escritura ante notario: 1 día (con cita previa)
-            </Text>
-          </View>
-          <View style={styles.checklistItem}>
-            <View style={styles.checkbox} />
-            <Text style={styles.itemText}>
-              Pago de impuestos municipales: 1 a 2 días hábiles
-            </Text>
-          </View>
-          <View style={styles.checklistItem}>
-            <View style={styles.checkbox} />
-            <Text style={styles.itemText}>
-              Inscripción en Registro de la Propiedad: 3 a 5 días hábiles
-            </Text>
-          </View>
-        </View>
-
-        {/* NOTA IMPORTANTE */}
         <View style={styles.note}>
           <Text style={styles.noteText}>
-            ⚠️ IMPORTANTE: Estos son los documentos generales. Dependiendo del
-            caso (herencia, donación, propiedad horizontal, etc.), podrían
-            requerirse documentos adicionales. Para un checklist personalizado,
-            agenda tu cita con nosotros.
+            Importante: La hoja de rentas no es un requisito previo al
+            pago. Se obtiene despues de liquidar y pagar los impuestos de
+            transferencia de dominio en el Municipio, segun el procedimiento
+            aplicable en cada canton.
           </Text>
         </View>
 
-        {/* FOOTER */}
         <View style={styles.footer}>
           <Text style={styles.footerText}>
-            Abogados Online Ecuador • Notaría 18 de Quito
+            Abogados Online Ecuador | Notaria 18 de Quito
           </Text>
           <Text style={styles.contactInfo}>
-            WhatsApp: +593 98 765 4321 • info@abogadosonlineecuador.com •
+            WhatsApp: +593 98 765 4321 | info@abogadosonlineecuador.com |
             abogadosonlineecuador.com
           </Text>
         </View>
