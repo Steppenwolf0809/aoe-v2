@@ -14,7 +14,7 @@ export const metadata: Metadata = {
     'tarifas notariales',
     'calcular notaría',
     'impuestos compraventa',
-    'Notaría 18 Quito',
+    'abogados online ecuador',
   ],
   openGraph: {
     title: 'Calculadora Notarial Ecuador | Aranceles Notariales 2026',

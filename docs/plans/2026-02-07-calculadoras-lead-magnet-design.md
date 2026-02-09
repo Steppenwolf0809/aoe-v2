@@ -79,7 +79,7 @@ Ve el TOTAL estimado (sin desglose técnico)
 - Captura: Email + Teléfono (opcional)
 
 ### 3. Presupuesto Formal en PDF
-- Documento con logo de Notaría 18
+- Documento con logo de Abogados Online Ecuador
 - Personalizado con datos del usuario
 - Incluye desglose completo
 - Captura: Email + Nombre

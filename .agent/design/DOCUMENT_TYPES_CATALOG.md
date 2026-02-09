@@ -2,7 +2,7 @@
 
 > **Fecha:** 2026-02-07  
 > **Estado:** Planificación inicial  
-> **Owner:** Jose Luis — Notaría 18, Quito, Ecuador
+> **Owner:** Jose Luis — Abogados Online Ecuador, Quito
 
 ---
 

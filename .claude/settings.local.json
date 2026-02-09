@@ -10,7 +10,9 @@
       "Bash(npx next build:*)",
       "Bash(node -e:*)",
       "Bash(git rm:*)",
-      "Bash(git ls-tree:*)"
+      "Bash(git ls-tree:*)",
+      "Bash(npx vitest run:*)",
+      "WebFetch(domain:docs.google.com)"
     ]
   }
 }

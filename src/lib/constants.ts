@@ -6,7 +6,7 @@ export const SITE_DESCRIPTION =
   'Plataforma legal tecnológica para generación de contratos, calculadoras notariales y servicios legales en Ecuador.'
 
 export const NOTARIA_INFO = {
-  nombre: 'Notaría 18 de Quito',
+  nombre: 'Abogados Online Ecuador',
   notario: 'Jose Luis',
   ciudad: 'Quito',
   provincia: 'Pichincha',

@@ -20,7 +20,7 @@ Copia EXACTAMENTE este bloque como **Project Instructions** en Claude:
 ```
 ## Contexto
 
-Soy Jose Luis, abogado notario en Quito, Ecuador (Notaría 18), 12+ años de experiencia. Reconstruyo desde cero mi sitio abogadosonlineecuador.com como plataforma legal-tech moderna. NO es una migración — es un proyecto nuevo.
+Soy Jose Luis, abogado en Quito, Ecuador, 12+ años de experiencia notarial. Reconstruyo desde cero mi sitio abogadosonlineecuador.com como plataforma legal-tech moderna. NO es una migración — es un proyecto nuevo.
 
 ## Objetivo
 

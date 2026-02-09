@@ -770,3 +770,11 @@ Toda la lógica de cálculo está desacoplada de la UI en `src/lib/calculators/`
 
 ### Flujos de Usuario
 Ver `docs/plans/2026-02-07-flujo-calculadoras-preview.md` para los diagramas aprobados.
+
+### Estrategia SEO & Filtro Geográfico
+Ver `docs/plans/2026-02-08-seo-calculadoras-strategy.md` para:
+- Datos de Google Search Console (12 meses)
+- Arquitectura de embudo: calculadoras individuales → inmobiliario → lead capture
+- **Filtro geográfico:** Todo el contenido debe orientarse a Quito/Pichincha, NO genérico
+- **Filtro de servicios:** Solo trámites notariales materiales (NO litigios, NO penal)
+- Keywords target por página, FAQ sections, Schema markup

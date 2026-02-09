@@ -57,7 +57,7 @@ const faqs = [
   {
     question: '¿Son válidos legalmente los contratos generados?',
     answer:
-      'Sí, todos los contratos generados cumplen con la legislación ecuatoriana vigente y son válidos para su uso en notarías. Nuestros documentos están respaldados por 12+ años de experiencia en la Notaría 18 de Quito.',
+      'Sí, todos los contratos generados cumplen con la legislación ecuatoriana vigente y son válidos para su uso en notarías. Nuestros documentos están respaldados por 12+ años de experiencia notarial en Quito.',
   },
   {
     question: '¿Cómo funciona la calculadora notarial?',
