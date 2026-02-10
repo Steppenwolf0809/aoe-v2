@@ -199,7 +199,7 @@ export function Hero() {
       <div className="absolute top-20 left-[12%] h-72 w-72 rounded-full bg-accent-primary/[0.1] blur-[100px] pointer-events-none" />
       <div className="absolute bottom-16 right-[12%] h-64 w-64 rounded-full bg-cyan-400/[0.09] blur-[80px] pointer-events-none" />
 
-      <div className="relative z-10 w-full max-w-7xl mx-auto px-4 sm:px-6 py-16 lg:py-24">
+      <div className="relative z-10 w-full max-w-7xl mx-auto px-4 sm:px-6 pt-10 pb-16 lg:pt-16 lg:pb-24">
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 lg:gap-16 items-center">
           <div>
             <motion.div
@@ -207,12 +207,12 @@ export function Hero() {
               animate={{ opacity: 1, y: 0 }}
               transition={{ duration: 0.5 }}
             >
-              <div className="inline-flex items-center gap-2.5 px-4 py-2 rounded-full bg-white/90 border border-slate-200 shadow-sm mb-8 backdrop-blur-sm">
-                <span className="relative flex h-2.5 w-2.5">
+              <div className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-white/90 border border-slate-200 shadow-sm mb-6 backdrop-blur-sm">
+                <span className="relative flex h-2 w-2">
                   <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-accent-success/75 opacity-75" />
-                  <span className="relative inline-flex rounded-full h-2.5 w-2.5 bg-accent-success" />
+                  <span className="relative inline-flex rounded-full h-2 w-2 bg-accent-success" />
                 </span>
-                <span className="text-sm font-medium text-text-secondary">
+                <span className="text-xs font-medium text-text-secondary">
                   Servicios Notariales & Legales en Quito
                 </span>
               </div>
@@ -225,9 +225,13 @@ export function Hero() {
               className="text-4xl sm:text-5xl lg:text-6xl font-bold text-text-primary leading-[1.1] tracking-tight mb-6"
             >
               Tus trámites notariales,{' '}
-              <span className="bg-gradient-to-r from-accent-primary to-accent-primary-hover bg-clip-text text-transparent">
+              <motion.span
+                className="inline-block bg-[linear-gradient(110deg,#024089,45%,#60a5fa,55%,#024089)] bg-[length:200%_100%] bg-clip-text text-transparent"
+                animate={{ backgroundPosition: ["200% 0", "-200% 0"] }}
+                transition={{ repeat: Infinity, duration: 4, ease: "linear" }}
+              >
                 rápidos y seguros en Quito
-              </span>
+              </motion.span>
             </motion.h1>
 
             <motion.p
