@@ -1,7 +1,7 @@
 # AOE v2 — Plan Maestro de Implementación
 
-> **Estado actual:** ✅ PROMPTs 01-13 completados (Fase 1-3 + Autenticación completa)
-> **Siguiente paso:** PROMPT 14 — Dashboard: Layout + Perfil + Suscripción
+> **Estado actual:** ✅ PROMPTs 01-15 completados (Fase 1-4 + Wizard Contratos)
+> **Siguiente paso:** PROMPT 16 — PDF Service + Pasarela de pago
 > **Estimación total:** 8 semanas / ~20 prompts para Claude Code
 > **Estrategia SEO:** Ver `docs/plans/2026-02-08-seo-calculadoras-strategy.md`
 
@@ -13,8 +13,8 @@
 |------|--------|--------|-------------|
 | **1. Setup + Infra** | 1 | ✅ Completada | Proyecto, Supabase, deploy Vercel |
 | **2. Landing + Diseño** | 2-3 | ✅ Completada | UI, componentes, landing, páginas marketing |
-| **3. Calculadoras** | 4 | ⏳ Pendiente | 4 calculadoras interactivas con SEO |
-| **4. Auth + Dashboard** | 5 | ⏳ Pendiente | Login, registro, área privada |
+| **3. Calculadoras** | 4 | ✅ Completada | 4 calculadoras interactivas con SEO |
+| **4. Auth + Dashboard** | 5 | ✅ Completada | Login, registro, área privada |
 | **5. Contratos + Pagos** | 6 | ⏳ Pendiente | Wizard, PDF, pasarela de pago |
 | **6. Blog + n8n** | 7 | ⏳ Pendiente | Blog SEO, automatización |
 | **7. SEO + Lanzamiento** | 8 | ⏳ Pendiente | Optimización final, go-live |
@@ -554,7 +554,7 @@ TRACKING:
 
 ---
 
-### 🔲 PROMPT 12 — Calculadoras individuales SEO + Hub + Vehicular
+### ✅ PROMPT 12 — Calculadoras individuales SEO + Hub + Vehicular (COMPLETADO)
 
 ```
 Lee brain.md, docs/plans/2026-02-07-calculadoras-lead-magnet-design.md,
@@ -662,7 +662,7 @@ Crea los assets de lead magnets:
 
 ## FASE 4 — Auth + Dashboard (Semana 5)
 
-### 🔲 PROMPT 13 — Sistema de autenticación completo
+### ✅ PROMPT 13 — Sistema de autenticación completo (COMPLETADO)
 
 ```
 Lee el brain.md (sección Auth con Supabase).
@@ -704,7 +704,7 @@ Usa EXCLUSIVAMENTE Supabase Auth. NO Auth.js.
 
 ---
 
-### 🔲 PROMPT 14 — Dashboard: Layout + Perfil + Suscripción
+### ✅ PROMPT 14 — Dashboard: Layout + Perfil + Suscripción (COMPLETADO)
 
 ```
 Lee el brain.md.
@@ -742,7 +742,7 @@ Estilo glass oscuro consistente con el rest del sitio.
 
 ## FASE 5 — Contratos + Pagos (Semana 6)
 
-### 🔲 PROMPT 15 — Wizard de contrato vehicular
+### ✅ PROMPT 15 — Wizard de contrato vehicular (COMPLETADO)
 
 ```
 Lee el brain.md y el plan definitivo (sección wizard).
@@ -1010,8 +1010,8 @@ Estas tareas NO las hace Claude Code — las haces tú en dashboards web:
 | 11 | ✅ Presupuestador Inmobiliario completo | 3 | 4 |
 | 12 | ✅ Calculadoras Municipal + Registro + Hub | 3 | 4 |
 | 13 | ✅ Sistema de autenticación | 4 | 5 |
-| 14 | 🔲 Dashboard: layout + perfil + suscripción | 4 | 5 |
-| 15 | 🔲 Wizard contrato vehicular | 5 | 6 |
+| 14 | ✅ Dashboard: layout + perfil + suscripción | 4 | 5 |
+| 15 | ✅ Wizard contrato vehicular | 5 | 6 |
 | 16 | 🔲 PDF service + pagos | 5 | 6 |
 | 17 | 🔲 Blog con ISR | 6 | 7 |
 | 18 | 🔲 Workflows n8n | 6 | 7 |
