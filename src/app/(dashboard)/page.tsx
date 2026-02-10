@@ -111,7 +111,7 @@ export default async function DashboardPage() {
           </CardHeader>
           <CardContent>
             <Button asChild variant="primary" size="sm">
-              <Link href="/dashboard/contratos/nuevo">Nuevo contrato</Link>
+              <Link href="/contratos/vehicular">Nuevo contrato</Link>
             </Button>
           </CardContent>
         </Card>

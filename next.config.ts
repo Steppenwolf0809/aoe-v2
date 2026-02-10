@@ -32,8 +32,99 @@ const nextConfig: NextConfig = {
   },
   async redirects() {
     return [
-      // Legacy URL redirects placeholder
-      // { source: '/old-path', destination: '/new-path', permanent: true },
+      // -----------------------------------------------------------------------
+      // MIGRACIÓN LEGACY (301) - Basado en tráfico real 2025-2026
+      // -----------------------------------------------------------------------
+
+      // HUBS & ESTRUCTURA
+      {
+        source: '/documentos',
+        destination: '/servicios',
+        permanent: true,
+      },
+      {
+        source: '/documentos-ai',
+        destination: '/servicios',
+        permanent: true,
+      },
+      {
+        source: '/servicios/documentos-ai',
+        destination: '/servicios',
+        permanent: true,
+      },
+
+      // CALCULADORAS & SERVICIOS ESPECÍFICOS
+      // Transferencias / Inmuebles
+      {
+        source: '/documentos/transferencia',
+        destination: '/calculadoras/inmuebles',
+        permanent: true,
+      },
+      {
+        source: '/servicios/transferencia',
+        destination: '/servicios/transferencia-de-dominio',
+        permanent: true,
+      },
+
+      // Promesas
+      {
+        source: '/documentos/promesa',
+        destination: '/servicios/promesa-compraventa',
+        permanent: true,
+      },
+      {
+        source: '/servicios/promesa',
+        destination: '/servicios/promesa-compraventa',
+        permanent: true,
+      },
+
+      // Poderes
+      {
+        source: '/servicios/poderes',
+        destination: '/calculadoras/servicios',
+        permanent: true,
+      },
+      {
+        source: '/documentos/poderes',
+        destination: '/calculadoras/servicios',
+        permanent: true,
+      },
+
+      // Declaraciones
+      {
+        source: '/servicios/declaraciones',
+        destination: '/calculadoras/servicios',
+        permanent: true,
+      },
+      {
+        source: '/documentos/declaraciones',
+        destination: '/calculadoras/servicios',
+        permanent: true,
+      },
+
+      // Permisos de Salida / Viaje
+      {
+        source: '/servicios/viaje',
+        destination: '/calculadoras/servicios',
+        permanent: true,
+      },
+      {
+        source: '/documentos/viaje',
+        destination: '/calculadoras/servicios',
+        permanent: true,
+      },
+
+      // Contratos Genéricos -> Vehicular (Producto Estrella)
+      {
+        source: '/documentos/contratos',
+        destination: '/calculadoras/vehiculos',
+        permanent: true,
+      },
+      {
+        source: '/servicios/contratos',
+        destination: '/calculadoras/vehiculos',
+        permanent: true,
+      },
     ]
   },
 }

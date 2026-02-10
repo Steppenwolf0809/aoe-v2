@@ -28,7 +28,7 @@ export const WelcomeEmail = ({
                 <Container style={container}>
                     <Section style={header}>
                         <Text style={logoText}>Abogados Online Ecuador</Text>
-                        <Text style={logoSubtext}>LegalTech & Notaría 18</Text>
+                        <Text style={logoSubtext}>LegalTech Personal</Text>
                     </Section>
 
                     <Section style={content}>

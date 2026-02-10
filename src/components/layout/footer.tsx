@@ -17,8 +17,8 @@ const footerSections = {
   ],
   Legal: [
     { href: '/blog', label: 'Blog Legal' },
-    { href: '/privacidad', label: 'Politica de Privacidad' },
-    { href: '/terminos', label: 'Terminos de Uso' },
+    { href: '/legal/privacidad', label: 'Politica de Privacidad' },
+    { href: '/legal/terminos', label: 'Terminos de Uso' },
   ],
 }
 

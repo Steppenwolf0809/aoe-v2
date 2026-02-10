@@ -89,9 +89,13 @@ export function WizardForm() {
   async function onSubmit(data: ContratoVehicular) {
     setServerError(null)
     startTransition(async () => {
-      const result = await createContract(data)
+      // Use buyer's email as contact email for anonymous contracts
+      const contactEmail = data.comprador.email
+      const result = await createContract(data, contactEmail)
+
       if (result.success) {
-        router.push('/dashboard/contratos')
+        // Redirect to payment page instead of dashboard
+        router.push(`/contratos/${result.data.id}/pago`)
       } else {
         setServerError(result.error)
       }
@@ -160,7 +164,7 @@ export function WizardForm() {
                 isLoading={isPending}
                 disabled={!acceptedTerms || isPending}
               >
-                Guardar borrador
+                {isPending ? 'Guardando...' : 'Continuar al pago →'}
               </Button>
             ) : (
               <Button type="button" variant="primary" onClick={handleNext}>

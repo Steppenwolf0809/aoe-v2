@@ -6,6 +6,7 @@ import { getContract, updateContractStatus } from './contracts'
 import { generateContractPdf } from './pdf'
 import { PRECIO_CONTRATO_BASICO } from '@/lib/formulas/vehicular'
 import { isPaymentApproved } from '@/lib/validations/payment'
+import { headers } from 'next/headers'
 
 type ActionResult<T> =
   | { success: true; data: T }
@@ -14,27 +15,33 @@ type ActionResult<T> =
 /**
  * Initiate payment with PayPhone
  * Returns URL for user to complete payment
+ * Works for both authenticated and anonymous contracts
  */
 export async function initiatePayment(
-  contractId: string
+  contractIdOrFormData: string | FormData
 ): Promise<ActionResult<{ paymentUrl: string; clientTransactionId: string }>> {
   try {
+    const contractId =
+      typeof contractIdOrFormData === 'string'
+        ? contractIdOrFormData
+        : contractIdOrFormData.get('contractId')
+
+    if (typeof contractId !== 'string' || !contractId) {
+      return { success: false, error: 'ID de contrato invalido' }
+    }
+
     const supabase = await createClient()
 
-    const {
-      data: { user },
-    } = await supabase.auth.getUser()
-    if (!user) {
-      return { success: false, error: 'No autenticado' }
-    }
+    // Get contract (works for both auth and anon)
+    const { data: contract, error: fetchError } = await supabase
+      .from('contracts')
+      .select('*')
+      .eq('id', contractId)
+      .single()
 
-    // Get contract
-    const contractResult = await getContract(contractId)
-    if (!contractResult.success) {
-      return { success: false, error: contractResult.error }
+    if (fetchError || !contract) {
+      return { success: false, error: 'Contrato no encontrado' }
     }
-
-    const contract = contractResult.data
 
     // Verify contract is in DRAFT status
     if (contract.status !== 'DRAFT') {
@@ -44,11 +51,18 @@ export async function initiatePayment(
       }
     }
 
+    // Get email from user or contract
+    const {
+      data: { user },
+    } = await supabase.auth.getUser()
+    const email = user?.email || contract.email || 'noreply@example.com'
+
     // Generate client transaction ID
     const clientTransactionId = `${contractId}-${Date.now()}`
 
     // Get app URL from env
-    const appUrl = process.env.NEXT_PUBLIC_APP_URL
+    const appUrl =
+      process.env.NEXT_PUBLIC_APP_URL || (await headers()).get('origin')
     if (!appUrl) {
       return { success: false, error: 'App URL no configurada' }
     }
@@ -62,17 +76,21 @@ export async function initiatePayment(
       amountWithoutTax: amountInCents,
       clientTransactionId,
       currency: 'USD',
-      email: user.email || undefined,
-      responseUrl: `${appUrl}/dashboard/contratos/pago?id=${contractId}&clientTransactionId=${clientTransactionId}`,
+      email,
+      responseUrl: `${appUrl}/contratos/pago/callback?id=${contractId}&clientTransactionId=${clientTransactionId}`,
       lang: 'es',
       tip: 0,
       tax: 0,
     })
 
     // Store clientTransactionId in contract metadata for later verification
-    await updateContractStatus(contractId, {
-      status: 'PENDING_PAYMENT',
-    })
+    // Use admin client to bypass RLS
+    const { createAdminClient } = await import('@/lib/supabase/admin')
+    const adminSupabase = createAdminClient()
+    await adminSupabase
+      .from('contracts')
+      .update({ status: 'PENDING_PAYMENT' })
+      .eq('id', contractId)
 
     return {
       success: true,

@@ -106,24 +106,37 @@ export async function register(data: RegisterInput): Promise<ActionResult> {
 
     // Si el usuario fue creado, crear el perfil
     if (authData.user) {
-      // Usamos el cliente admin para saltar RLS ya que el usuario
-      // aun no tiene sesion activa valida para insertar en profiles
-      const admin = createAdminClient()
+      if (!process.env.SUPABASE_SERVICE_ROLE_KEY) {
+        console.warn(
+          '[register] SUPABASE_SERVICE_ROLE_KEY no configurada. Omitiendo creacion de perfil.'
+        )
+      } else {
+        try {
+          // Usamos el cliente admin para saltar RLS ya que el usuario
+          // aun no tiene sesion activa valida para insertar en profiles
+          const admin = createAdminClient()
 
-      const { error: profileError } = await admin
-        .from('profiles')
-        .upsert({
-          id: authData.user.id,
-          full_name: validated.data.fullName,
-          updated_at: new Date().toISOString(),
-        }, {
-          onConflict: 'id',
-        })
+          const { error: profileError } = await admin
+            .from('profiles')
+            .upsert(
+              {
+                id: authData.user.id,
+                full_name: validated.data.fullName,
+                updated_at: new Date().toISOString(),
+              },
+              {
+                onConflict: 'id',
+              }
+            )
 
-      if (profileError) {
-        console.error('[register] Error creando perfil:', profileError)
-        // No devolvemos error al usuario porque el usuario ya fue creado en Auth
-        // Solo logueamos el error para debugging
+          if (profileError) {
+            console.error('[register] Error creando perfil:', profileError)
+            // No devolvemos error al usuario porque el usuario ya fue creado en Auth
+            // Solo logueamos el error para debugging
+          }
+        } catch (profileClientError) {
+          console.error('[register] Error creando cliente admin:', profileClientError)
+        }
       }
     }
 

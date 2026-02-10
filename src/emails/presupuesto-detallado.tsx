@@ -63,7 +63,7 @@ export const PresupuestoDetalladoEmail = ({
           {/* Header con logo */}
           <Section style={header}>
             <Text style={logoText}>Abogados Online Ecuador</Text>
-            <Text style={logoSubtext}>Notaría 18 de Quito</Text>
+            <Text style={logoSubtext}>Servicio legal digital independiente</Text>
           </Section>
 
           {/* Saludo */}
@@ -196,7 +196,7 @@ export const PresupuestoDetalladoEmail = ({
             <Text style={footerText}>
               <strong>Abogados Online Ecuador</strong>
               <br />
-              Notaría 18 de Quito
+              Servicio legal digital independiente
               <br />
               <Link style={link} href="mailto:info@abogadosonlineecuador.com">
                 info@abogadosonlineecuador.com

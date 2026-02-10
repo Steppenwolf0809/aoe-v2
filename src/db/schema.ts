@@ -2,7 +2,7 @@ import { pgTable, uuid, text, timestamp, boolean, jsonb, numeric, pgEnum } from 
 
 // Enums
 export const userRoleEnum = pgEnum('user_role', ['FREE', 'PREMIUM', 'ADMIN'])
-export const contractStatusEnum = pgEnum('contract_status', ['DRAFT', 'PAID', 'GENERATED', 'DOWNLOADED'])
+export const contractStatusEnum = pgEnum('contract_status', ['DRAFT', 'PENDING_PAYMENT', 'PAID', 'GENERATED', 'DOWNLOADED'])
 export const documentTypeEnum = pgEnum('document_type', [
   'VEHICLE_CONTRACT', 'POWER_OF_ATTORNEY', 'DECLARATION',
   'PROMISE', 'TRANSFER', 'TRAVEL_AUTH', 'CUSTOM'
@@ -21,7 +21,8 @@ export const profiles = pgTable('profiles', {
 // Contracts
 export const contracts = pgTable('contracts', {
   id: uuid('id').primaryKey().defaultRandom(),
-  userId: uuid('user_id').notNull(),
+  userId: uuid('user_id'), // Nullable to allow anonymous contracts
+  email: text('email'), // For anonymous contracts - to send PDF
   type: documentTypeEnum('type').notNull(),
   data: jsonb('data').notNull(),
   pdfUrl: text('pdf_url'),

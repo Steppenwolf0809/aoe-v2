@@ -40,7 +40,7 @@ export const ContratoGeneradoEmail = ({
           {/* Header con logo */}
           <Section style={header}>
             <Text style={logoText}>Abogados Online Ecuador</Text>
-            <Text style={logoSubtext}>Notaría 18 de Quito</Text>
+            <Text style={logoSubtext}>Servicio legal digital independiente</Text>
           </Section>
 
           {/* Saludo */}
@@ -83,8 +83,8 @@ export const ContratoGeneradoEmail = ({
             <Text style={stepText}>
               <strong>3. Firma el contrato</strong>
               <br />
-              Acude a la Notaría 18 de Quito con ambas partes para legalizar
-              las firmas.
+              Coordina la legalización de firmas en la notaría de tu
+              preferencia con ambas partes.
             </Text>
 
             <Text style={stepText}>
@@ -142,8 +142,7 @@ export const ContratoGeneradoEmail = ({
 
           {/* Footer */}
           <Text style={footer}>
-            © {new Date().getFullYear()} Abogados Online Ecuador • Notaría 18
-            de Quito
+            © {new Date().getFullYear()} Abogados Online Ecuador
             <br />
             <Link
               href="https://www.abogadosonlineecuador.com"

@@ -66,7 +66,7 @@ export default async function ContratosPage() {
           </p>
         </div>
         <Button asChild variant="primary" size="sm">
-          <Link href="/dashboard/contratos/nuevo">
+          <Link href="/contratos/vehicular">
             <Plus className="w-4 h-4 mr-1" />
             Nuevo contrato
           </Link>

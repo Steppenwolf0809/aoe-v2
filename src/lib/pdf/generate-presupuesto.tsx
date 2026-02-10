@@ -382,7 +382,7 @@ export const PresupuestoDetallado = ({ data }: { data: PresupuestoData }) => {
 
         <View style={styles.footer}>
           <Text style={styles.footerText}>
-            Abogados Online Ecuador • Notaría 18 de Quito
+            Abogados Online Ecuador • Servicio legal digital independiente
           </Text>
           <Text style={styles.contactInfo}>
             WhatsApp: +593 97 931 7579 • info@abogadosonlineecuador.com •

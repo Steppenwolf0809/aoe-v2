@@ -140,9 +140,9 @@ export function ContratoVehicularPdf({ contrato }: ContratoVehicularPdfProps) {
     <Document>
       <Page size="A4" style={styles.page}>
         <View style={styles.header}>
-          <Text style={styles.notariaTitle}>NOTARÍA DÉCIMA OCTAVA DE QUITO</Text>
-          <Text style={styles.notariaSubtitle}>DRA. GLENDA ZAPATA SILVA - NOTARIA</Text>
-          <Text style={styles.notariaSubtitle}>Quito, Distrito Metropolitano - Ecuador</Text>
+          <Text style={styles.notariaTitle}>ABOGADOS ONLINE ECUADOR</Text>
+          <Text style={styles.notariaSubtitle}>Servicio legal digital independiente</Text>
+          <Text style={styles.notariaSubtitle}>Quito, Ecuador</Text>
         </View>
 
         <Text style={styles.contractTitle}>CONTRATO DE COMPRAVENTA DE VEHÍCULO</Text>

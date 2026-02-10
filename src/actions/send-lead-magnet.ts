@@ -177,7 +177,7 @@ export async function sendLeadMagnet(params: SendLeadMagnetParams) {
         <body>
           <div class="header">
             <h1 style="margin: 0; font-size: 24px;">Abogados Online Ecuador</h1>
-            <p style="margin: 8px 0 0; color: #dbeafe;">Notaría 18 de Quito</p>
+            <p style="margin: 8px 0 0; color: #dbeafe;">Servicio legal digital independiente</p>
           </div>
           <div class="content">
             <h2>¡Hola ${params.clientName}!</h2>
@@ -204,7 +204,7 @@ export async function sendLeadMagnet(params: SendLeadMagnetParams) {
           <div class="footer">
             <p>
               <strong>Abogados Online Ecuador</strong><br>
-              Notaría 18 de Quito<br>
+              Servicio legal digital independiente<br>
               <a href="mailto:info@abogadosonlineecuador.com" style="color: #2563eb;">info@abogadosonlineecuador.com</a><br>
               <a href="https://abogadosonlineecuador.com" style="color: #2563eb;">abogadosonlineecuador.com</a>
             </p>

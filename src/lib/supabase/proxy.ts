@@ -1,4 +1,3 @@
-// Force cache invalidation - Build timestamp
 import { createServerClient } from '@supabase/ssr'
 import { NextResponse, type NextRequest } from 'next/server'
 
@@ -34,25 +33,28 @@ export async function updateSession(request: NextRequest) {
     data: { user },
   } = await supabase.auth.getUser()
 
-  // Protect dashboard routes
+  const pathname = request.nextUrl.pathname
+  const isPublicContractRoute =
+    pathname === '/contratos/vehicular' ||
+    pathname === '/contratos/pago/callback' ||
+    /^\/contratos\/[^/]+\/pago$/.test(pathname)
+
   if (
     !user &&
-    (request.nextUrl.pathname.startsWith('/dashboard') ||
-      request.nextUrl.pathname.startsWith('/contratos') ||
-      request.nextUrl.pathname.startsWith('/perfil') ||
-      request.nextUrl.pathname.startsWith('/documentos') ||
-      request.nextUrl.pathname.startsWith('/suscripcion'))
+    (pathname.startsWith('/dashboard') ||
+      (pathname.startsWith('/contratos') && !isPublicContractRoute) ||
+      pathname.startsWith('/perfil') ||
+      pathname.startsWith('/documentos') ||
+      pathname.startsWith('/suscripcion'))
   ) {
     const url = request.nextUrl.clone()
     url.pathname = '/iniciar-sesion'
     return NextResponse.redirect(url)
   }
 
-  // Redirect authenticated users away from auth pages
   if (
     user &&
-    (request.nextUrl.pathname.startsWith('/iniciar-sesion') ||
-      request.nextUrl.pathname.startsWith('/registro'))
+    (pathname.startsWith('/iniciar-sesion') || pathname.startsWith('/registro'))
   ) {
     const url = request.nextUrl.clone()
     url.pathname = '/dashboard'
