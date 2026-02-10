@@ -1,9 +1,8 @@
 # AOE v2 — Plan Maestro de Implementación
 
-> **Estado actual:** ✅ PROMPTs 01-15 completados (Fase 1-4 + Wizard Contratos)
-> **Siguiente paso:** PROMPT 16 — PDF Service + Pasarela de pago
+> **Estado actual:** ✅ PROMPTs 01-08 completados (Fase 1 + Fase 2 terminadas)
+> **Siguiente paso:** PROMPT 09 — Fórmulas puras + tests unitarios (Fase 3: Calculadoras)
 > **Estimación total:** 8 semanas / ~20 prompts para Claude Code
-> **Estrategia SEO:** Ver `docs/plans/2026-02-08-seo-calculadoras-strategy.md`
 
 ---
 
@@ -13,8 +12,8 @@
 |------|--------|--------|-------------|
 | **1. Setup + Infra** | 1 | ✅ Completada | Proyecto, Supabase, deploy Vercel |
 | **2. Landing + Diseño** | 2-3 | ✅ Completada | UI, componentes, landing, páginas marketing |
-| **3. Calculadoras** | 4 | ✅ Completada | 4 calculadoras interactivas con SEO |
-| **4. Auth + Dashboard** | 5 | ✅ Completada | Login, registro, área privada |
+| **3. Calculadoras** | 4 | ⏳ Pendiente | 4 calculadoras interactivas con SEO |
+| **4. Auth + Dashboard** | 5 | ⏳ Pendiente | Login, registro, área privada |
 | **5. Contratos + Pagos** | 6 | ⏳ Pendiente | Wizard, PDF, pasarela de pago |
 | **6. Blog + n8n** | 7 | ⏳ Pendiente | Blog SEO, automatización |
 | **7. SEO + Lanzamiento** | 8 | ⏳ Pendiente | Optimización final, go-live |
@@ -349,10 +348,9 @@ Cada página con generateMetadata() completo.
 
 ## FASE 3 — Calculadoras como Lead Magnets (Semana 4)
 
-> ⚠️ **ESTRATEGIA CLAVE:** Las calculadoras NO son herramientas técnicas para abogados.
-> Son **máquinas de captura de leads** centradas en el usuario final.
+> ⚠️ **ESTRATEGIA CLAVE:** Las calculadoras NO son herramientas técnicas para abogados.  
+> Son **máquinas de captura de leads** centradas en el usuario final.  
 > Ver documento de diseño: `docs/plans/2026-02-07-calculadoras-lead-magnet-design.md`
-> Ver estrategia SEO: `docs/plans/2026-02-08-seo-calculadoras-strategy.md`
 
 ### Enfoque "Job to be Done"
 
@@ -369,33 +367,9 @@ El usuario NO quiere calcular tasas. El usuario quiere resolver:
 | 🚗 **Cotizador Vehicular** | Wizard simple | Email o WhatsApp |
 | 📋 **Servicios Menores** | Mini-wizard | CTA WhatsApp (trackeo) |
 
-### Estrategia SEO: Embudo de Calculadoras (Aprobada 2026-02-08)
-
-**Dato clave:** El 96% de los clics del sitio v1 vienen de `/calculadoras` (635 clics, 26k impresiones).
-
-**Arquitectura de páginas:**
-```
-/calculadoras/notarial           ← SEO entry (2,603 impresiones en "calculadora notarial")
-/calculadoras/registro-propiedad ← SEO entry (248 impresiones combinadas)
-/calculadoras/consejo-provincial ← SEO entry (123 impresiones, posición 3.9!)
-/calculadoras/municipal          ← SEO entry (alcabala + plusvalía)
-        │
-        ▼  CTA: "Ver costo TOTAL del trámite"
-        │
-/calculadoras/inmobiliario       ← DESTINO FINAL (total gratis, desglose = email gate)
-```
-
-**Reglas:**
-1. Cada calculadora individual SÍ muestra resultado (para no tener rebote)
-2. Pero señala que hay MÁS costos (empuja al inmobiliario)
-3. El inmobiliario muestra TOTAL gratis, desglose requiere email
-4. NO hay gate en las páginas individuales
-5. FAQ + texto SEO en cada página para capturar long-tail keywords
-6. Todas las páginas mobile-first (58% del tráfico es móvil)
-
 ---
 
-### ✅ PROMPT 09 — Fórmulas puras + tests unitarios (COMPLETADO)
+### 🔲 PROMPT 09 — Fórmulas puras + tests unitarios (BACKEND OCULTO)
 
 ```
 Lee el brain.md, el plan definitivo, y CALCULADORAS_LOGICA.md.
@@ -438,7 +412,7 @@ Ejecuta `npx vitest run` y confirma que TODOS los tests pasan.
 
 ---
 
-### ✅ PROMPT 10 — Componentes UI + Sistema de Lead Capture (COMPLETADO)
+### 🔲 PROMPT 10 — Componentes UI + Sistema de Lead Capture
 
 ```
 Lee el brain.md (sección diseño glass) y docs/plans/2026-02-07-calculadoras-lead-magnet-design.md.
@@ -491,7 +465,7 @@ Todos "use client" donde necesario. Mobile-first OBLIGATORIO.
 
 ---
 
-### ✅ PROMPT 11 — Presupuestador Inmobiliario (Producto Principal) (COMPLETADO)
+### 🔲 PROMPT 11 — Presupuestador Inmobiliario (Producto Principal)
 
 ```
 Lee brain.md y docs/plans/2026-02-07-calculadoras-lead-magnet-design.md.
@@ -554,67 +528,64 @@ TRACKING:
 
 ---
 
-### ✅ PROMPT 12 — Calculadoras individuales SEO + Hub + Vehicular (COMPLETADO)
+### 🔲 PROMPT 12 — Cotizador Vehicular + Hub + Servicios Menores
 
 ```
-Lee brain.md, docs/plans/2026-02-07-calculadoras-lead-magnet-design.md,
-y docs/plans/2026-02-08-seo-calculadoras-strategy.md.
+Lee brain.md y docs/plans/2026-02-07-calculadoras-lead-magnet-design.md.
 
-⚠️ ESTRATEGIA SEO: Cada calculadora individual es una PUERTA DE ENTRADA.
-Muestra su resultado, pero empuja al usuario hacia /calculadoras/inmobiliario.
+1. src/app/(marketing)/calculadoras/vehiculos/page.tsx — Cotizador Vehicular
 
-1. CALCULADORAS INDIVIDUALES (SEO entry points):
+Wizard simple:
+├└── "¿Cuántas personas firman?" → 2, 4, más
 
-src/app/(marketing)/calculadoras/notarial/page.tsx
-- Target keyword: "calculadora notarial ecuador" (2,603 impresiones)
-- Calcula tarifa notarial por tipo de trámite
-- Muestra resultado SIN gate
-- CTA prominente: "Este es solo el costo notarial. Su trámite incluye
-  Municipio, Registro y Consejo Provincial. Ver costo total →"
-- FAQ: 3-5 preguntas long-tail
-- Texto SEO: 200+ palabras
+Resultado: Total estimado (tarifa + IVA)
+Lead capture: Email para contrato PDF O botón WhatsApp
 
-src/app/(marketing)/calculadoras/registro-propiedad/page.tsx
-- Target keyword: "calculadora registro de la propiedad" (248 impresiones)
-- Calcula arancel del registro
-- CTA: "Falta notarial + municipal + consejo provincial. Ver total →"
-- FAQ: 3 preguntas
+2. src/app/(marketing)/calculadoras/servicios/page.tsx — Servicios Menores
 
-src/app/(marketing)/calculadoras/consejo-provincial/page.tsx
-- Target keyword: "calculadora consejo provincial" (123 impresiones, posición 3.9)
-- Calcula impuesto CP (10% de alcabala)
-- CTA: "Este impuesto es parte de un trámite mayor. Calcule todo →"
-- FAQ: 2-3 preguntas
+Mini-wizards para cada servicio:
+├── Poder General: "¿Persona natural o jurídica?" → Precio fijo → WhatsApp
+├── Declaración Juramentada: "¿Cuántas páginas?" → Precio fijo → WhatsApp
+├── Autorización Salida País: "¿Cuántos menores?" → Precio fijo → WhatsApp
+├── Reconocimiento de Firma: "¿Cuántas firmas?" → Precio fijo → WhatsApp
 
-src/app/(marketing)/calculadoras/municipal/page.tsx
-- Target keyword: "calculadora alcabala/plusvalía quito"
-- Calcula alcabala (comprador) + utilidad (vendedor)
-- CTA: "Estos son solo los impuestos municipales. Ver costo total →"
-- FAQ: 3-5 preguntas
+Cada mini-wizard:
+- 1-2 preguntas simples
+- Precio mostrado directamente (NO hay gating)
+- CTA: "Agendar cita por WhatsApp"
+- Trackeo anónimo de cada consulta
 
-2. COTIZADOR VEHICULAR:
+3. src/app/(marketing)/calculadoras/page.tsx — Hub de Calculadoras
 
-src/app/(marketing)/calculadoras/vehiculos/page.tsx
-- Wizard simple: valor + firmas → total
-- Lead capture: email para contrato PDF o WhatsApp
-- FAQ: 2-3 preguntas sobre traspaso vehicular
+Título: "¿Cuánto cuesta tu trámite legal?"
+Subtítulo: "Herramientas gratuitas para estimar tus gastos"
 
-3. HUB DE CALCULADORAS:
+Layout:
+┌─────────────────────────────────────────────────────────────────┐
+│ 🏠 PRESUPUESTADOR INMOBILIARIO                    ⭐ Destacado  │
+│ "Calcula todos los gastos de tu compra/venta"                   │
+│ [Calcular ahora →]                                              │
+├─────────────────────────────────────────────────────────────────┤
+│ 🚗 COTIZADOR VEHICULAR                                          │
+│ "Obtén el costo de tu contrato de compraventa"                  │
+│ [Cotizar →]                                                     │
+├─────────────────────────────────────────────────────────────────┤
+│ 📋 OTROS SERVICIOS                                              │
+│ Poderes • Declaraciones • Autorizaciones                        │
+│ [Ver precios →]                                                 │
+└─────────────────────────────────────────────────────────────────┘
 
-src/app/(marketing)/calculadoras/page.tsx
-- Título: "¿Cuánto cuesta tu trámite legal?"
-- Cards para cada calculadora, inmobiliario destacado
-- SEO: generateMetadata() + JSON-LD
-
-Cada página: generateMetadata(), JSON-LD WebApplication + FAQPage,
-mobile-first, internal links.
+SEO:
+- generateMetadata() para cada página
+- JSON-LD SoftwareApplication
+- Texto explicativo en cada página
 ```
 
-**Entregable:** Sistema completo de calculadoras SEO-optimizadas orientado a leads.
+**Entregable:** Sistema completo de calculadoras orientado a leads.
 
 ---
 
-### ✅ PROMPT 12.5 — Lead Magnets: PDFs y Emails
+### 🔲 PROMPT 12.5 — Lead Magnets: PDFs y Emails
 
 ```
 Lee docs/plans/2026-02-07-calculadoras-lead-magnet-design.md.
@@ -636,7 +607,7 @@ Crea los assets de lead magnets:
    - Error 5: No elegir bien la notaría
 
 3. src/emails/presupuesto-detallado.tsx — Template de email (React Email)
-   - Diseño profesional con logo Abogados Online Ecuador
+   - Diseño profesional con logo Notaría 18
    - Saludo personalizado
    - Desglose completo de gastos
    - CTA: "Agendar cita"
@@ -649,7 +620,7 @@ Crea los assets de lead magnets:
 
 5. src/lib/pdf/generate-presupuesto.ts — Generador de presupuesto personalizado
    - Usa @react-pdf/renderer
-   - Logo de Abogados Online Ecuador
+   - Logo de abogadosonlineecuador.com
    - Datos del usuario
    - Desglose completo
    - Fecha de generación
@@ -662,7 +633,7 @@ Crea los assets de lead magnets:
 
 ## FASE 4 — Auth + Dashboard (Semana 5)
 
-### ✅ PROMPT 13 — Sistema de autenticación completo (COMPLETADO)
+### 🔲 PROMPT 13 — Sistema de autenticación completo
 
 ```
 Lee el brain.md (sección Auth con Supabase).
@@ -704,7 +675,7 @@ Usa EXCLUSIVAMENTE Supabase Auth. NO Auth.js.
 
 ---
 
-### ✅ PROMPT 14 — Dashboard: Layout + Perfil + Suscripción (COMPLETADO)
+### 🔲 PROMPT 14 — Dashboard: Layout + Perfil + Suscripción
 
 ```
 Lee el brain.md.
@@ -742,7 +713,7 @@ Estilo glass oscuro consistente con el rest del sitio.
 
 ## FASE 5 — Contratos + Pagos (Semana 6)
 
-### ✅ PROMPT 15 — Wizard de contrato vehicular (COMPLETADO)
+### 🔲 PROMPT 15 — Wizard de contrato vehicular
 
 ```
 Lee el brain.md y el plan definitivo (sección wizard).
@@ -1005,13 +976,13 @@ Estas tareas NO las hace Claude Code — las haces tú en dashboards web:
 | 06 | ✅ Landing: Hero + Servicios + Calculadoras | 2 | 2-3 |
 | 07 | ✅ Landing: Stats + Testimonios + FAQ + CTA | 2 | 3 |
 | 08 | ✅ Páginas servicios, precios, contacto | 2 | 3 |
-| 09 | ✅ Fórmulas puras + tests Vitest | 3 | 4 |
-| 10 | ✅ Componentes calculadora + hooks | 3 | 4 |
-| 11 | ✅ Presupuestador Inmobiliario completo | 3 | 4 |
-| 12 | ✅ Calculadoras Municipal + Registro + Hub | 3 | 4 |
-| 13 | ✅ Sistema de autenticación | 4 | 5 |
-| 14 | ✅ Dashboard: layout + perfil + suscripción | 4 | 5 |
-| 15 | ✅ Wizard contrato vehicular | 5 | 6 |
+| 09 | 🔲 Fórmulas puras + tests Vitest | 3 | 4 |
+| 10 | 🔲 Componentes calculadora + hooks | 3 | 4 |
+| 11 | 🔲 Calculadora Notarial completa | 3 | 4 |
+| 12 | 🔲 Calculadoras Municipal + Registro + Hub | 3 | 4 |
+| 13 | 🔲 Sistema de autenticación | 4 | 5 |
+| 14 | 🔲 Dashboard: layout + perfil + suscripción | 4 | 5 |
+| 15 | 🔲 Wizard contrato vehicular | 5 | 6 |
 | 16 | 🔲 PDF service + pagos | 5 | 6 |
 | 17 | 🔲 Blog con ISR | 6 | 7 |
 | 18 | 🔲 Workflows n8n | 6 | 7 |

@@ -24,7 +24,7 @@ const narrativeSteps = [
         icon: Check,
         color: 'text-accent-success',
         bgColor: 'bg-accent-success/10',
-        image: '/assets/landing/validation-people-signing.jpg',
+        image: '/assets/landing/validation-abstract.jpg',
         href: '/servicios/compraventa-inmuebles',
         align: 'left', // Text on left, Image on right
     },
@@ -42,7 +42,7 @@ const narrativeSteps = [
         icon: Zap,
         color: 'text-amber-500',
         bgColor: 'bg-amber-500/10',
-        image: '/assets/landing/speed_process.svg',
+        image: '/assets/landing/speed-abstract.jpg',
         href: '/calculadoras',
         align: 'right', // Image on left, Text on right
     },
@@ -60,7 +60,7 @@ const narrativeSteps = [
         icon: Shield,
         color: 'text-accent-primary',
         bgColor: 'bg-accent-primary/10',
-        image: '/assets/landing/security_process.svg',
+        image: '/assets/landing/security-abstract.jpg',
         href: '/contacto',
         align: 'left', // Text on left, Image on right
     },

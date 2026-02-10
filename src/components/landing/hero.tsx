@@ -1,154 +1,174 @@
 'use client'
 
 import { motion } from 'framer-motion'
-import { ArrowRight, Bot, Calculator, Calendar, FileCheck2, ShieldCheck } from 'lucide-react'
+import { ArrowRight, Bot, Calculator, Calendar, FileCheck2, ShieldCheck, Check } from 'lucide-react'
 import type { LucideIcon } from 'lucide-react'
 import Link from 'next/link'
 import { Button } from '@/components/ui/button'
 import { Badge } from '@/components/ui/badge'
 
 /* ----------------------------------------------------------------
-   Hero visual - legal automation flow
+   Hero visual - vertical legal pipeline
    ---------------------------------------------------------------- */
-interface FlowStep {
-  title: string
-  detail: string
-  icon: LucideIcon
-  delay: number
-}
-
-const flowSteps: FlowStep[] = [
+/* ----------------------------------------------------------------
+   Hero visual - Stitch-designed Pipeline
+   ---------------------------------------------------------------- */
+const pipelineSteps = [
   {
-    title: 'Datos y validacion inicial',
-    detail: 'La plataforma verifica cedula, placa y campos obligatorios.',
+    id: 'scan',
+    title: 'Validación',
+    status: 'Escaneando identidad...',
     icon: Bot,
-    delay: 0.1,
+    side: 'right',
+    progress: 65,
   },
   {
-    title: 'Revision legal automatizada',
-    detail: 'Reglas notariales se aplican de forma inmediata y consistente.',
+    id: 'process',
+    title: 'Análisis Legal',
+    status: 'Procesando riesgos...',
     icon: ShieldCheck,
-    delay: 0.2,
+    side: 'left',
+    progress: 80,
   },
   {
-    title: 'Contrato listo para firma',
-    detail: 'Documento final en minutos, listo para presentar en notaria.',
+    id: 'complete',
+    title: 'Contrato Listo',
+    status: 'Verificado',
     icon: FileCheck2,
-    delay: 0.3,
+    side: 'right',
+    progress: 100,
   },
 ]
 
-function AutomationFlowVisual() {
+function PipelineFlowVisual() {
   return (
-    <div className="relative w-full max-w-xl mx-auto">
-      <div className="absolute -inset-8 bg-accent-primary/10 blur-3xl rounded-full" />
-      <div className="absolute -right-6 top-10 h-28 w-28 rounded-full bg-cyan-300/30 blur-2xl" />
+    <div className="relative w-full max-w-lg mx-auto h-[600px] flex items-center justify-center font-sans">
 
-      <motion.div
-        initial={{ opacity: 0, x: 40, scale: 0.96 }}
-        animate={{
-          opacity: 1,
-          scale: 1,
-          x: 0,
-        }}
-        transition={{
-          duration: 0.8,
-          delay: 0.35,
-          ease: [0.16, 1, 0.3, 1],
-        }}
-        className="relative rounded-3xl bg-white/80 border border-white/70 backdrop-blur-xl shadow-2xl shadow-accent-primary/10 p-5 sm:p-6 overflow-hidden"
-      >
-        <div className="absolute inset-x-0 top-0 h-24 bg-gradient-to-b from-accent-primary/10 to-transparent" />
+      {/* Main Container with Stitch-style Glass and Grid */}
+      <div className="relative w-full h-full bg-[#f6f8f7]/80 backdrop-blur-xl border border-[#10b77f]/10 rounded-3xl shadow-2xl p-6 flex flex-col items-center overflow-hidden">
 
-        <div className="relative rounded-2xl border border-slate-200 bg-white/90 p-4 sm:p-5">
-          <div className="flex items-center justify-between border-b border-slate-100 pb-3 mb-4">
-            <p className="text-sm font-semibold text-slate-800">Motor de Automatizacion Legal</p>
-            <div className="inline-flex items-center gap-2 rounded-full bg-emerald-50 px-3 py-1">
-              <span className="relative flex h-2 w-2">
-                <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-emerald-400 opacity-75" />
-                <span className="relative inline-flex h-2 w-2 rounded-full bg-emerald-500" />
-              </span>
-              <span className="text-[11px] font-semibold text-emerald-700">En vivo</span>
-            </div>
+        {/* Background Grid Pattern */}
+        <div
+          className="absolute inset-0 opacity-30 pointer-events-none"
+          style={{
+            backgroundImage: `linear-gradient(rgba(16, 183, 127, 0.05) 1px, transparent 1px), linear-gradient(90deg, rgba(16, 183, 127, 0.05) 1px, transparent 1px)`,
+            backgroundSize: '40px 40px'
+          }}
+        />
+
+        {/* Ambient Glows */}
+        <div className="absolute top-[-10%] right-[-5%] w-[300px] h-[300px] bg-[#10b77f]/10 rounded-full blur-[80px] pointer-events-none" />
+        <div className="absolute bottom-[-10%] left-[-5%] w-[300px] h-[300px] bg-[#10b77f]/5 rounded-full blur-[80px] pointer-events-none" />
+
+        {/* Header */}
+        <div className="relative z-10 w-full flex items-center justify-between border-b border-[#10b77f]/10 pb-4 mb-4">
+          <div className="flex items-center gap-2 px-3 py-1 rounded-full bg-[#10b77f]/10 border border-[#10b77f]/20">
+            <span className="relative flex h-2 w-2">
+              <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-[#10b77f] opacity-75" />
+              <span className="relative inline-flex h-2 w-2 rounded-full bg-[#10b77f]" />
+            </span>
+            <span className="text-[10px] font-bold text-[#10b77f] uppercase tracking-wider">
+              Sistema Activo
+            </span>
           </div>
+          <Badge variant="outline" className="bg-white/50 border-slate-200 text-slate-500">
+            v2.4
+          </Badge>
+        </div>
 
-          <div className="relative">
-            <div className="absolute left-[1.35rem] top-6 bottom-6 w-px bg-gradient-to-b from-accent-primary/20 via-accent-primary/60 to-accent-primary/20" />
+        {/* Pipeline Area */}
+        <div className="relative z-10 flex-1 w-full flex justify-center">
 
+          {/* Central Line */}
+          <div className="absolute top-0 bottom-0 w-[2px] bg-gradient-to-b from-transparent via-[#10b77f]/30 to-transparent">
+            {/* Moving Orb */}
             <motion.div
-              className="absolute left-[1.05rem] top-6 h-3 w-3 rounded-full bg-accent-primary shadow-[0_0_0_6px_rgba(2,64,137,0.16)]"
-              animate={{ y: [0, 79, 158, 0] }}
-              transition={{ duration: 6, repeat: Infinity, ease: 'easeInOut' }}
+              className="absolute w-3 h-3 bg-[#10b77f] rounded-full shadow-[0_0_10px_#10b77f] left-1/2 -translate-x-1/2"
+              initial={{ top: '10%', opacity: 0 }}
+              animate={{ top: '90%', opacity: [0, 1, 1, 0] }}
+              transition={{
+                duration: 4,
+                repeat: Infinity,
+                ease: "easeInOut"
+              }}
             />
-
-            <div className="space-y-3">
-              {flowSteps.map((step, index) => (
-                <motion.div
-                  key={step.title}
-                  initial={{ opacity: 0, x: 18 }}
-                  animate={{ opacity: 1, x: 0 }}
-                  transition={{ duration: 0.45, delay: step.delay }}
-                  className="relative pl-11"
-                >
-                  <div className="absolute left-0 top-5 h-7 w-7 rounded-xl border border-slate-200 bg-white flex items-center justify-center text-accent-primary shadow-sm">
-                    <step.icon className="h-4 w-4" />
-                  </div>
-                  <div className="rounded-xl border border-slate-200 bg-slate-50/75 px-4 py-3">
-                    <p className="text-sm font-semibold text-slate-900">{step.title}</p>
-                    <p className="mt-1 text-xs text-slate-600">{step.detail}</p>
-                  </div>
-                  {index < flowSteps.length - 1 ? <div className="h-0.5" /> : null}
-                </motion.div>
-              ))}
-            </div>
           </div>
+
+          {/* Cards Container */}
+          <div className="w-full flex flex-col justify-around py-4">
+            {pipelineSteps.map((step, index) => (
+              <div key={step.id} className="relative w-full h-24 flex items-center justify-center">
+
+                {/* Center Node */}
+                <div className="absolute left-1/2 -translate-x-1/2 w-4 h-4 bg-white border-2 border-[#10b77f]/30 rounded-full z-20 flex items-center justify-center">
+                  <motion.div
+                    className="w-2 h-2 bg-[#10b77f] rounded-full"
+                    initial={{ scale: 0 }}
+                    animate={{ scale: [0, 1, 0] }}
+                    transition={{ duration: 0.5, delay: index * 1.3 + 0.5, repeat: Infinity, repeatDelay: 3.5 }}
+                  />
+                </div>
+
+                {/* Card */}
+                <motion.div
+                  className={`absolute w-40 sm:w-48 p-3 rounded-xl border border-[#10b77f]/10 bg-white/60 backdrop-blur-md shadow-lg flex flex-col gap-2 ${step.side === 'left' ? 'right-[55%] text-right items-end' : 'left-[55%] text-left items-start'}`}
+                  initial={{ opacity: 0, x: step.side === 'left' ? -20 : 20 }}
+                  animate={{ opacity: 1, x: 0 }}
+                  transition={{ delay: 0.2 + (index * 0.2) }}
+                >
+                  <div className="flex items-center gap-2 text-[#10b77f]">
+                    <step.icon className="w-4 h-4" />
+                    <span className="text-xs font-bold uppercase tracking-wider">Etapa 0{index + 1}</span>
+                  </div>
+                  <div>
+                    <p className="text-sm font-bold text-slate-800 leading-none">{step.title}</p>
+                    <p className="text-[10px] text-slate-500 uppercase mt-1">{step.status}</p>
+                  </div>
+                  {/* Progress Bar */}
+                  <div className="w-full h-1 bg-slate-200 rounded-full overflow-hidden mt-1">
+                    <motion.div
+                      className="h-full bg-[#10b77f]"
+                      initial={{ width: 0 }}
+                      animate={{ width: `${step.progress}%` }}
+                      transition={{ duration: 1.5, delay: 0.5 + (index * 0.5), repeat: Infinity, repeatDelay: 2 }}
+                    />
+                  </div>
+                </motion.div>
+
+              </div>
+            ))}
+          </div>
+
+          {/* Floating Tags */}
+
 
           <motion.div
-            initial={{ opacity: 0, y: 16 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ delay: 0.55, duration: 0.45 }}
-            className="mt-5 overflow-hidden rounded-2xl border border-slate-200 bg-slate-950"
+            className="absolute bottom-[20%] left-[5%] bg-white/80 backdrop-blur-sm px-3 py-1.5 rounded-full border border-[#10b77f]/20 shadow-sm flex items-center gap-1.5"
+            animate={{ y: [0, 10, 0] }}
+            transition={{ duration: 5, repeat: Infinity, ease: "easeInOut" }}
           >
-            <div className="relative h-36 sm:h-40">
-              <img
-                src="https://images.unsplash.com/photo-1450101499163-c8848c66ca85?auto=format&fit=crop&w=1200&q=80"
-                alt="Automatizacion de documentos legales"
-                className="h-full w-full object-cover opacity-80"
-              />
-              <motion.div
-                className="absolute inset-x-0 h-px bg-cyan-200/80"
-                animate={{ y: [0, 160, 0], opacity: [0, 1, 0] }}
-                transition={{ duration: 4.2, repeat: Infinity, ease: 'easeInOut' }}
-              />
-              <div className="absolute inset-0 bg-gradient-to-t from-slate-950/90 via-slate-950/35 to-transparent" />
-              <div className="absolute bottom-3 left-3 right-3 flex items-end justify-between gap-3">
-                <div>
-                  <p className="text-xs text-slate-300">Salida del proceso</p>
-                  <p className="text-sm font-semibold text-white">Contrato listo para firma</p>
-                </div>
-                <span className="rounded-full bg-emerald-400/15 px-3 py-1 text-xs font-semibold text-emerald-200 border border-emerald-300/20">
-                  Validado
-                </span>
-              </div>
-            </div>
+            <ShieldCheck className="w-3 h-3 text-[#10b77f]" />
+            <span className="text-[10px] font-bold text-slate-600">100% Fiable</span>
           </motion.div>
 
-          <div className="mt-4 grid grid-cols-3 gap-2 text-center">
-            <div className="rounded-lg border border-slate-200 bg-slate-50 px-2 py-2">
-              <p className="text-[10px] text-slate-500">Tiempo medio</p>
-              <p className="text-sm font-semibold text-slate-900">6 min</p>
-            </div>
-            <div className="rounded-lg border border-slate-200 bg-slate-50 px-2 py-2">
-              <p className="text-[10px] text-slate-500">Revision</p>
-              <p className="text-sm font-semibold text-slate-900">100%</p>
-            </div>
-            <div className="rounded-lg border border-slate-200 bg-slate-50 px-2 py-2">
-              <p className="text-[10px] text-slate-500">Disponibilidad</p>
-              <p className="text-sm font-semibold text-slate-900">24/7</p>
-            </div>
+        </div>
+
+        {/* Footer Stats */}
+        <div className="relative z-10 w-full grid grid-cols-3 gap-2 border-t border-[#10b77f]/10 pt-4 mt-auto text-center">
+          <div>
+            <p className="text-lg font-bold text-[#10b77f]">24/7</p>
+            <p className="text-[9px] uppercase tracking-widest text-slate-500 font-bold">Disponibilidad</p>
+          </div>
+          <div>
+            <p className="text-lg font-bold text-[#10b77f]">100%</p>
+            <p className="text-[9px] uppercase tracking-widest text-slate-500 font-bold">Validez Legal</p>
+          </div>
+          <div>
+            <p className="text-lg font-bold text-[#10b77f]">Total</p>
+            <p className="text-[9px] uppercase tracking-widest text-slate-500 font-bold">Seguridad</p>
           </div>
         </div>
-      </motion.div>
+      </div>
     </div>
   )
 }
@@ -263,7 +283,7 @@ export function Hero() {
           </div>
 
           <div className="relative w-full max-w-xl mx-auto lg:max-w-none">
-            <AutomationFlowVisual />
+            <PipelineFlowVisual />
           </div>
         </div>
       </div>

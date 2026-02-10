@@ -1,8 +1,8 @@
 'use server'
 
 import { createClient } from '@/lib/supabase/server'
+import { createAdminClient } from '@/lib/supabase/admin'
 import { loginSchema, registerSchema, forgotPasswordSchema, type LoginInput, type RegisterInput, type ForgotPasswordInput } from '@/lib/validations/auth'
-import { redirect } from 'next/navigation'
 import { headers } from 'next/headers'
 
 type ActionResult<T = void> =
@@ -106,12 +106,18 @@ export async function register(data: RegisterInput): Promise<ActionResult> {
 
     // Si el usuario fue creado, crear el perfil
     if (authData.user) {
-      const { error: profileError } = await supabase
+      // Usamos el cliente admin para saltar RLS ya que el usuario
+      // aun no tiene sesion activa valida para insertar en profiles
+      const admin = createAdminClient()
+
+      const { error: profileError } = await admin
         .from('profiles')
-        .insert({
+        .upsert({
           id: authData.user.id,
-          email: authData.user.email!,
           full_name: validated.data.fullName,
+          updated_at: new Date().toISOString(),
+        }, {
+          onConflict: 'id',
         })
 
       if (profileError) {

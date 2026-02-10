@@ -3,6 +3,11 @@
 import { createClient } from '@/lib/supabase/server'
 import { leadCaptureSchema, calculatorSessionSchema } from '@/lib/validations/leads'
 import type { LeadCaptureInput, CalculatorSessionInput } from '@/lib/validations/leads'
+import { Resend } from 'resend'
+import { render } from '@react-email/render'
+import { WelcomeEmail } from '@/emails/welcome-email'
+
+const resend = new Resend(process.env.RESEND_API_KEY)
 
 /* ----------------------------------------------------------------
    captureLead — Saves a lead from calculators or lead magnets
@@ -28,6 +33,22 @@ export async function captureLead(data: LeadCaptureInput) {
     if (error) {
       console.error('Supabase error capturing lead:', error)
       return { success: false as const, error: 'Error guardando datos' }
+    }
+
+    // --- Envío del Email de Bienvenida ---
+    try {
+      const emailHtml = await render(<WelcomeEmail clientName={parsed.data.name || 'Cliente'} />)
+
+      await resend.emails.send({
+        from: process.env.EMAIL_FROM || 'Abogados Online Ecuador <noreply@abogadosonlineecuador.com>',
+        replyTo: process.env.EMAIL_REPLY_TO || 'info@abogadosonlineecuador.com',
+        to: parsed.data.email,
+        subject: '¡Bienvenido a Abogados Online Ecuador! 🚀',
+        html: emailHtml,
+      })
+    } catch (emailError) {
+      // No bloqueamos el flujo principal si el email falla
+      console.error('Error sending welcome email:', emailError)
     }
 
     return { success: true as const }

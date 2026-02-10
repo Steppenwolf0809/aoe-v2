@@ -50,8 +50,9 @@ export async function submitContactForm(prevState: ContactState | undefined, for
     // 2. Send Notification Email (Resend)
     /*
     await resend.emails.send({
-      from: 'AoE Contact <onboarding@resend.dev>',
-      to: 'info@abogadosonlineecuador.com',
+      from: process.env.EMAIL_FROM || 'Abogados Online Ecuador <noreply@abogadosonlineecuador.com>',
+      replyTo: email, // El usuario que escribe
+      to: process.env.EMAIL_REPLY_TO || 'info@abogadosonlineecuador.com',
       subject: `Nuevo contacto: ${serviceType}`,
       html: `
         <h1>Nuevo mensaje de contacto</h1>

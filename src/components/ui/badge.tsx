@@ -1,6 +1,6 @@
 import { cn } from '@/lib/utils'
 
-type BadgeVariant = 'default' | 'success' | 'warning' | 'error' | 'info' | 'purple'
+type BadgeVariant = 'default' | 'success' | 'warning' | 'error' | 'info' | 'purple' | 'outline'
 
 interface BadgeProps {
   variant?: BadgeVariant
@@ -16,6 +16,7 @@ const variantStyles: Record<BadgeVariant, string> = {
   error: 'bg-accent-error/10 text-accent-error border-accent-error/20',
   info: 'bg-accent-primary/10 text-accent-primary border-accent-primary/20',
   purple: 'bg-accent-secondary/10 text-accent-secondary border-accent-secondary/20',
+  outline: 'bg-transparent text-slate-600 border-slate-200',
 }
 
 const sizeStyles = {
