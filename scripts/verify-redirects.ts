@@ -23,7 +23,7 @@ const BASE_URL = 'http://localhost:3000';
 
 async function checkRedirect(path: string, expectedDest: string) {
     return new Promise<void>((resolve) => {
-        const req = http.request(`${BASE_URL}${path}`, { method: 'HEAD', followRedirect: false }, (res) => {
+        const req = http.request(`${BASE_URL}${path}`, { method: 'HEAD' }, (res) => {
             const location = res.headers.location;
             const status = res.statusCode;
 
