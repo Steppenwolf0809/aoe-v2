@@ -10,6 +10,8 @@ const envSchema = z.object({
   N8N_WEBHOOK_SECRET: z.string().optional(),
   RESEND_API_KEY: z.string().optional(),
   NEXT_PUBLIC_GA_ID: z.string().optional(),
+  PAYPHONE_TOKEN: z.string().optional(),
+  PAYPHONE_STORE_ID: z.string().optional(),
 })
 
 export type Env = z.infer<typeof envSchema>

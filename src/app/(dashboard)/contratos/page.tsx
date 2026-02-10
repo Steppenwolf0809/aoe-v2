@@ -7,6 +7,7 @@ import { Button } from '@/components/ui/button'
 import { Badge } from '@/components/ui/badge'
 import { Card, CardContent } from '@/components/ui/card'
 import { formatDate, formatCurrency } from '@/lib/utils'
+import { ContractActions } from '@/components/contracts/contract-actions'
 
 export const metadata: Metadata = {
   title: 'Mis Contratos | Dashboard | Abogados Online Ecuador',
@@ -15,14 +16,16 @@ export const metadata: Metadata = {
 interface Contract {
   id: string
   type: string
-  status: 'DRAFT' | 'PAID' | 'GENERATED' | 'DOWNLOADED'
+  status: 'DRAFT' | 'PAID' | 'GENERATED' | 'DOWNLOADED' | 'PENDING_PAYMENT'
   data: Record<string, unknown>
   amount: number | null
   created_at: string
+  download_token: string | null
 }
 
 const statusLabel: Record<Contract['status'], string> = {
   DRAFT: 'Borrador',
+  PENDING_PAYMENT: 'Pago pendiente',
   PAID: 'Pagado',
   GENERATED: 'Generado',
   DOWNLOADED: 'Descargado',
@@ -33,6 +36,7 @@ const statusVariant: Record<
   'default' | 'info' | 'warning' | 'success'
 > = {
   DRAFT: 'default',
+  PENDING_PAYMENT: 'warning',
   PAID: 'info',
   GENERATED: 'warning',
   DOWNLOADED: 'success',
@@ -44,7 +48,7 @@ export default async function ContratosPage() {
 
   const { data: contracts } = await supabase
     .from('contracts')
-    .select('id,type,status,data,amount,created_at')
+    .select('id,type,status,data,amount,created_at,download_token')
     .eq('user_id', user.id)
     .order('created_at', { ascending: false })
 
@@ -106,30 +110,40 @@ export default async function ContratosPage() {
                 key={contract.id}
                 className="bg-[var(--glass-bg)] border-[var(--glass-border)]"
               >
-                <CardContent className="flex items-center justify-between py-4 px-4 sm:px-6">
-                  <div className="flex items-center gap-4 min-w-0">
-                    <div className="hidden sm:flex w-10 h-10 rounded-xl bg-accent-primary/10 items-center justify-center shrink-0">
-                      <FileText className="w-5 h-5 text-accent-primary" />
+                <CardContent className="py-4 px-4 sm:px-6">
+                  <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
+                    <div className="flex items-center gap-4 min-w-0">
+                      <div className="hidden sm:flex w-10 h-10 rounded-xl bg-accent-primary/10 items-center justify-center shrink-0">
+                        <FileText className="w-5 h-5 text-accent-primary" />
+                      </div>
+                      <div className="min-w-0">
+                        <p className="text-sm font-medium text-text-primary truncate">
+                          {vehiculo}
+                        </p>
+                        <p className="text-xs text-text-muted">
+                          {placa} &middot; {formatDate(contract.created_at)}
+                        </p>
+                      </div>
                     </div>
-                    <div className="min-w-0">
-                      <p className="text-sm font-medium text-text-primary truncate">
-                        {vehiculo}
-                      </p>
-                      <p className="text-xs text-text-muted">
-                        {placa} &middot; {formatDate(contract.created_at)}
-                      </p>
+
+                    <div className="flex items-center gap-3 shrink-0">
+                      {contract.amount && (
+                        <span className="text-sm font-medium text-text-primary hidden sm:block">
+                          {formatCurrency(contract.amount)}
+                        </span>
+                      )}
+                      <Badge variant={statusVariant[contract.status]}>
+                        {statusLabel[contract.status]}
+                      </Badge>
                     </div>
                   </div>
 
-                  <div className="flex items-center gap-3 shrink-0">
-                    {contract.amount && (
-                      <span className="text-sm font-medium text-text-primary hidden sm:block">
-                        {formatCurrency(contract.amount)}
-                      </span>
-                    )}
-                    <Badge variant={statusVariant[contract.status]}>
-                      {statusLabel[contract.status]}
-                    </Badge>
+                  <div className="mt-4 pt-4 border-t border-[var(--glass-border)]">
+                    <ContractActions
+                      contractId={contract.id}
+                      status={contract.status}
+                      downloadToken={contract.download_token || undefined}
+                    />
                   </div>
                 </CardContent>
               </Card>
