@@ -39,7 +39,7 @@ export const NAV_LINKS = [
 ] as const
 
 export const SOCIAL_LINKS = {
-  whatsapp: 'https://wa.me/593999999999',
+  whatsapp: 'https://wa.me/593979317579',
   email: 'mailto:info@abogadosonlineecuador.com',
   facebook: 'https://facebook.com/abogadosonlineecuador',
   instagram: 'https://instagram.com/abogadosonlineecuador',

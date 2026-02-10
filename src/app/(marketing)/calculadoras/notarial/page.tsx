@@ -190,7 +190,7 @@ export default function CalculadoraNotarialPage() {
                 trámite.
               </p>
               <a
-                href="https://wa.me/593999999999"
+                href="https://wa.me/593979317579"
                 target="_blank"
                 rel="noopener noreferrer"
                 className="inline-flex items-center gap-2 px-4 py-2 bg-[var(--accent-primary)] hover:bg-[var(--accent-primary)]/90 text-white text-sm font-medium rounded-lg transition-colors"

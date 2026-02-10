@@ -58,7 +58,7 @@ export default function ContactPage() {
             {/* Map Placeholder or Embed */}
             <div className="w-full h-64 rounded-2xl overflow-hidden border border-slate-200 dark:border-slate-800 shadow-lg relative bg-slate-100 dark:bg-slate-800">
               <iframe
-                src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d3989.790234739497!2d-78.4878!3d-0.1989!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x0%3A0x0!2zMMKwMTEnNTYuMCJTIDc4wrAyOScxNi4xIlc!5e0!3m2!1sen!2sec!4v1625680000000!5m2!1sen!2sec"
+                src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d1994.896739988587!2d-78.4891696885376!3d-0.18420300000000003!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x91d59a7c6c4c0767%3A0x1d5267866763076!2sCalle%20Azuay%20E2-231%2C%20Quito%20170135!5e0!3m2!1sen!2sec!4v1707500000000!5m2!1sen!2sec"
                 width="100%"
                 height="100%"
                 style={{ border: 0 }}

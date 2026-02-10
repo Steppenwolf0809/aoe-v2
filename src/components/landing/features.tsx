@@ -22,7 +22,7 @@ const services = [
   {
     title: 'Generación de Documentos',
     description:
-      'Genera contratos y documentos legales personalizados en minutos. Válidos para uso notarial en Ecuador.',
+      'Genera contratos y documentos legales personalizados en minutos. Válidos para cualquier notaría de Quito y Ecuador.',
     icon: FileText,
     gradient: 'from-blue-600/20 to-indigo-600/20',
     href: '/servicios',
@@ -30,7 +30,7 @@ const services = [
   {
     title: 'Compraventas',
     description:
-      'Contratos de compra-venta vehicular y de bienes. Incluye todas las cláusulas legales necesarias.',
+      'Contratos de compra-venta vehicular y de bienes. Listos para firmar en notaría. Asesoría incluida.',
     icon: Car,
     gradient: 'from-slate-600/20 to-gray-600/20',
     href: '/servicios',
@@ -46,7 +46,7 @@ const services = [
   {
     title: 'Poderes',
     description:
-      'Poderes generales y especiales para representación legal, trámites vehiculares y más.',
+      'Poderes generales y especiales para uso en bancos, instituciones públicas y privadas de Quito.',
     icon: Scale,
     gradient: 'from-slate-500/20 to-zinc-500/20',
     href: '/servicios',

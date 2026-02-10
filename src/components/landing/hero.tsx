@@ -16,24 +16,24 @@ import { Badge } from '@/components/ui/badge'
 const pipelineSteps = [
   {
     id: 'scan',
-    title: 'Validación',
-    status: 'Escaneando identidad...',
+    title: 'Recepción de Datos',
+    status: 'Verificando requisitos...',
     icon: Bot,
     side: 'right',
     progress: 65,
   },
   {
     id: 'process',
-    title: 'Análisis Legal',
-    status: 'Procesando riesgos...',
+    title: 'Revisión Legal',
+    status: 'Validando normativa...',
     icon: ShieldCheck,
     side: 'left',
     progress: 80,
   },
   {
     id: 'complete',
-    title: 'Contrato Listo',
-    status: 'Verificado',
+    title: 'Listo para Firma',
+    status: 'Aprobado',
     icon: FileCheck2,
     side: 'right',
     progress: 100,
@@ -68,7 +68,7 @@ function PipelineFlowVisual() {
               <span className="relative inline-flex h-2 w-2 rounded-full bg-[#10b77f]" />
             </span>
             <span className="text-[10px] font-bold text-[#10b77f] uppercase tracking-wider">
-              Sistema Activo
+              Trámite en Curso
             </span>
           </div>
           <Badge variant="outline" className="bg-white/50 border-slate-200 text-slate-500">
@@ -213,7 +213,7 @@ export function Hero() {
                   <span className="relative inline-flex rounded-full h-2.5 w-2.5 bg-accent-success" />
                 </span>
                 <span className="text-sm font-medium text-text-secondary">
-                  Automatizacion legal con respaldo notarial
+                  Servicios Notariales & Legales en Quito
                 </span>
               </div>
             </motion.div>
@@ -224,9 +224,9 @@ export function Hero() {
               transition={{ duration: 0.5, delay: 0.1 }}
               className="text-4xl sm:text-5xl lg:text-6xl font-bold text-text-primary leading-[1.1] tracking-tight mb-6"
             >
-              Convierte tramites legales en{' '}
+              Tus trámites notariales,{' '}
               <span className="bg-gradient-to-r from-accent-primary to-accent-primary-hover bg-clip-text text-transparent">
-                procesos automaticos y claros
+                rápidos y seguros en Quito
               </span>
             </motion.h1>
 
@@ -236,9 +236,8 @@ export function Hero() {
               transition={{ duration: 0.5, delay: 0.2 }}
               className="text-lg text-text-secondary leading-relaxed max-w-lg mb-10"
             >
-              Activa flujos que validan requisitos, calculan valores notariales y
-              generan contratos listos para firma. Menos friccion para tu cliente,
-              mas control para tu operacion legal.
+              Genera contratos válidos en línea o gestiona tus trámites físicos directamente en Quito.
+              Combinamos tecnología legal con la experiencia de una notaría tradicional.
             </motion.p>
 
             <motion.div

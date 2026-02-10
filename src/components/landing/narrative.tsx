@@ -12,14 +12,14 @@ import { Button } from '@/components/ui/button'
 const narrativeSteps = [
     {
         id: 1,
-        title: 'Validación Jurídica Experta',
-        subtitle: 'Tecnología + Experiencia Humana',
+        title: 'Respaldo Notarial en Quito',
+        subtitle: 'Más que una App, una Notaría',
         description:
-            'Cada contrato generado en nuestra plataforma ha sido redactado y revisado por notarios y abogados expertos. Garantizamos que tus documentos cumplan con la normativa ecuatoriana vigente (Ley Notarial, Código Civil), listos para firmar en cualquier notaría del país.',
+            'Cada documento generado cuenta con el respaldo de nuestro equipo legal en Quito. No somos solo un software; somos abogados y notarios expertos asegurando que tus contratos de compra-venta, poderes y declaraciones cumplan estrictamente con la normativa local de Pichincha y Ecuador.',
         bulletPoints: [
-            'Cláusulas actualizadas 2026',
-            'Cumplimiento de requisitos SRI y AMT',
-            'Formato notarial estándar',
+            'Supervisión de Notarios de Quito',
+            'Cumplimiento estricto con el SRI y AMT',
+            'Soporte físico y digital integrado',
         ],
         icon: Check,
         color: 'text-accent-success',
@@ -30,14 +30,14 @@ const narrativeSteps = [
     },
     {
         id: 2,
-        title: 'Velocidad sin Precedentes',
-        subtitle: 'De horas a minutos',
+        title: 'Trámites sin Filas ni Tráfico',
+        subtitle: 'Tu tiempo vale oro',
         description:
-            'Olvídate de esperar borradores o coordinar citas para simples consultas. Con nuestras calculadoras y generadores automáticos, obtienes resultados instantáneos. Lo que antes tomaba días, ahora lo resuelves en lo que tardas en tomar un café.',
+            'Evita el tráfico de la 6 de Diciembre o el sector financiero. Inicia tus trámites en línea desde tu casa u oficina y solo acude a la notaría para la firma final cuando todo esté listo. Optimizamos tu tiempo convirtiendo horas de espera en minutos de gestión.',
         bulletPoints: [
-            'Contratos listos en < 5 minutos',
-            'Cálculo de impuestos en tiempo real',
-            'Disponible 24/7 sin cita previa',
+            'Citas puntuales para firmas',
+            'Generación de documentos 24/7',
+            'Proceso anticipado online',
         ],
         icon: Zap,
         color: 'text-amber-500',
@@ -48,14 +48,14 @@ const narrativeSteps = [
     },
     {
         id: 3,
-        title: 'Seguridad y Privacidad',
-        subtitle: 'Tus datos están protegidos',
+        title: 'Seguridad Jurídica Total',
+        subtitle: 'Confianza y Validez',
         description:
-            'Entendemos la sensibilidad de la información legal. Utilizamos encriptación de grado bancario para proteger tus datos personales y los detalles de tus transacciones. Tu privacidad y seguridad son nuestra prioridad absoluta.',
+            'Tu seguridad va más allá de un candado digital. Garantizamos la validez jurídica de tus actos ante cualquier instancia pública o privada del Ecuador. Tus datos y tus bienes están protegidos bajo el secreto profesional y la responsabilidad notarial.',
         bulletPoints: [
-            'Encriptación SSL/TLS',
-            'Sin almacenamiento de datos sensibles',
-            'Pagos seguros procesados externamente',
+            'Validez Legal Garantizada',
+            'Secreto Profesional Abogado-Cliente',
+            'Protección de Datos y Bienes',
         ],
         icon: Shield,
         color: 'text-accent-primary',

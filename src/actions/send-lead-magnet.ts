@@ -186,11 +186,10 @@ export async function sendLeadMagnet(params: SendLeadMagnetParams) {
               Lo encontrarás adjunto a este correo en formato PDF.
             </p>
             <p>
-              ${
-                params.type === 'checklist'
-                  ? 'Este checklist te ayudará a tener todos los documentos listos para escriturar tu inmueble sin contratiempos.'
-                  : 'Esta guía te mostrará los 5 errores más comunes que encarecen la escrituración y cómo evitarlos para ahorrar miles de dólares.'
-              }
+              ${params.type === 'checklist'
+        ? 'Este checklist te ayudará a tener todos los documentos listos para escriturar tu inmueble sin contratiempos.'
+        : 'Esta guía te mostrará los 5 errores más comunes que encarecen la escrituración y cómo evitarlos para ahorrar miles de dólares.'
+      }
             </p>
             <div style="text-align: center;">
               <a href="https://abogadosonlineecuador.com" class="button">
@@ -199,7 +198,7 @@ export async function sendLeadMagnet(params: SendLeadMagnetParams) {
             </div>
             <p style="margin-top: 24px;">
               ¿Tienes dudas? Contáctanos por WhatsApp al
-              <a href="https://wa.me/593987654321" style="color: #2563eb;">+593 98 765 4321</a>
+              <a href="https://wa.me/593979317579" style="color: #2563eb;">+593 97 931 7579</a>
             </p>
           </div>
           <div class="footer">

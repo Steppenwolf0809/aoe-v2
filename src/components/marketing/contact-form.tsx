@@ -150,7 +150,7 @@ export function ContactForm() {
                                 <Input
                                     {...register('phone')}
                                     type="tel"
-                                    placeholder="+593 99 999 9999"
+                                    placeholder="+593 97 931 7579"
                                 />
                             </div>
 

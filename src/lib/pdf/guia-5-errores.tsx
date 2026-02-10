@@ -365,7 +365,7 @@ export const Guia5Errores = () => {
             Abogados Online Ecuador • Notaría 18 de Quito
           </Text>
           <Text style={styles.contactInfo}>
-            WhatsApp: +593 98 765 4321 • info@abogadosonlineecuador.com •
+            WhatsApp: +593 97 931 7579 • info@abogadosonlineecuador.com •
             abogadosonlineecuador.com
           </Text>
         </View>
