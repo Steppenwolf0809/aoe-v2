@@ -1,7 +1,7 @@
 # AOE v2 — Plan Maestro de Implementación
 
-> **Estado actual:** ✅ PROMPTs 01-08 completados (Fase 1 + Fase 2 terminadas)
-> **Siguiente paso:** PROMPT 09 — Fórmulas puras + tests unitarios (Fase 3: Calculadoras)
+> **Estado actual:** ✅ PROMPTs 01-08 + 10-11 + 12.5 + 13-16 completados; PROMPT 09 y 12 parciales
+> **Siguiente paso:** PROMPT 17 — Blog con ISR (completar Fase 6)
 > **Estimación total:** 8 semanas / ~20 prompts para Claude Code
 
 ---
@@ -12,9 +12,9 @@
 |------|--------|--------|-------------|
 | **1. Setup + Infra** | 1 | ✅ Completada | Proyecto, Supabase, deploy Vercel |
 | **2. Landing + Diseño** | 2-3 | ✅ Completada | UI, componentes, landing, páginas marketing |
-| **3. Calculadoras** | 4 | ⏳ Pendiente | 4 calculadoras interactivas con SEO |
-| **4. Auth + Dashboard** | 5 | ⏳ Pendiente | Login, registro, área privada |
-| **5. Contratos + Pagos** | 6 | ⏳ Pendiente | Wizard, PDF, pasarela de pago |
+| **3. Calculadoras** | 4 | ⚠️ Parcial | Falta cerrar servicios-menores (Prompt 09) |
+| **4. Auth + Dashboard** | 5 | ✅ Completada | Login, registro, área privada |
+| **5. Contratos + Pagos** | 6 | ✅ Completada | Wizard, PDF en React + pasarela de pago |
 | **6. Blog + n8n** | 7 | ⏳ Pendiente | Blog SEO, automatización |
 | **7. SEO + Lanzamiento** | 8 | ⏳ Pendiente | Optimización final, go-live |
 
@@ -369,7 +369,7 @@ El usuario NO quiere calcular tasas. El usuario quiere resolver:
 
 ---
 
-### 🔲 PROMPT 09 — Fórmulas puras + tests unitarios (BACKEND OCULTO)
+### ⚠️ PROMPT 09 — Fórmulas puras + tests unitarios (PARCIAL)
 
 ```
 Lee el brain.md, el plan definitivo, y CALCULADORAS_LOGICA.md.
@@ -412,7 +412,7 @@ Ejecuta `npx vitest run` y confirma que TODOS los tests pasan.
 
 ---
 
-### 🔲 PROMPT 10 — Componentes UI + Sistema de Lead Capture
+### ✅ PROMPT 10 — Componentes UI + Sistema de Lead Capture (COMPLETADO)
 
 ```
 Lee el brain.md (sección diseño glass) y docs/plans/2026-02-07-calculadoras-lead-magnet-design.md.
@@ -465,7 +465,7 @@ Todos "use client" donde necesario. Mobile-first OBLIGATORIO.
 
 ---
 
-### 🔲 PROMPT 11 — Presupuestador Inmobiliario (Producto Principal)
+### ✅ PROMPT 11 — Presupuestador Inmobiliario (Producto Principal) (COMPLETADO)
 
 ```
 Lee brain.md y docs/plans/2026-02-07-calculadoras-lead-magnet-design.md.
@@ -528,7 +528,7 @@ TRACKING:
 
 ---
 
-### 🔲 PROMPT 12 — Cotizador Vehicular + Hub + Servicios Menores
+### ⚠️ PROMPT 12 — Cotizador Vehicular + Hub + Servicios Menores (PARCIAL)
 
 ```
 Lee brain.md y docs/plans/2026-02-07-calculadoras-lead-magnet-design.md.
@@ -585,7 +585,7 @@ SEO:
 
 ---
 
-### 🔲 PROMPT 12.5 — Lead Magnets: PDFs y Emails
+### ✅ PROMPT 12.5 — Lead Magnets: PDFs y Emails (COMPLETADO)
 
 ```
 Lee docs/plans/2026-02-07-calculadoras-lead-magnet-design.md.
@@ -633,7 +633,7 @@ Crea los assets de lead magnets:
 
 ## FASE 4 — Auth + Dashboard (Semana 5)
 
-### 🔲 PROMPT 13 — Sistema de autenticación completo
+### ✅ PROMPT 13 — Sistema de autenticación completo (COMPLETADO)
 
 ```
 Lee el brain.md (sección Auth con Supabase).
@@ -675,7 +675,7 @@ Usa EXCLUSIVAMENTE Supabase Auth. NO Auth.js.
 
 ---
 
-### 🔲 PROMPT 14 — Dashboard: Layout + Perfil + Suscripción
+### ✅ PROMPT 14 — Dashboard: Layout + Perfil + Suscripción (COMPLETADO)
 
 ```
 Lee el brain.md.
@@ -713,7 +713,7 @@ Estilo glass oscuro consistente con el rest del sitio.
 
 ## FASE 5 — Contratos + Pagos (Semana 6)
 
-### 🔲 PROMPT 15 — Wizard de contrato vehicular
+### ✅ PROMPT 15 — Wizard de contrato vehicular (COMPLETADO)
 
 ```
 Lee el brain.md y el plan definitivo (sección wizard).
@@ -763,25 +763,25 @@ React Hook Form + Zod en cada paso. Mobile-first.
 
 ---
 
-### 🔲 PROMPT 16 — PDF Service + Pasarela de pago
+### ✅ PROMPT 16 — PDF en React + Pasarela de pago (COMPLETADO)
 
 ```
 Lee el brain.md y el plan definitivo.
 
-1. SERVICIO PDF (para deploy en Railway):
-   - services/pdf-generator/main.py — FastAPI con endpoint POST /generate
-   - services/pdf-generator/templates/contrato-vehicular.html — Template Jinja2 con formato legal ecuatoriano
-   - services/pdf-generator/Dockerfile — Python 3.11 + WeasyPrint
-   - services/pdf-generator/requirements.txt — fastapi, uvicorn, jinja2, weasyprint
+1. GENERACIÓN PDF DIRECTA EN NEXT.JS (sin microservicio Python):
+   - src/actions/pdf.ts — Generar PDF con @react-pdf/renderer
+   - src/lib/pdf/contract-template.tsx — Plantilla legal del contrato vehicular
+   - Subir PDF a Supabase Storage
+   - Generar hash SHA-256 del PDF
+   - Crear token de descarga de un solo uso (UUID + 24h)
+   - Enviar email con Resend (link de descarga)
+   - Actualizar contract status a GENERATED
 
-2. INTEGRACIÓN EN NEXT.JS:
+2. INTEGRACIÓN EN FLUJO DE CONTRATOS:
    - Actualiza src/actions/contracts.ts:
-     * Después del pago: llamar al PDF service
-     * Guardar PDF en Supabase Storage
-     * Generar hash SHA-256 del PDF
-     * Crear token de descarga de un solo uso (UUID + 24h)
-     * Enviar email con Resend (link de descarga)
-     * Actualizar contract status a GENERATED
+     * Después del pago: invocar generateContractPdf()
+     * Asociar contratos anónimos al usuario al reclamar contrato
+     * Mantener trazabilidad de estados (DRAFT/PENDING_PAYMENT/PAID/GENERATED/DOWNLOADED)
 
 3. PÁGINA DE MIS CONTRATOS:
    - src/app/(dashboard)/contratos/page.tsx
@@ -790,11 +790,9 @@ Lee el brain.md y el plan definitivo.
    - Botón descargar (verifica token)
 
 4. PASARELA DE PAGO:
-   - Integración PayPal o Stripe (placeholder)
+   - Integración PayPhone/checkout
    - Webhook en api/webhooks/payment/route.ts
    - Verificación de secret
-
-Nota: El PDF service se despliega en Railway manualmente. Solo necesito el código listo.
 ```
 
 **Entregable:** Flujo completo: formulario → pago → PDF → descarga → email.
@@ -954,8 +952,8 @@ Estas tareas NO las hace Claude Code — las haces tú en dashboards web:
 | Fase 1 | Configurar DNS en Cloudflare | cloudflare.com |
 | Fase 4 | Habilitar Google OAuth en Supabase | supabase.com → Auth → Providers |
 | Fase 4 | Configurar redirect URLs en Supabase | supabase.com → Auth → URL Config |
-| Fase 5 | Deploy PDF service en Railway | railway.app |
-| Fase 5 | Configurar pasarela de pago (PayPal/Stripe) | stripe.com o paypal.com |
+| Fase 5 | Configurar variables para PDF en React (Resend + Storage + APP_URL) | Vercel / Supabase |
+| Fase 5 | Configurar pasarela de pago (PayPhone) | payphone.app |
 | Fase 6 | Deploy n8n en Railway | railway.app |
 | Fase 6 | Importar workflows en n8n | n8n UI |
 | Fase 7 | Google Search Console: verificar dominio | search.google.com/search-console |
@@ -976,14 +974,14 @@ Estas tareas NO las hace Claude Code — las haces tú en dashboards web:
 | 06 | ✅ Landing: Hero + Servicios + Calculadoras | 2 | 2-3 |
 | 07 | ✅ Landing: Stats + Testimonios + FAQ + CTA | 2 | 3 |
 | 08 | ✅ Páginas servicios, precios, contacto | 2 | 3 |
-| 09 | 🔲 Fórmulas puras + tests Vitest | 3 | 4 |
-| 10 | 🔲 Componentes calculadora + hooks | 3 | 4 |
-| 11 | 🔲 Calculadora Notarial completa | 3 | 4 |
-| 12 | 🔲 Calculadoras Municipal + Registro + Hub | 3 | 4 |
-| 13 | 🔲 Sistema de autenticación | 4 | 5 |
-| 14 | 🔲 Dashboard: layout + perfil + suscripción | 4 | 5 |
-| 15 | 🔲 Wizard contrato vehicular | 5 | 6 |
-| 16 | 🔲 PDF service + pagos | 5 | 6 |
+| 09 | ⚠️ Fórmulas puras + tests Vitest (parcial) | 3 | 4 |
+| 10 | ✅ Componentes calculadora + hooks | 3 | 4 |
+| 11 | ✅ Calculadora Notarial completa | 3 | 4 |
+| 12 | ⚠️ Calculadoras Municipal + Registro + Hub (parcial) | 3 | 4 |
+| 13 | ✅ Sistema de autenticación | 4 | 5 |
+| 14 | ✅ Dashboard: layout + perfil + suscripción | 4 | 5 |
+| 15 | ✅ Wizard contrato vehicular | 5 | 6 |
+| 16 | ✅ PDF en React + pagos | 5 | 6 |
 | 17 | 🔲 Blog con ISR | 6 | 7 |
 | 18 | 🔲 Workflows n8n | 6 | 7 |
 | 19 | 🔲 SEO final + OG images | 7 | 8 |

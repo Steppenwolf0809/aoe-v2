@@ -28,11 +28,15 @@ export function useCalculator<TInput, TResult>({
     [],
   )
 
-  const computeResult = useCallback(() => {
+  const computeResult = useCallback((overrideInput?: TInput) => {
     setLoading(true)
     setError(null)
     try {
-      const res = calculate(input)
+      const inputToUse = overrideInput ?? input
+      if (overrideInput) {
+        setInput(overrideInput)
+      }
+      const res = calculate(inputToUse)
       setResult(res)
       setCompleted(true)
       return res

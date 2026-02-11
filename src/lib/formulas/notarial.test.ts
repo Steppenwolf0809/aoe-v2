@@ -12,56 +12,63 @@ import {
 // TRANSFERENCIA DE DOMINIO (Tabla 1)
 // ============================================
 describe('Transferencia de Dominio', () => {
-  it('rango $0 - $10,000: tarifa $90', () => {
+  it('rango $0 - $10,000: tarifa 0.20 SBU', () => {
     const r = calcularTramiteNotarial('TRANSFERENCIA_DOMINIO', 5000)
-    expect(r.subtotal).toBe(90.0)
-    expect(r.iva).toBeCloseTo(90 * IVA_RATE, 2)
-    expect(r.total).toBeCloseTo(90 * 1.15, 2)
+    expect(r.subtotal).toBeCloseTo(SBU_2026 * 0.2, 2)
+    expect(r.iva).toBeCloseTo(r.subtotal * IVA_RATE, 2)
+    expect(r.total).toBeCloseTo(r.subtotal * 1.15, 2)
   })
 
-  it('rango $10,001 - $30,000: tarifa $157.50', () => {
+  it('rango $10,001 - $30,000: tarifa 0.35 SBU', () => {
     const r = calcularTramiteNotarial('TRANSFERENCIA_DOMINIO', 25000)
-    expect(r.subtotal).toBe(157.5)
+    expect(r.subtotal).toBeCloseTo(SBU_2026 * 0.35, 2)
   })
 
-  it('rango $30,001 - $60,000: tarifa $225', () => {
+  it('rango $30,001 - $60,000: tarifa 0.50 SBU', () => {
     const r = calcularTramiteNotarial('TRANSFERENCIA_DOMINIO', 50000)
-    expect(r.subtotal).toBe(225.0)
+    expect(r.subtotal).toBeCloseTo(SBU_2026 * 0.5, 2)
   })
 
-  it('rango $60,001 - $90,000: tarifa $360', () => {
+  it('rango $60,001 - $90,000: tarifa 0.80 SBU', () => {
     const r = calcularTramiteNotarial('TRANSFERENCIA_DOMINIO', 75000)
-    expect(r.subtotal).toBe(360.0)
+    expect(r.subtotal).toBeCloseTo(SBU_2026 * 0.8, 2)
   })
 
-  it('rango $90,001 - $150,000: tarifa $607.50', () => {
+  it('rango $60,001 - $90,000: $87,000 coincide con notaria', () => {
+    const r = calcularTramiteNotarial('TRANSFERENCIA_DOMINIO', 87000)
+    expect(r.subtotal).toBe(385.6)
+    expect(r.iva).toBe(57.84)
+    expect(r.total).toBe(443.44)
+  })
+
+  it('rango $90,001 - $150,000: tarifa 1.35 SBU', () => {
     const r = calcularTramiteNotarial('TRANSFERENCIA_DOMINIO', 120000)
-    expect(r.subtotal).toBe(607.5)
+    expect(r.subtotal).toBeCloseTo(SBU_2026 * 1.35, 2)
   })
 
-  it('rango $150,001 - $300,000: tarifa $900', () => {
+  it('rango $150,001 - $300,000: tarifa 2.00 SBU', () => {
     const r = calcularTramiteNotarial('TRANSFERENCIA_DOMINIO', 200000)
-    expect(r.subtotal).toBe(900.0)
+    expect(r.subtotal).toBeCloseTo(SBU_2026 * 2, 2)
   })
 
-  it('rango $300,001 - $600,000: tarifa $1,800', () => {
+  it('rango $300,001 - $600,000: tarifa 4.00 SBU', () => {
     const r = calcularTramiteNotarial('TRANSFERENCIA_DOMINIO', 500000)
-    expect(r.subtotal).toBe(1800.0)
+    expect(r.subtotal).toBeCloseTo(SBU_2026 * 4, 2)
   })
 
-  it('rango $600,001 - $1,000,000: tarifa $2,250', () => {
+  it('rango $600,001 - $1,000,000: tarifa 5.00 SBU', () => {
     const r = calcularTramiteNotarial('TRANSFERENCIA_DOMINIO', 800000)
-    expect(r.subtotal).toBe(2250.0)
+    expect(r.subtotal).toBeCloseTo(SBU_2026 * 5, 2)
   })
 
-  it('rango $1,000,001 - $2,000,000: tarifa $4,500', () => {
+  it('rango $1,000,001 - $2,000,000: tarifa 10.00 SBU', () => {
     const r = calcularTramiteNotarial('TRANSFERENCIA_DOMINIO', 1500000)
-    expect(r.subtotal).toBe(4500.0)
+    expect(r.subtotal).toBeCloseTo(SBU_2026 * 10, 2)
   })
 
-  it('rango $3,000,001 - $4,000,000: tarifa $9,000', () => {
+  it('rango $3,000,001 - $4,000,000: tarifa 20.00 SBU', () => {
     const r = calcularTramiteNotarial('TRANSFERENCIA_DOMINIO', 3500000)
-    expect(r.subtotal).toBe(9000.0)
+    expect(r.subtotal).toBeCloseTo(SBU_2026 * 20, 2)
   })
 
   it('excedente > $4M: 20 SBU + 0.1% del excedente', () => {
@@ -75,8 +82,9 @@ describe('Transferencia de Dominio', () => {
     const r = calcularTramiteNotarial('TRANSFERENCIA_DOMINIO', 50000, {
       esViviendaSocial: true,
     })
-    expect(r.descuento).toBeCloseTo(225 * 0.25, 2)
-    expect(r.subtotal).toBeCloseTo(225 * 0.75, 2)
+    const base = SBU_2026 * 0.5
+    expect(r.descuento).toBeCloseTo(base * 0.25, 2)
+    expect(r.subtotal).toBeCloseTo(base * 0.75, 2)
   })
 
   it('vivienda social > $60k: sin descuento', () => {
@@ -84,17 +92,17 @@ describe('Transferencia de Dominio', () => {
       esViviendaSocial: true,
     })
     expect(r.descuento).toBe(0)
-    expect(r.subtotal).toBe(360.0)
+    expect(r.subtotal).toBeCloseTo(SBU_2026 * 0.8, 2)
   })
 
-  it('monto exacto $10,000: tarifa $90 (borde superior)', () => {
+  it('monto exacto $10,000: tarifa 0.20 SBU (borde superior)', () => {
     const r = calcularTramiteNotarial('TRANSFERENCIA_DOMINIO', 10000)
-    expect(r.subtotal).toBe(90.0)
+    expect(r.subtotal).toBeCloseTo(SBU_2026 * 0.2, 2)
   })
 
-  it('monto $10,000.01: salta a tarifa $157.50', () => {
+  it('monto $10,000.01: salta a tarifa 0.35 SBU', () => {
     const r = calcularTramiteNotarial('TRANSFERENCIA_DOMINIO', 10000.01)
-    expect(r.subtotal).toBe(157.5)
+    expect(r.subtotal).toBeCloseTo(SBU_2026 * 0.35, 2)
   })
 })
 
@@ -102,14 +110,14 @@ describe('Transferencia de Dominio', () => {
 // PROMESAS DE COMPRAVENTA (Tabla 2)
 // ============================================
 describe('Promesa de Compraventa', () => {
-  it('rango $0 - $10,000: tarifa $67.50', () => {
+  it('rango $0 - $10,000: tarifa 0.15 SBU', () => {
     const r = calcularTramiteNotarial('PROMESA_COMPRAVENTA', 8000)
-    expect(r.subtotal).toBe(67.5)
+    expect(r.subtotal).toBeCloseTo(SBU_2026 * 0.15, 2)
   })
 
-  it('rango $30,001 - $60,000: tarifa $157.50', () => {
+  it('rango $30,001 - $60,000: tarifa 0.35 SBU', () => {
     const r = calcularTramiteNotarial('PROMESA_COMPRAVENTA', 45000)
-    expect(r.subtotal).toBe(157.5)
+    expect(r.subtotal).toBeCloseTo(SBU_2026 * 0.35, 2)
   })
 
   it('excedente > $4M: 14 SBU + 0.1% del excedente', () => {
@@ -124,14 +132,14 @@ describe('Promesa de Compraventa', () => {
 // HIPOTECAS (Tabla 3)
 // ============================================
 describe('Hipoteca', () => {
-  it('rango $0 - $10,000: tarifa $58.50', () => {
+  it('rango $0 - $10,000: tarifa 0.13 SBU', () => {
     const r = calcularTramiteNotarial('HIPOTECA', 5000)
-    expect(r.subtotal).toBe(58.5)
+    expect(r.subtotal).toBeCloseTo(SBU_2026 * 0.13, 2)
   })
 
-  it('rango $90,001 - $150,000: tarifa $324', () => {
+  it('rango $90,001 - $150,000: tarifa 0.72 SBU', () => {
     const r = calcularTramiteNotarial('HIPOTECA', 130000)
-    expect(r.subtotal).toBe(324.0)
+    expect(r.subtotal).toBeCloseTo(SBU_2026 * 0.72, 2)
   })
 
   it('excedente > $4M: 9 SBU + 0.1% del excedente', () => {
@@ -240,8 +248,9 @@ describe('Descuento tercera edad', () => {
 describe('Calculo de IVA', () => {
   it('aplica 15% IVA al subtotal', () => {
     const r = calcularTramiteNotarial('TRANSFERENCIA_DOMINIO', 50000)
-    expect(r.iva).toBeCloseTo(225 * 0.15, 2)
-    expect(r.total).toBeCloseTo(225 * 1.15, 2)
+    const base = SBU_2026 * 0.5
+    expect(r.iva).toBeCloseTo(base * 0.15, 2)
+    expect(r.total).toBeCloseTo(base * 1.15, 2)
   })
 
   it('granTotal incluye IVA + items adicionales', () => {
@@ -250,7 +259,7 @@ describe('Calculo de IVA', () => {
       itemsAdicionales: items,
     })
     const itemsTotal = COSTO_FOJA * 10
-    expect(r.granTotal).toBeCloseTo(225 * 1.15 + itemsTotal, 2)
+    expect(r.granTotal).toBeCloseTo(SBU_2026 * 0.5 * 1.15 + itemsTotal, 2)
   })
 })
 
@@ -283,16 +292,16 @@ describe('Items adicionales', () => {
 // ============================================
 describe('Arrendamientos', () => {
   it('escritura: usa Tabla 1 con cuantia total (canon x meses)', () => {
-    // Canon $1000 x 12 meses = $12,000 -> rango $10,001-$30,000 -> $157.50
+    // Canon $1000 x 12 meses = $12,000 -> rango $10,001-$30,000 -> 0.35 SBU
     const r = calcularTramiteNotarial('CONTRATO_ARRIENDO_ESCRITURA', 1000, {
       tiempoMeses: 12,
     })
-    expect(r.subtotal).toBe(157.5)
+    expect(r.subtotal).toBeCloseTo(SBU_2026 * 0.35, 2)
   })
 
   it('inscripcion arrendamiento: Tabla 5', () => {
-    // Canon mensual $2500 -> rango $2,000.01-$3,000 -> $60
+    // Canon mensual $2500 -> rango $1,500.01-$5,000 -> 0.15 SBU
     const r = calcularTramiteNotarial('INSCRIPCION_ARRENDAMIENTO', 2500)
-    expect(r.subtotal).toBe(60.0)
+    expect(r.subtotal).toBeCloseTo(SBU_2026 * 0.15, 2)
   })
 })

@@ -170,7 +170,8 @@ export function ConsejoProvincialCalculatorWidget() {
               {mesesTranscurridos <= 12 && '40% primer año'}
               {mesesTranscurridos > 12 && mesesTranscurridos <= 24 && '30% segundo año'}
               {mesesTranscurridos > 24 && mesesTranscurridos <= 36 && '20% tercer año'}
-              {mesesTranscurridos > 36 && 'Sin rebaja'}
+              {mesesTranscurridos > 36 && mesesTranscurridos <= 48 && '10% cuarto año'}
+              {mesesTranscurridos > 48 && 'Sin rebaja'}
             </p>
           </div>
         </div>

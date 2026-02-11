@@ -110,7 +110,10 @@ function calcularRebajaAlcabala(meses: number): { porcentaje: number; descripcio
   if (meses <= 36) {
     return { porcentaje: 0.2, descripcion: '20% - Tercer año' }
   }
-  return { porcentaje: 0, descripcion: 'Sin rebaja - Más de 3 años' }
+  if (meses <= 48) {
+    return { porcentaje: 0.1, descripcion: '10% - Cuarto año' }
+  }
+  return { porcentaje: 0, descripcion: 'Sin rebaja - Más de 4 años' }
 }
 
 // ============================================

@@ -1,8 +1,7 @@
 'use client'
 
 import { motion } from 'framer-motion'
-import { ArrowRight, Bot, Calculator, Calendar, FileCheck2, ShieldCheck, Check } from 'lucide-react'
-import type { LucideIcon } from 'lucide-react'
+import { ArrowRight, Bot, Calculator, FileCheck2, FileText, ShieldCheck } from 'lucide-react'
 import Link from 'next/link'
 import { Button } from '@/components/ui/button'
 import { Badge } from '@/components/ui/badge'
@@ -250,20 +249,21 @@ export function Hero() {
               transition={{ duration: 0.5, delay: 0.3 }}
               className="flex flex-col sm:flex-row gap-3"
             >
-              <Link href="/servicios">
+              <Link href="/contratos/vehicular">
                 <Button
                   size="lg"
-                  variant="outline"
-                  className="border-slate-300 text-slate-700 hover:bg-slate-50"
+                  className="bg-accent-primary hover:bg-accent-primary-hover text-white shadow-lg shadow-accent-primary/25"
                 >
-                  Ver Servicios
+                  <FileText className="w-4 h-4 mr-2" />
+                  Generar Contrato
                   <ArrowRight className="w-4 h-4 ml-2" />
                 </Button>
               </Link>
               <Link href="/calculadoras">
                 <Button
                   size="lg"
-                  className="bg-accent-primary hover:bg-accent-primary-hover text-white shadow-lg shadow-accent-primary/25"
+                  variant="outline"
+                  className="border-slate-300 text-slate-700 hover:bg-slate-50"
                 >
                   <Calculator className="w-4 h-4 mr-2" />
                   Calcular Costos
@@ -272,14 +272,13 @@ export function Hero() {
                   </Badge>
                 </Button>
               </Link>
-              <Link href="/contacto">
+              <Link href="/servicios">
                 <Button
                   size="lg"
                   variant="ghost"
                   className="text-text-secondary hover:text-text-primary hover:bg-slate-100"
                 >
-                  <Calendar className="w-4 h-4 mr-2" />
-                  Agendar Cita
+                  Ver Servicios
                 </Button>
               </Link>
             </motion.div>

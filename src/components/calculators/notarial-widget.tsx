@@ -1,11 +1,17 @@
-'use client'
+﻿'use client'
 
 import { useState } from 'react'
 import { Calculator, Info, Plus, Trash2, FileText, PenTool, Stamp, Copy, FileSignature } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { Card } from '@/components/ui/card'
 import { Slider } from '@/components/ui/slider'
-import { calcularTramiteNotarial, getTramitesPorCategoria, TARIFAS_ITEMS_ADICIONALES } from '@/lib/formulas/notarial'
+import {
+  calcularTramiteNotarial,
+  getActosCuantiaIndeterminada,
+  getTramitesPorCategoria,
+  SBU_2026,
+  TARIFAS_ITEMS_ADICIONALES,
+} from '@/lib/formulas/notarial'
 import { TipoServicioNotarial, ItemAdicional } from '@/lib/formulas/types'
 import { AnimatedCounter } from './animated-counter'
 
@@ -22,10 +28,14 @@ const ICONOS_ITEMS: Record<string, React.ReactNode> = {
 }
 
 export function NotarialCalculatorWidget() {
+  const actosIndeterminados = getActosCuantiaIndeterminada()
+
   const [tipoServicio, setTipoServicio] = useState<TipoServicioNotarial>('TRANSFERENCIA_DOMINIO')
   const [cuantia, setCuantia] = useState(50000)
   const [tiempoMeses, setTiempoMeses] = useState(12)
   const [cantidadMenores, setCantidadMenores] = useState(1)
+  const [actoIndeterminadoId, setActoIndeterminadoId] = useState(actosIndeterminados[0]?.id ?? '')
+  const [cantidadActoIndeterminado, setCantidadActoIndeterminado] = useState(1)
   const [esViviendaSocial, setEsViviendaSocial] = useState(false)
   const [esTerceraEdad, setEsTerceraEdad] = useState(false)
   
@@ -46,6 +56,8 @@ export function NotarialCalculatorWidget() {
       esTerceraEdad?: boolean
       tiempoMeses?: number
       itemsAdicionales?: ItemAdicional[]
+      actoIndeterminadoId?: string
+      cantidadActoIndeterminado?: number
     } = {
       itemsAdicionales,
     }
@@ -77,26 +89,31 @@ export function NotarialCalculatorWidget() {
       opciones.tiempoMeses = tiempoMeses
     }
 
+    if (tipoServicio === 'ACTO_CUANTIA_INDETERMINADA') {
+      opciones.actoIndeterminadoId = actoIndeterminadoId
+      opciones.cantidadActoIndeterminado = cantidadActoIndeterminado
+    }
+
     const res = calcularTramiteNotarial(tipoServicio, cuantia, opciones)
     setResultado(res)
   }
 
-  // Función para calcular subtotal en tiempo real
+  // FunciÃ³n para calcular subtotal en tiempo real
   const calcularSubtotalItem = (tipo: ItemAdicional['tipo'], cantidad: number): number => {
     if (tipo === 'poder') {
       if (cantidad === 1) {
-        return 482 * 0.12
+        return SBU_2026 * 0.12
       } else {
-        const primerOtorgante = 482 * 0.12
-        const adicionales = (cantidad - 1) * (482 * 0.03)
+        const primerOtorgante = SBU_2026 * 0.12
+        const adicionales = (cantidad - 1) * (SBU_2026 * 0.03)
         return primerOtorgante + adicionales
       }
     } else if (tipo === 'copia_certificada') {
       return 1.79 * cantidad
     } else if (tipo === 'reconocimiento_firma') {
-      return (482 * 0.03) * cantidad
+      return (SBU_2026 * 0.03) * cantidad
     } else if (tipo === 'autenticacion_firma') {
-      return (482 * 0.04) * cantidad
+      return (SBU_2026 * 0.04) * cantidad
     } else {
       return TARIFAS_ITEMS_ADICIONALES[tipo].valorUnitario * cantidad
     }
@@ -105,30 +122,30 @@ export function NotarialCalculatorWidget() {
   const handleAgregarItem = () => {
     const tarifa = TARIFAS_ITEMS_ADICIONALES[nuevoItemTipo]
     
-    // Calcular subtotal según el tipo
+    // Calcular subtotal segÃºn el tipo
     let subtotal = 0
     let descripcion = tarifa.nombre
     
     if (nuevoItemTipo === 'poder') {
       // Poder: 12% primer otorgante, 3% adicionales
       if (nuevoItemCantidad === 1) {
-        subtotal = 482 * 0.12
-        descripcion = 'Poder General/Especial/Procuración (1 otorgante)'
+        subtotal = SBU_2026 * 0.12
+        descripcion = 'Poder General/Especial/ProcuraciÃ³n (1 otorgante)'
       } else {
-        const primerOtorgante = 482 * 0.12
-        const adicionales = (nuevoItemCantidad - 1) * (482 * 0.03)
+        const primerOtorgante = SBU_2026 * 0.12
+        const adicionales = (nuevoItemCantidad - 1) * (SBU_2026 * 0.03)
         subtotal = primerOtorgante + adicionales
-        descripcion = `Poder General/Especial/Procuración (${nuevoItemCantidad} otorgantes)`
+        descripcion = `Poder General/Especial/ProcuraciÃ³n (${nuevoItemCantidad} otorgantes)`
       }
     } else if (nuevoItemTipo === 'copia_certificada') {
       subtotal = 1.79 * nuevoItemCantidad
       descripcion = `Copia Certificada (${nuevoItemCantidad} fojas)`
     } else if (nuevoItemTipo === 'reconocimiento_firma') {
-      subtotal = (482 * 0.03) * nuevoItemCantidad
+      subtotal = (SBU_2026 * 0.03) * nuevoItemCantidad
       descripcion = `Reconocimiento de Firma (${nuevoItemCantidad} firmas)`
     } else if (nuevoItemTipo === 'autenticacion_firma') {
-      subtotal = (482 * 0.04) * nuevoItemCantidad
-      descripcion = `Autenticación de Firma (${nuevoItemCantidad} firmas)`
+      subtotal = (SBU_2026 * 0.04) * nuevoItemCantidad
+      descripcion = `AutenticaciÃ³n de Firma (${nuevoItemCantidad} firmas)`
     } else {
       subtotal = tarifa.valorUnitario * nuevoItemCantidad
       descripcion = `${tarifa.nombre} (${nuevoItemCantidad} ${tarifa.unidad})`
@@ -155,6 +172,8 @@ export function NotarialCalculatorWidget() {
   const requiereCuantia = ![
     'PODER_GENERAL_PN',
     'PODER_GENERAL_PJ',
+    'ACTO_CUANTIA_INDETERMINADA',
+    'CAPITULACIONES_MATRIMONIALES',
     'TESTAMENTO_ABIERTO',
     'TESTAMENTO_CERRADO',
     'UNION_HECHO',
@@ -171,6 +190,7 @@ export function NotarialCalculatorWidget() {
   const esArrendamiento =
     tipoServicio === 'CONTRATO_ARRIENDO_ESCRITURA' ||
     tipoServicio === 'INSCRIPCION_ARRENDAMIENTO'
+  const esCuantiaIndeterminada = tipoServicio === 'ACTO_CUANTIA_INDETERMINADA'
   const esTransferencia = tipoServicio === 'TRANSFERENCIA_DOMINIO'
 
   return (
@@ -181,12 +201,16 @@ export function NotarialCalculatorWidget() {
         <select
           value={tipoServicio}
           onChange={(e) => {
-            setTipoServicio(e.target.value as TipoServicioNotarial)
+            const nuevoTipo = e.target.value as TipoServicioNotarial
+            setTipoServicio(nuevoTipo)
+            if (nuevoTipo === 'ACTO_CUANTIA_INDETERMINADA' && !actoIndeterminadoId) {
+              setActoIndeterminadoId(actosIndeterminados[0]?.id ?? '')
+            }
             setResultado(null)
           }}
           className="w-full px-4 py-3 bg-white border border-[var(--glass-border)] rounded-lg text-text-primary focus:ring-2 focus:ring-[var(--accent-primary)] focus:border-transparent"
         >
-          <optgroup label="Servicios con Cuantía">
+          <optgroup label="Servicios con CuantÃ­a">
             {tramites.conCuantia.map((t) => (
               <option key={t.value} value={t.value}>
                 {t.label}
@@ -210,11 +234,11 @@ export function NotarialCalculatorWidget() {
         </select>
       </div>
 
-      {/* Input de Cuantía (si aplica) */}
+      {/* Input de CuantÃ­a (si aplica) */}
       {requiereCuantia && (
         <div className="space-y-3">
           <label className="text-sm font-medium text-text-primary">
-            {esArrendamiento ? 'Canon Mensual ($)' : 'Cuantía / Valor del Acto ($)'}
+            {esArrendamiento ? 'Canon Mensual ($)' : 'CuantÃ­a / Valor del Acto ($)'}
           </label>
           <div className="relative">
             <span className="absolute left-4 top-1/2 -translate-y-1/2 text-text-muted">$</span>
@@ -238,10 +262,42 @@ export function NotarialCalculatorWidget() {
         </div>
       )}
 
+      {esCuantiaIndeterminada && (
+        <div className="space-y-3">
+          <label className="text-sm font-medium text-text-primary">Acto de Cuantia Indeterminada</label>
+          <select
+            value={actoIndeterminadoId}
+            onChange={(e) => {
+              setActoIndeterminadoId(e.target.value)
+              setResultado(null)
+            }}
+            className="w-full px-4 py-3 bg-white border border-[var(--glass-border)] rounded-lg text-text-primary focus:ring-2 focus:ring-[var(--accent-primary)] focus:border-transparent"
+          >
+            {actosIndeterminados.map((acto) => (
+              <option key={acto.id} value={acto.id}>
+                {acto.concepto} - $
+                {acto.valorReferencial.toFixed(2)}
+                {acto.tipo === 'porcentaje_sbu' ? ' (referencial)' : ''}
+              </option>
+            ))}
+          </select>
+          <div className="flex items-center gap-3">
+            <label className="text-sm text-[var(--text-secondary)]">Cantidad</label>
+            <input
+              type="number"
+              value={cantidadActoIndeterminado}
+              onChange={(e) => setCantidadActoIndeterminado(Math.max(1, Number(e.target.value) || 1))}
+              min={1}
+              className="w-24 px-3 py-2 bg-bg-secondary border border-[var(--glass-border)] rounded-lg text-text-primary text-center"
+            />
+          </div>
+        </div>
+      )}
+
       {/* Tiempo para arrendamientos */}
       {esArrendamiento && (
         <div className="space-y-3">
-          <label className="text-sm font-medium text-text-primary">Duración (meses)</label>
+          <label className="text-sm font-medium text-text-primary">DuraciÃ³n (meses)</label>
           <div className="flex items-center gap-4">
             <input
               type="number"
@@ -262,17 +318,17 @@ export function NotarialCalculatorWidget() {
           </div>
           {tipoServicio === 'CONTRATO_ARRIENDO_ESCRITURA' && (
             <p className="text-xs text-[var(--text-secondary)]">
-              Art. 40: Calcula sobre el valor total del contrato (canon × meses) = $
+              Art. 40: Calcula sobre el valor total del contrato (canon Ã— meses) = $
               {(cuantia * tiempoMeses).toLocaleString()}
             </p>
           )}
         </div>
       )}
 
-      {/* Cantidad de menores para salida del país */}
+      {/* Cantidad de menores para salida del paÃ­s */}
       {esSalidaPais && (
         <div className="space-y-3">
-          <label className="text-sm font-medium text-text-primary">Número de Menores</label>
+          <label className="text-sm font-medium text-text-primary">NÃºmero de Menores</label>
           <div className="flex items-center gap-4">
             <input
               type="number"
@@ -305,7 +361,7 @@ export function NotarialCalculatorWidget() {
               className="w-5 h-5 rounded border-[var(--glass-border)] bg-white text-[var(--accent-primary)] focus:ring-[var(--accent-primary)]"
             />
             <span className="text-sm text-text-secondary group-hover:text-text-primary transition-colors">
-              Vivienda de Interés Social (hasta $60,000) - Descuento 25%
+              Vivienda de InterÃ©s Social (hasta $60,000) - Descuento 25%
             </span>
           </label>
         )}
@@ -331,19 +387,19 @@ export function NotarialCalculatorWidget() {
         )}
       </div>
 
-      {/* ÍTEMS ADICIONALES */}
+      {/* ÃTEMS ADICIONALES */}
       <div className="pt-4 border-t border-[var(--glass-border)]">
         <div className="flex items-center justify-between mb-4">
           <h3 className="text-sm font-medium text-text-primary flex items-center gap-2">
             <FileText className="w-4 h-4" />
-            Ítems Adicionales
+            Ãtems Adicionales
           </h3>
           <button
             onClick={() => setMostrarAgregarItem(!mostrarAgregarItem)}
             className="flex items-center gap-1 px-3 py-1.5 bg-[var(--accent-primary)]/10 hover:bg-[var(--accent-primary)]/20 text-[var(--accent-primary)] text-sm rounded-lg transition-colors"
           >
             <Plus className="w-4 h-4" />
-            Agregar ítem
+            Agregar Ã­tem
           </button>
         </div>
 
@@ -397,29 +453,29 @@ export function NotarialCalculatorWidget() {
               </optgroup>
               
               <optgroup label="Declaraciones">
-                <option value="declaracion_juramentada">Declaración Juramentada - ${(482 * 0.05).toFixed(2)}</option>
+                <option value="declaracion_juramentada">DeclaraciÃ³n Juramentada - ${(SBU_2026 * 0.05).toFixed(2)}</option>
               </optgroup>
               
               <optgroup label="Poderes (12% base + 3% por otorgante adicional)">
-                <option value="poder">Poder General/Especial/Procuración</option>
+                <option value="poder">Poder General/Especial/ProcuraciÃ³n</option>
               </optgroup>
               
               <optgroup label="Hipotecas">
-                <option value="cancelacion_hipoteca">Cancelación de Hipoteca - ${(482 * 0.20).toFixed(2)}</option>
+                <option value="cancelacion_hipoteca">CancelaciÃ³n de Hipoteca - ${(SBU_2026 * 0.20).toFixed(2)}</option>
               </optgroup>
               
               <optgroup label="Firmas (por firma)">
-                <option value="reconocimiento_firma">Reconocimiento de Firma - ${(482 * 0.03).toFixed(2)}/firma</option>
-                <option value="autenticacion_firma">Autenticación de Firma - ${(482 * 0.04).toFixed(2)}/firma</option>
+                <option value="reconocimiento_firma">Reconocimiento de Firma - ${(SBU_2026 * 0.03).toFixed(2)}/firma</option>
+                <option value="autenticacion_firma">AutenticaciÃ³n de Firma - ${(SBU_2026 * 0.04).toFixed(2)}/firma</option>
               </optgroup>
               
               <optgroup label="Documentos Especiales">
-                <option value="materializacion">Materialización - ${(1.79 * 2).toFixed(2)}</option>
-                <option value="protocolizacion">Protocolización - ${(482 * 0.05).toFixed(2)}</option>
+                <option value="materializacion">MaterializaciÃ³n - ${(1.79 * 2).toFixed(2)}</option>
+                <option value="protocolizacion">ProtocolizaciÃ³n - ${(SBU_2026 * 0.05).toFixed(2)}</option>
               </optgroup>
               
               <optgroup label="Servicios Complementarios">
-                <option value="marginacion">Marginación/Razón - $3.00</option>
+                <option value="marginacion">MarginaciÃ³n/RazÃ³n - $3.00</option>
               </optgroup>
             </select>
 
@@ -482,7 +538,7 @@ export function NotarialCalculatorWidget() {
         )}
       </div>
 
-      {/* Botón Calcular */}
+      {/* BotÃ³n Calcular */}
       <Button
         onClick={handleCalcular}
         className="w-full py-4 bg-[var(--accent-primary)] hover:bg-[var(--accent-primary)]/90 text-white font-semibold text-lg"
@@ -503,14 +559,14 @@ export function NotarialCalculatorWidget() {
               </div>
               {resultado.itemsAdicionales.length > 0 && (
                 <p className="text-xs text-[var(--text-secondary)] mt-1">
-                  Incluye {resultado.itemsAdicionales.length} ítem(s) adicional(es)
+                  Incluye {resultado.itemsAdicionales.length} Ã­tem(s) adicional(es)
                 </p>
               )}
             </div>
 
-            {/* Desglose del trámite principal */}
+            {/* Desglose del trÃ¡mite principal */}
             <div className="space-y-3 pt-4 border-t border-[var(--glass-border)]">
-              <h4 className="text-sm font-medium text-text-primary">Trámite Principal</h4>
+              <h4 className="text-sm font-medium text-text-primary">TrÃ¡mite Principal</h4>
               <div className="flex justify-between text-sm">
                 <span className="text-[var(--text-secondary)]">Subtotal</span>
                 <span className="text-text-primary font-medium">${resultado.subtotal.toFixed(2)}</span>
@@ -531,15 +587,15 @@ export function NotarialCalculatorWidget() {
               </div>
 
               <div className="flex justify-between text-sm pt-2 border-t border-[var(--glass-border)]">
-                <span className="font-medium text-text-primary">Total Trámite Principal</span>
+                <span className="font-medium text-text-primary">Total TrÃ¡mite Principal</span>
                 <span className="font-semibold text-text-primary">${resultado.total.toFixed(2)}</span>
               </div>
             </div>
 
-            {/* Ítems adicionales */}
+            {/* Ãtems adicionales */}
             {resultado.itemsAdicionales.length > 0 && (
               <div className="space-y-3 pt-4 border-t border-[var(--glass-border)]">
-                <h4 className="text-sm font-medium text-text-primary">Ítems Adicionales</h4>
+                <h4 className="text-sm font-medium text-text-primary">Ãtems Adicionales</h4>
                 {resultado.itemsAdicionales.map((item) => (
                   <div key={item.id} className="flex justify-between text-sm">
                     <span className="text-[var(--text-secondary)]">
@@ -549,7 +605,7 @@ export function NotarialCalculatorWidget() {
                   </div>
                 ))}
                 <div className="flex justify-between text-sm pt-2 border-t border-[var(--glass-border)]">
-                  <span className="font-medium text-text-primary">Total Ítems Adicionales</span>
+                  <span className="font-medium text-text-primary">Total Ãtems Adicionales</span>
                   <span className="font-semibold text-text-primary">
                     ${resultado.totalItemsAdicionales.toFixed(2)}
                   </span>
@@ -576,10 +632,11 @@ export function NotarialCalculatorWidget() {
       <div className="flex items-start gap-2 text-xs text-[var(--text-secondary)] bg-bg-secondary p-3 rounded-lg">
         <Info className="w-4 h-4 flex-shrink-0 mt-0.5" />
         <p>
-          Los valores calculados son referenciales y pueden variar según la notaría. SBU 2026: $482.00. 
-          Este cálculo está basado en el Reglamento del Sistema Notarial Integral de la Función Judicial del Ecuador.
+          Los valores calculados son referenciales y pueden variar segÃºn la notarÃ­a. SBU 2026: $
+          {SBU_2026.toFixed(2)}. Este cÃ¡lculo estÃ¡ basado en el Reglamento del Sistema Notarial Integral de la FunciÃ³n Judicial del Ecuador. Las rebajas y exoneraciones pueden variar segÃºn el nÃºmero de comparecientes, su calidad de intervenciÃ³n y otras clÃ¡usulas particulares del acto.
         </p>
       </div>
     </div>
   )
 }
+

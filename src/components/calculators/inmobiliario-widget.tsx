@@ -5,8 +5,6 @@ import { motion, AnimatePresence } from 'framer-motion'
 import {
   Home,
   DollarSign,
-  Calendar,
-  ArrowRight,
   RotateCcw,
   HelpCircle,
   ExternalLink,
@@ -89,7 +87,7 @@ function buildFormulaInput(state: WizardState): InputInmobiliario {
     valorTransferencia: state.valorTransferencia,
     avaluoCatastral: avaluo,
     valorAdquisicion: state.valorTransferencia,
-    fechaAdquisicion: '2020-01-01',
+    fechaAdquisicion: state.fechaAdquisicion || '2020-01-01',
     fechaTransferencia: today,
     tipoTransferencia: 'Compraventa',
     tipoTransferente: 'Natural',
@@ -114,7 +112,7 @@ export function InmobiliarioWidget() {
   const [showEmailGate, setShowEmailGate] = useState(false)
   const [showLeadMenu, setShowLeadMenu] = useState(false)
 
-  const totalSteps = wizardState.rol === 'vendedor' ? 3 : 2
+  const totalSteps = 3
 
   const {
     result,
@@ -126,7 +124,6 @@ export function InmobiliarioWidget() {
     prevStep,
     goToStep,
     reset: resetCalculator,
-    isFirstStep,
     isLastStep,
   } = useCalculator<InputInmobiliario, ResultadoInmobiliario>({
     calculate: calcularPresupuestoInmobiliario,
@@ -147,10 +144,8 @@ export function InmobiliarioWidget() {
 
   const handleCalculate = async () => {
     const formulaInput = buildFormulaInput(wizardState)
-    const calc = calcularPresupuestoInmobiliario(formulaInput)
-
-    // Use computeResult to trigger result state in hook
-    computeResult()
+    const calc = computeResult(formulaInput)
+    if (!calc) return
 
     // Track anonymous session
     try {
@@ -233,15 +228,8 @@ export function InmobiliarioWidget() {
   const isStep1Valid = wizardState.rol !== null
   const isStep2Valid = wizardState.valorTransferencia >= 10000
   const isStep3Valid =
-    wizardState.rol !== 'vendedor' ||
-    (wizardState.fechaAdquisicion !== '' && wizardState.valorAdquisicion > 0)
-
-  const isCurrentStepValid = () => {
-    if (currentStep === 0) return isStep1Valid
-    if (currentStep === 1) return isStep2Valid
-    if (currentStep === 2) return isStep3Valid
-    return false
-  }
+    wizardState.fechaAdquisicion !== '' &&
+    (wizardState.rol !== 'vendedor' || wizardState.valorAdquisicion > 0)
 
   // Determine displayed total based on role
   const displayTotal = result
@@ -291,8 +279,7 @@ export function InmobiliarioWidget() {
       onPrev={prevStep}
       onNext={handleNextStep}
       nextDisabled={!isStep2Valid}
-      isLast={wizardState.rol === 'comprador'}
-      nextLabel={wizardState.rol === 'comprador' ? 'Calcular' : undefined}
+      isLast={false}
     >
       <div className="space-y-5">
         {/* Valor del inmueble */}
@@ -442,10 +429,14 @@ export function InmobiliarioWidget() {
     </WizardStep>
   )
 
-  const renderStep2Seller = () => (
+  const renderStep2Historial = () => (
     <WizardStep
-      question="¿Cuándo compraste este inmueble?"
-      hint="Necesitamos estos datos para calcular el impuesto de plusvalía"
+      question="¿Cuándo se adquirió por última vez este inmueble?"
+      hint={
+        wizardState.rol === 'vendedor'
+          ? 'Con estos datos calculamos alcabala y plusvalía.'
+          : 'La fecha es necesaria para aplicar la rebaja de alcabala (años 1 a 4).'
+      }
       onPrev={prevStep}
       onNext={handleNextStep}
       nextDisabled={!isStep3Valid}
@@ -457,37 +448,40 @@ export function InmobiliarioWidget() {
           <Input
             id="fecha-adquisicion"
             type="date"
-            label="Fecha en que compraste"
+            label="Fecha de última adquisición"
             value={wizardState.fechaAdquisicion}
             onChange={(e) =>
               updateWizard({ fechaAdquisicion: e.target.value })
             }
             max={new Date().toISOString().split('T')[0]}
+            hint="Rebaja alcabala: 40% año 1, 30% año 2, 20% año 3, 10% año 4."
           />
         </div>
 
-        <div>
-          <label className="block text-sm font-medium text-[var(--text-secondary)] mb-1.5">
-            ¿Cuánto pagaste cuando compraste?
-          </label>
-          <div className="relative max-w-[260px]">
-            <span className="absolute left-3 top-2.5 text-sm text-[var(--text-muted)]">$</span>
-            <Input
-              id="valor-adquisicion"
-              type="number"
-              placeholder="Ej: 70000"
-              value={wizardState.valorAdquisicion || ''}
-              onChange={(e) =>
-                updateWizard({
-                  valorAdquisicion: Math.max(0, Number(e.target.value)),
-                })
-              }
-              className="pl-7"
-              hint="El valor que consta en tu escritura de compra"
-              min={0}
-            />
+        {wizardState.rol === 'vendedor' && (
+          <div>
+            <label className="block text-sm font-medium text-[var(--text-secondary)] mb-1.5">
+              ¿Cuánto pagaste cuando compraste?
+            </label>
+            <div className="relative max-w-[260px]">
+              <span className="absolute left-3 top-2.5 text-sm text-[var(--text-muted)]">$</span>
+              <Input
+                id="valor-adquisicion"
+                type="number"
+                placeholder="Ej: 70000"
+                value={wizardState.valorAdquisicion || ''}
+                onChange={(e) =>
+                  updateWizard({
+                    valorAdquisicion: Math.max(0, Number(e.target.value)),
+                  })
+                }
+                className="pl-7"
+                hint="El valor que consta en tu escritura de compra"
+                min={0}
+              />
+            </div>
           </div>
-        </div>
+        )}
       </div>
     </WizardStep>
   )
@@ -605,9 +599,7 @@ export function InmobiliarioWidget() {
   // STEP INDICATOR
   // ============================================
 
-  const steps = wizardState.rol === 'vendedor'
-    ? [{ label: 'Tipo' }, { label: 'Inmueble' }, { label: 'Historial' }]
-    : [{ label: 'Tipo' }, { label: 'Inmueble' }]
+  const steps = [{ label: 'Tipo' }, { label: 'Inmueble' }, { label: 'Historial' }]
 
   const renderStepIndicator = () => (
     <div className="flex items-center justify-center gap-2 mb-6">
@@ -683,7 +675,7 @@ export function InmobiliarioWidget() {
           >
             {currentStep === 0 && renderStep0()}
             {currentStep === 1 && renderStep1()}
-            {currentStep === 2 && wizardState.rol === 'vendedor' && renderStep2Seller()}
+            {currentStep === 2 && renderStep2Historial()}
           </motion.div>
         )}
       </AnimatePresence>

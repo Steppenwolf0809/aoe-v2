@@ -44,7 +44,90 @@ const servicesData: Record<string, {
     documentsDelivered: 'Escritura inscrita en el Registro de la Propiedad',
     priceRange: 'Variable según avalúo (Usar calculadora)'
   },
-  // Add other services as needed...
+  'declaraciones': {
+    title: 'Declaraciones Juramentadas',
+    description: 'Documentos legales para tramites publicos y privados con validez oficial.',
+    longDescription: 'Preparamos y gestionamos declaraciones juramentadas para distintos tramites notariales y administrativos. Te guiamos en la redaccion del contenido, validamos requisitos formales y coordinamos la protocolizacion cuando aplica.',
+    requirements: [
+      'Cedula de identidad del declarante',
+      'Texto o detalle de los hechos a declarar',
+      'Documentos de respaldo (si aplica)',
+      'Pago de tasas notariales'
+    ],
+    estimatedTime: '1 - 24 horas',
+    documentsDelivered: 'Acta o escritura de declaracion juramentada',
+    priceRange: 'Desde $20'
+  },
+  'permiso-salida': {
+    title: 'Permiso de Salida del Pais para Menores',
+    description: 'Autorizaciones notariales de viaje para menores de edad.',
+    longDescription: 'Gestionamos la autorizacion notarial para salida del pais de menores de edad, incluyendo revision documental y acompanamiento en todo el proceso para evitar observaciones en migracion.',
+    requirements: [
+      'Cedula y papeleta de votacion de los representantes',
+      'Partida o documento de identidad del menor',
+      'Datos de viaje (destino, fechas, acompanante)',
+      'Pago de tasas notariales'
+    ],
+    estimatedTime: 'Mismo dia',
+    documentsDelivered: 'Autorizacion notarial de salida del pais',
+    priceRange: 'Desde $25'
+  },
+  'posesion-efectiva': {
+    title: 'Posesion Efectiva',
+    description: 'Tramite sucesorio para declarar herederos legalmente.',
+    longDescription: 'Asesoramos y tramitamos la posesion efectiva para que los herederos puedan ejercer derechos sobre los bienes del causante. Incluye validacion de documentos, preparacion de solicitud y acompanamiento notarial.',
+    requirements: [
+      'Partida de defuncion del causante',
+      'Partidas que acrediten parentesco de herederos',
+      'Cedulas de los solicitantes',
+      'Inventario o detalle de bienes (si aplica)'
+    ],
+    estimatedTime: '5 - 15 dias laborables',
+    documentsDelivered: 'Acta o escritura de posesion efectiva',
+    priceRange: 'Desde $80'
+  },
+  'promesa-compraventa': {
+    title: 'Promesa de Compraventa',
+    description: 'Contrato previo para asegurar una futura compraventa de inmueble.',
+    longDescription: 'Redactamos y formalizamos promesas de compraventa con clausulas claras sobre precio, plazo, condiciones y penalidades. Ideal para proteger a comprador y vendedor antes de la escritura definitiva.',
+    requirements: [
+      'Datos completos de comprador y vendedor',
+      'Informacion del inmueble',
+      'Condiciones de pago y plazo pactado',
+      'Documentos habilitantes del inmueble'
+    ],
+    estimatedTime: '1 - 3 dias laborables',
+    documentsDelivered: 'Contrato de promesa protocolizado',
+    priceRange: 'Desde $120'
+  },
+  'traspaso-vehicular': {
+    title: 'Traspaso Vehicular',
+    description: 'Contrato de compraventa de vehiculo y formalizacion notarial.',
+    longDescription: 'Gestionamos la documentacion necesaria para traspaso de dominio vehicular, incluyendo contrato de compraventa, validacion de datos de las partes y coordinacion para reconocimiento de firmas.',
+    requirements: [
+      'Matricula del vehiculo',
+      'Cedulas de comprador y vendedor',
+      'Datos tecnicos del vehiculo (placa, motor, chasis)',
+      'Acuerdo de precio y forma de pago'
+    ],
+    estimatedTime: '24 - 72 horas',
+    documentsDelivered: 'Contrato de compraventa vehicular listo para tramite',
+    priceRange: 'Desde $9.99'
+  },
+  'constitucion-sas': {
+    title: 'Constitucion de Compania SAS',
+    description: 'Creacion legal de empresa SAS con acompanamiento integral.',
+    longDescription: 'Te apoyamos en la constitucion de tu sociedad por acciones simplificada (SAS), desde revision de objeto social y accionistas hasta formalizacion documental para iniciar operaciones con seguridad juridica.',
+    requirements: [
+      'Datos de accionistas y representante legal',
+      'Nombre propuesto de la compania',
+      'Objeto social y actividad economica',
+      'Correo y telefono de contacto'
+    ],
+    estimatedTime: '3 - 10 dias laborables',
+    documentsDelivered: 'Documentacion de constitucion lista para registro',
+    priceRange: 'Desde $250'
+  },
 }
 
 interface Props {
@@ -184,7 +267,7 @@ export default async function ServiceDetailPage({ params }: Props) {
 
                   {slug === 'compraventa-inmuebles' && (
                     <Button asChild variant="outline" className="w-full text-base h-12">
-                      <Link href="/calculadoras/inmobiliario">
+                      <Link href="/calculadoras/inmuebles">
                         Calcular Gastos
                       </Link>
                     </Button>

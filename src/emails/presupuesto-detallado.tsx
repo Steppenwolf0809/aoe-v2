@@ -6,7 +6,6 @@ import {
   Heading,
   Hr,
   Html,
-  Img,
   Link,
   Preview,
   Section,
@@ -159,7 +158,7 @@ export const PresupuestoDetalladoEmail = ({
 
           {/* Notas importantes */}
           <Section style={notesBox}>
-            <Text style={notesTitle}>📌 Notas Importantes:</Text>
+            <Text style={notesTitle}>Notas Importantes:</Text>
             <ul style={notesList}>
               <li style={notesListItem}>
                 Este presupuesto es referencial y está basado en valores

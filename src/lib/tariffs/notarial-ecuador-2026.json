@@ -1,0 +1,907 @@
+{
+  "metadata": {
+    "version": "2026-02-11",
+    "fuente": "Reglamento del Sistema Notarial Integral (Resolucion 216-2018 y reformas), SBU 2026",
+    "sbu": 482,
+    "iva": 0.15
+  },
+  "tablas": {
+    "tabla1_transferencia_dominio": {
+      "descripcion": "Transferencia de dominio",
+      "rangos": [
+        {
+          "desde": 0,
+          "hasta": 10000,
+          "sbu": 0.2
+        },
+        {
+          "desde": 10000.01,
+          "hasta": 30000,
+          "sbu": 0.35
+        },
+        {
+          "desde": 30000.01,
+          "hasta": 60000,
+          "sbu": 0.5
+        },
+        {
+          "desde": 60000.01,
+          "hasta": 90000,
+          "sbu": 0.8
+        },
+        {
+          "desde": 90000.01,
+          "hasta": 150000,
+          "sbu": 1.35
+        },
+        {
+          "desde": 150000.01,
+          "hasta": 300000,
+          "sbu": 2.0
+        },
+        {
+          "desde": 300000.01,
+          "hasta": 600000,
+          "sbu": 4.0
+        },
+        {
+          "desde": 600000.01,
+          "hasta": 1000000,
+          "sbu": 5.0
+        },
+        {
+          "desde": 1000000.01,
+          "hasta": 2000000,
+          "sbu": 10.0
+        },
+        {
+          "desde": 2000000.01,
+          "hasta": 3000000,
+          "sbu": 15.0
+        },
+        {
+          "desde": 3000000.01,
+          "hasta": 4000000,
+          "sbu": 20.0
+        }
+      ],
+      "excedente": {
+        "desde": 4000000.01,
+        "base_sbu": 20.0,
+        "base_desde": 4000000,
+        "factor": 0.001
+      }
+    },
+    "tabla2_promesa_compraventa": {
+      "descripcion": "Promesas de compraventa",
+      "rangos": [
+        {
+          "desde": 0,
+          "hasta": 10000,
+          "sbu": 0.15
+        },
+        {
+          "desde": 10000.01,
+          "hasta": 30000,
+          "sbu": 0.25
+        },
+        {
+          "desde": 30000.01,
+          "hasta": 60000,
+          "sbu": 0.35
+        },
+        {
+          "desde": 60000.01,
+          "hasta": 90000,
+          "sbu": 0.6
+        },
+        {
+          "desde": 90000.01,
+          "hasta": 150000,
+          "sbu": 0.9
+        },
+        {
+          "desde": 150000.01,
+          "hasta": 300000,
+          "sbu": 1.4
+        },
+        {
+          "desde": 300000.01,
+          "hasta": 600000,
+          "sbu": 2.8
+        },
+        {
+          "desde": 600000.01,
+          "hasta": 1000000,
+          "sbu": 3.5
+        },
+        {
+          "desde": 1000000.01,
+          "hasta": 2000000,
+          "sbu": 7.0
+        },
+        {
+          "desde": 2000000.01,
+          "hasta": 3000000,
+          "sbu": 10.5
+        },
+        {
+          "desde": 3000000.01,
+          "hasta": 4000000,
+          "sbu": 14.0
+        }
+      ],
+      "excedente": {
+        "desde": 4000000.01,
+        "base_sbu": 14.0,
+        "base_desde": 4000000,
+        "factor": 0.001
+      }
+    },
+    "tabla3_hipoteca": {
+      "descripcion": "Hipotecas",
+      "rangos": [
+        {
+          "desde": 0,
+          "hasta": 10000,
+          "sbu": 0.13
+        },
+        {
+          "desde": 10000.01,
+          "hasta": 30000,
+          "sbu": 0.27
+        },
+        {
+          "desde": 30000.01,
+          "hasta": 60000,
+          "sbu": 0.36
+        },
+        {
+          "desde": 60000.01,
+          "hasta": 90000,
+          "sbu": 0.54
+        },
+        {
+          "desde": 90000.01,
+          "hasta": 150000,
+          "sbu": 0.72
+        },
+        {
+          "desde": 150000.01,
+          "hasta": 300000,
+          "sbu": 1.26
+        },
+        {
+          "desde": 300000.01,
+          "hasta": 600000,
+          "sbu": 1.8
+        },
+        {
+          "desde": 600000.01,
+          "hasta": 1000000,
+          "sbu": 2.25
+        },
+        {
+          "desde": 1000000.01,
+          "hasta": 2000000,
+          "sbu": 4.5
+        },
+        {
+          "desde": 2000000.01,
+          "hasta": 3000000,
+          "sbu": 6.75
+        },
+        {
+          "desde": 3000000.01,
+          "hasta": 4000000,
+          "sbu": 9.0
+        }
+      ],
+      "excedente": {
+        "desde": 4000000.01,
+        "base_sbu": 9.0,
+        "base_desde": 4000000,
+        "factor": 0.001
+      }
+    },
+    "tabla5_arrendamiento_inscripcion": {
+      "descripcion": "Inscripcion de arrendamientos (canon mensual)",
+      "regla_hasta_375": {
+        "factor": 0.1
+      },
+      "rangos": [
+        {
+          "desde": 375.01,
+          "hasta": 1500,
+          "sbu": 0.1
+        },
+        {
+          "desde": 1500.01,
+          "hasta": 5000,
+          "sbu": 0.15
+        },
+        {
+          "desde": 5000.01,
+          "hasta": 10000,
+          "sbu": 0.2
+        },
+        {
+          "desde": 10000.01,
+          "hasta": null,
+          "sbu": 0.3
+        }
+      ]
+    },
+    "tabla6_emision_obligaciones": {
+      "descripcion": "Emision de obligaciones",
+      "factor_cuantia": 0.0001
+    },
+    "tabla7_constitucion_sociedades": {
+      "descripcion": "Constitucion de companias/sociedades",
+      "rangos": [
+        {
+          "desde": 0,
+          "hasta": 10000,
+          "sbu": 0.7
+        },
+        {
+          "desde": 10000.01,
+          "hasta": 25000,
+          "sbu": 1.0
+        },
+        {
+          "desde": 25000.01,
+          "hasta": 50000,
+          "sbu": 1.5
+        },
+        {
+          "desde": 50000.01,
+          "hasta": 100000,
+          "sbu": 1.75
+        },
+        {
+          "desde": 100000.01,
+          "hasta": 250000,
+          "sbu": 2.0
+        },
+        {
+          "desde": 250000.01,
+          "hasta": 500000,
+          "sbu": 3.0
+        },
+        {
+          "desde": 500000.01,
+          "hasta": 750000,
+          "sbu": 4.0
+        },
+        {
+          "desde": 750000.01,
+          "hasta": 1000000,
+          "sbu": 5.0
+        }
+      ],
+      "escalas_excedente": [
+        {
+          "desde": 1000000.01,
+          "base_desde": 1000000,
+          "base_sbu": 5.0,
+          "factor": 0.003
+        },
+        {
+          "desde": 2500000.01,
+          "base_desde": 2500000,
+          "base_sbu": 17.0,
+          "factor": 0.0025
+        },
+        {
+          "desde": 5000000.01,
+          "base_desde": 5000000,
+          "base_sbu": 33.67,
+          "factor": 0.002
+        },
+        {
+          "desde": 10000000.01,
+          "base_desde": 10000000,
+          "base_sbu": 60.34,
+          "factor": 0.0015
+        },
+        {
+          "desde": 30000000.01,
+          "base_desde": 30000000,
+          "base_sbu": 140.34,
+          "factor": 0.001
+        },
+        {
+          "desde": 50000000.01,
+          "base_desde": 50000000,
+          "base_sbu": 193.67,
+          "factor": 0.001
+        }
+      ]
+    },
+    "tabla_indeterminada": {
+      "descripcion": "Actos de cuantia indeterminada",
+      "actos": [
+        {
+          "id": "aceptacion_y_repudio_de_herencia",
+          "concepto": "Aceptación y repudio de herencia",
+          "valor": 0.6,
+          "tipo": "porcentaje_sbu"
+        },
+        {
+          "id": "aclaratoria_ampliatoria_modificatoria_rectificatoria_y_ratificatoria",
+          "concepto": "Aclaratoria, ampliatoria, modificatoria, rectificatoria y ratificatoria",
+          "valor": 0.2,
+          "tipo": "porcentaje_sbu"
+        },
+        {
+          "id": "acta_de_acuerdo_de_jubilacion_patronal",
+          "concepto": "Acta de acuerdo de jubilación patronal",
+          "valor": 0.03,
+          "tipo": "porcentaje_sbu"
+        },
+        {
+          "id": "actos_de_cuantia_indeterminada_no_catalogados",
+          "concepto": "Actos de cuantía indeterminada no catalogados",
+          "valor": 0.35,
+          "tipo": "porcentaje_sbu"
+        },
+        {
+          "id": "acuerdos_transaccionales_personas_juridicas",
+          "concepto": "Acuerdos transaccionales (Personas Jurídicas)",
+          "valor": 0.5,
+          "tipo": "porcentaje_sbu"
+        },
+        {
+          "id": "acuerdos_transaccionales_personas_naturales",
+          "concepto": "Acuerdos transaccionales (Personas Naturales)",
+          "valor": 0.15,
+          "tipo": "porcentaje_sbu"
+        },
+        {
+          "id": "adosamiento",
+          "concepto": "Adosamiento",
+          "valor": 0.2,
+          "tipo": "porcentaje_sbu"
+        },
+        {
+          "id": "amojonamiento_y_deslinde_de_inmuebles",
+          "concepto": "Amojonamiento y deslinde de inmuebles",
+          "valor": 1.0,
+          "tipo": "porcentaje_sbu"
+        },
+        {
+          "id": "apertura_y_publicacion_de_testamento",
+          "concepto": "Apertura y publicación de testamento",
+          "valor": 1.0,
+          "tipo": "porcentaje_sbu"
+        },
+        {
+          "id": "aprobacion_de_constitucion_de_sociedades_civiles_y_mercantiles",
+          "concepto": "Aprobación de constitución de sociedades civiles y mercantiles",
+          "valor": 0.2,
+          "tipo": "porcentaje_sbu"
+        },
+        {
+          "id": "aprobacion_de_aumento_de_capital_fusiones_escision",
+          "concepto": "Aprobación de aumento de capital/fusiones/escisión",
+          "valor": 0.2,
+          "tipo": "porcentaje_sbu"
+        },
+        {
+          "id": "aprobacion_de_reforma_de_sociedades",
+          "concepto": "Aprobación de reforma de sociedades",
+          "valor": 0.2,
+          "tipo": "porcentaje_sbu"
+        },
+        {
+          "id": "autorizacion_de_inscripcion_de_matriculas_de_comercio",
+          "concepto": "Autorización de inscripción de matrículas de comercio",
+          "valor": 0.25,
+          "tipo": "porcentaje_sbu"
+        },
+        {
+          "id": "autorizacion_de_salida_del_pais_por_nino_a",
+          "concepto": "Autorización de salida del país (por niño/a)",
+          "valor": 0.05,
+          "tipo": "porcentaje_sbu"
+        },
+        {
+          "id": "autorizacion_para_trabajo_de_menores",
+          "concepto": "Autorización para trabajo de menores",
+          "valor": 0.05,
+          "tipo": "porcentaje_sbu"
+        },
+        {
+          "id": "cancelacion_de_contrato_de_prenda",
+          "concepto": "Cancelación de contrato de prenda",
+          "valor": 0.2,
+          "tipo": "porcentaje_sbu"
+        },
+        {
+          "id": "cancelacion_de_hipotecas",
+          "concepto": "Cancelación de hipotecas",
+          "valor": 0.2,
+          "tipo": "porcentaje_sbu"
+        },
+        {
+          "id": "capitulaciones_matrimoniales_o_union_de_hecho",
+          "concepto": "Capitulaciones matrimoniales (o unión de hecho)",
+          "valor": 0.4,
+          "tipo": "porcentaje_sbu"
+        },
+        {
+          "id": "certificacion_de_documento_desmaterializado",
+          "concepto": "Certificación de documento desmaterializado",
+          "valor": 1.34,
+          "tipo": "fijo_usd"
+        },
+        {
+          "id": "certificacion_de_documento_web_electronico",
+          "concepto": "Certificación de documento web/electrónico",
+          "valor": 1.34,
+          "tipo": "fijo_usd"
+        },
+        {
+          "id": "certificacion_de_documentos_fisicos",
+          "concepto": "Certificación de documentos (físicos)",
+          "valor": 1.79,
+          "tipo": "fijo_usd"
+        },
+        {
+          "id": "certificacion_de_firma_registrada_funcionarios_rl",
+          "concepto": "Certificación de firma registrada (Funcionarios/RL)",
+          "valor": 0.04,
+          "tipo": "porcentaje_sbu"
+        },
+        {
+          "id": "certificacion_de_planos",
+          "concepto": "Certificación de planos",
+          "valor": 3.0,
+          "tipo": "fijo_usd"
+        },
+        {
+          "id": "certificacion_electronica_de_documento_electronico",
+          "concepto": "Certificación electrónica de documento electrónico",
+          "valor": 1.34,
+          "tipo": "fijo_usd"
+        },
+        {
+          "id": "cesion_de_derechos_de_socios",
+          "concepto": "Cesión de derechos de socios",
+          "valor": 0.1,
+          "tipo": "porcentaje_sbu"
+        },
+        {
+          "id": "cesion_de_derechos_fiduciarios_por_foja",
+          "concepto": "Cesión de derechos fiduciarios (por foja)",
+          "valor": 0.1,
+          "tipo": "porcentaje_sbu"
+        },
+        {
+          "id": "cesion_de_derechos_hipotecarios_indeterminados",
+          "concepto": "Cesión de derechos hipotecarios (indeterminados)",
+          "valor": 0.2,
+          "tipo": "porcentaje_sbu"
+        },
+        {
+          "id": "concesiones_de_radio_tv_comunitarias",
+          "concepto": "Concesiones de radio/TV comunitarias",
+          "valor": 0.5,
+          "tipo": "porcentaje_sbu"
+        },
+        {
+          "id": "concesiones_de_minas_radio_tv",
+          "concepto": "Concesiones de minas / radio / TV",
+          "valor": 3.0,
+          "tipo": "porcentaje_sbu"
+        },
+        {
+          "id": "constitucion_de_patrimonio_familiar",
+          "concepto": "Constitución de patrimonio familiar",
+          "valor": 0.25,
+          "tipo": "porcentaje_sbu"
+        },
+        {
+          "id": "constitucion_terminacion_de_fideicomisos",
+          "concepto": "Constitución/Terminación de Fideicomisos",
+          "valor": 0.05,
+          "tipo": "porcentaje_sbu"
+        },
+        {
+          "id": "contratos_de_mandato_personas_juridicas",
+          "concepto": "Contratos de mandato (Personas Jurídicas)",
+          "valor": 0.5,
+          "tipo": "porcentaje_sbu"
+        },
+        {
+          "id": "contratos_de_mandato_personas_naturales",
+          "concepto": "Contratos de mandato (Personas Naturales)",
+          "valor": 0.1,
+          "tipo": "porcentaje_sbu"
+        },
+        {
+          "id": "declaracion_de_extincion_de_usufructo_uso_habitacion",
+          "concepto": "Declaración de extinción de usufructo/uso/habitación",
+          "valor": 0.3,
+          "tipo": "porcentaje_sbu"
+        },
+        {
+          "id": "declaracion_juramentada_ley_de_tierras",
+          "concepto": "Declaración juramentada (Ley de tierras)",
+          "valor": 5.0,
+          "tipo": "fijo_usd"
+        },
+        {
+          "id": "declaracion_juramentada_emancipacion_voluntaria",
+          "concepto": "Declaración juramentada (Emancipación voluntaria)",
+          "valor": 0.05,
+          "tipo": "porcentaje_sbu"
+        },
+        {
+          "id": "declaracion_juramentada_extincion_patrimonio_familiar",
+          "concepto": "Declaración juramentada (Extinción patrimonio familiar)",
+          "valor": 0.05,
+          "tipo": "porcentaje_sbu"
+        },
+        {
+          "id": "declaracion_juramentada_posesion_notoria_estado_civil",
+          "concepto": "Declaración juramentada (Posesión notoria estado civil)",
+          "valor": 0.05,
+          "tipo": "porcentaje_sbu"
+        },
+        {
+          "id": "declaracion_juramentada_persona_juridica",
+          "concepto": "Declaración juramentada (Persona Jurídica)",
+          "valor": 0.12,
+          "tipo": "porcentaje_sbu"
+        },
+        {
+          "id": "declaracion_juramentada_persona_natural",
+          "concepto": "Declaración juramentada (Persona Natural)",
+          "valor": 0.05,
+          "tipo": "porcentaje_sbu"
+        },
+        {
+          "id": "declaratoria_de_interdiccion_ppl",
+          "concepto": "Declaratoria de interdicción (PPL)",
+          "valor": 0.9,
+          "tipo": "porcentaje_sbu"
+        },
+        {
+          "id": "desahucio",
+          "concepto": "Desahucio",
+          "valor": 0.3,
+          "tipo": "porcentaje_sbu"
+        },
+        {
+          "id": "designacion_de_administrador_comun",
+          "concepto": "Designación de administrador común",
+          "valor": 0.24,
+          "tipo": "porcentaje_sbu"
+        },
+        {
+          "id": "disolucion_sociedad_conyugal",
+          "concepto": "Disolución sociedad conyugal",
+          "valor": 0.34,
+          "tipo": "porcentaje_sbu"
+        },
+        {
+          "id": "disolucion_liquidacion_de_sociedades",
+          "concepto": "Disolución/Liquidación de sociedades",
+          "valor": 0.1,
+          "tipo": "porcentaje_sbu"
+        },
+        {
+          "id": "divorcio_por_mutuo_consentimiento",
+          "concepto": "Divorcio por mutuo consentimiento",
+          "valor": 0.39,
+          "tipo": "porcentaje_sbu"
+        },
+        {
+          "id": "emancipacion_voluntaria_hijo_adulto",
+          "concepto": "Emancipación voluntaria hijo adulto",
+          "valor": 0.45,
+          "tipo": "porcentaje_sbu"
+        },
+        {
+          "id": "escritura_de_traspaso_cesion_de_derechos_personales",
+          "concepto": "Escritura de traspaso/cesión de derechos personales",
+          "valor": 0.3,
+          "tipo": "porcentaje_sbu"
+        },
+        {
+          "id": "extincion_de_patrimonio_familiar",
+          "concepto": "Extinción de patrimonio familiar",
+          "valor": 0.3,
+          "tipo": "porcentaje_sbu"
+        },
+        {
+          "id": "fe_de_supervivencia",
+          "concepto": "Fe de supervivencia",
+          "valor": 0.02,
+          "tipo": "porcentaje_sbu"
+        },
+        {
+          "id": "fraccionamiento_subdivision",
+          "concepto": "Fraccionamiento/Subdivisión",
+          "valor": 0.3,
+          "tipo": "porcentaje_sbu"
+        },
+        {
+          "id": "garantia_economica_persona_juridica",
+          "concepto": "Garantía económica (Persona Jurídica)",
+          "valor": 0.5,
+          "tipo": "porcentaje_sbu"
+        },
+        {
+          "id": "garantia_economica_persona_natural",
+          "concepto": "Garantía económica (Persona Natural)",
+          "valor": 0.15,
+          "tipo": "porcentaje_sbu"
+        },
+        {
+          "id": "informaciones_sumarias",
+          "concepto": "Informaciones sumarias",
+          "valor": 0.07,
+          "tipo": "porcentaje_sbu"
+        },
+        {
+          "id": "insinuacion_para_donaciones",
+          "concepto": "Insinuación para donaciones",
+          "valor": 0.4,
+          "tipo": "porcentaje_sbu"
+        },
+        {
+          "id": "levantamiento_de_protestos",
+          "concepto": "Levantamiento de protestos",
+          "valor": 1.0,
+          "tipo": "porcentaje_sbu"
+        },
+        {
+          "id": "negativa_de_recepcion_de_tributos",
+          "concepto": "Negativa de recepción de tributos",
+          "valor": 1.0,
+          "tipo": "porcentaje_sbu"
+        },
+        {
+          "id": "notificacion_recepcion_contratacion_publica",
+          "concepto": "Notificación recepción contratación pública",
+          "valor": 1.0,
+          "tipo": "porcentaje_sbu"
+        },
+        {
+          "id": "notificacion_revocatoria_de_mandato",
+          "concepto": "Notificación revocatoria de mandato",
+          "valor": 0.12,
+          "tipo": "porcentaje_sbu"
+        },
+        {
+          "id": "notificacion_traspaso_cesion_de_derechos",
+          "concepto": "Notificación traspaso/cesión de derechos",
+          "valor": 0.3,
+          "tipo": "porcentaje_sbu"
+        },
+        {
+          "id": "oficios_avisos_carteles_de_ley",
+          "concepto": "Oficios/Avisos/Carteles de ley",
+          "valor": 0.013,
+          "tipo": "porcentaje_sbu"
+        },
+        {
+          "id": "copias_de_archivo_por_foja",
+          "concepto": "Copias de archivo (por foja)",
+          "valor": 1.79,
+          "tipo": "fijo_usd"
+        },
+        {
+          "id": "poderes_otorgar_revocar_etc_persona_juridica",
+          "concepto": "Poderes (Otorgar/Revocar/Etc) - Persona Jurídica",
+          "valor": 0.5,
+          "tipo": "porcentaje_sbu"
+        },
+        {
+          "id": "poderes_otorgar_revocar_etc_persona_natural",
+          "concepto": "Poderes (Otorgar/Revocar/Etc) - Persona Natural",
+          "valor": 0.12,
+          "tipo": "porcentaje_sbu"
+        },
+        {
+          "id": "poderes_especiales_fines_sociales",
+          "concepto": "Poderes especiales fines sociales",
+          "valor": 0.03,
+          "tipo": "porcentaje_sbu"
+        },
+        {
+          "id": "otras_concesiones_del_estado",
+          "concepto": "Otras concesiones del Estado",
+          "valor": 3.0,
+          "tipo": "porcentaje_sbu"
+        },
+        {
+          "id": "particion_de_bienes_hereditarios",
+          "concepto": "Partición de bienes hereditarios",
+          "valor": 0.3,
+          "tipo": "porcentaje_sbu"
+        },
+        {
+          "id": "posesion_efectiva",
+          "concepto": "Posesión efectiva",
+          "valor": 0.4,
+          "tipo": "porcentaje_sbu"
+        },
+        {
+          "id": "posesion_efectiva_montepio_iess",
+          "concepto": "Posesión efectiva (Montepío/IESS)",
+          "valor": 0.05,
+          "tipo": "porcentaje_sbu"
+        },
+        {
+          "id": "servicio_fuera_del_despacho",
+          "concepto": "Servicio fuera del despacho",
+          "valor": 0.15,
+          "tipo": "porcentaje_sbu"
+        },
+        {
+          "id": "servicio_fuera_despacho_vivienda_social",
+          "concepto": "Servicio fuera despacho (Vivienda social)",
+          "valor": 0.082,
+          "tipo": "porcentaje_sbu"
+        },
+        {
+          "id": "servicio_fuera_despacho_adulto_mayor",
+          "concepto": "Servicio fuera despacho (Adulto mayor)",
+          "valor": 0.075,
+          "tipo": "porcentaje_sbu"
+        },
+        {
+          "id": "promesa_de_consorcio_alianza_estrategica",
+          "concepto": "Promesa de consorcio/alianza estratégica",
+          "valor": 0.3,
+          "tipo": "porcentaje_sbu"
+        },
+        {
+          "id": "protocolizacion_ley_de_tierras",
+          "concepto": "Protocolización (Ley de tierras)",
+          "valor": 5.0,
+          "tipo": "fijo_usd"
+        },
+        {
+          "id": "protocolizacion_documentos_publicos_privados_por_foja",
+          "concepto": "Protocolización documentos públicos/privados (por foja)",
+          "valor": 0.03,
+          "tipo": "porcentaje_sbu"
+        },
+        {
+          "id": "protocolizacion_de_planos",
+          "concepto": "Protocolización de planos",
+          "valor": 0.04,
+          "tipo": "porcentaje_sbu"
+        },
+        {
+          "id": "ratificacion_de_compra_agencia_oficiosa",
+          "concepto": "Ratificación de compra (Agencia oficiosa)",
+          "valor": 0.2,
+          "tipo": "porcentaje_sbu"
+        },
+        {
+          "id": "razones_marginales",
+          "concepto": "Razones marginales",
+          "valor": 0.05,
+          "tipo": "porcentaje_sbu"
+        },
+        {
+          "id": "reactivacion_de_companias",
+          "concepto": "Reactivación de compañías",
+          "valor": 0.35,
+          "tipo": "porcentaje_sbu"
+        },
+        {
+          "id": "reconocimiento_de_firmas_por_firma",
+          "concepto": "Reconocimiento de firmas (por firma)",
+          "valor": 0.03,
+          "tipo": "porcentaje_sbu"
+        },
+        {
+          "id": "reforma_de_estatutos",
+          "concepto": "Reforma de estatutos",
+          "valor": 0.3,
+          "tipo": "porcentaje_sbu"
+        },
+        {
+          "id": "reforma_disolucion_consorcio",
+          "concepto": "Reforma/Disolución consorcio",
+          "valor": 0.15,
+          "tipo": "porcentaje_sbu"
+        },
+        {
+          "id": "requerimiento_al_deudor_mora",
+          "concepto": "Requerimiento al deudor (Mora)",
+          "valor": 0.3,
+          "tipo": "porcentaje_sbu"
+        },
+        {
+          "id": "requerimiento_cumplimiento_promesa_entrega",
+          "concepto": "Requerimiento cumplimiento promesa/entrega",
+          "valor": 0.5,
+          "tipo": "porcentaje_sbu"
+        },
+        {
+          "id": "resciliacion_de_contrato",
+          "concepto": "Resciliación de contrato",
+          "valor": 0.2,
+          "tipo": "porcentaje_sbu"
+        },
+        {
+          "id": "restitucion_fiduciaria",
+          "concepto": "Restitución fiduciaria",
+          "valor": 0.35,
+          "tipo": "porcentaje_sbu"
+        },
+        {
+          "id": "servidumbre",
+          "concepto": "Servidumbre",
+          "valor": 0.2,
+          "tipo": "porcentaje_sbu"
+        },
+        {
+          "id": "sorteos_constatacion_1ra_hora",
+          "concepto": "Sorteos/Constatación (1ra hora)",
+          "valor": 1.0,
+          "tipo": "porcentaje_sbu"
+        },
+        {
+          "id": "sorteos_constatacion_2da_hora_en_adelante",
+          "concepto": "Sorteos/Constatación (2da hora en adelante)",
+          "valor": 0.25,
+          "tipo": "porcentaje_sbu"
+        },
+        {
+          "id": "terminacion_de_union_de_hecho",
+          "concepto": "Terminación de unión de hecho",
+          "valor": 0.39,
+          "tipo": "porcentaje_sbu"
+        },
+        {
+          "id": "testamento_abierto",
+          "concepto": "Testamento abierto",
+          "valor": 1.2,
+          "tipo": "porcentaje_sbu"
+        },
+        {
+          "id": "testamento_cerrado",
+          "concepto": "Testamento cerrado",
+          "valor": 1.0,
+          "tipo": "porcentaje_sbu"
+        },
+        {
+          "id": "unificacion_de_lotes",
+          "concepto": "Unificación de lotes",
+          "valor": 0.3,
+          "tipo": "porcentaje_sbu"
+        },
+        {
+          "id": "union_de_hecho",
+          "concepto": "Unión de hecho",
+          "valor": 0.1,
+          "tipo": "porcentaje_sbu"
+        }
+      ]
+    }
+  },
+  "tarifas_fijas_sbu": {
+    "CANCELACION_HIPOTECA": 0.2,
+    "CAPITULACIONES_MATRIMONIALES": 0.4,
+    "DIVORCIO": 0.39,
+    "UNION_HECHO": 0.1,
+    "TERMINACION_UNION_HECHO": 0.39,
+    "SALIDA_PAIS": 0.05,
+    "TESTAMENTO_ABIERTO": 1.2,
+    "TESTAMENTO_CERRADO": 1.0,
+    "POSESION_EFECTIVA": 0.4,
+    "PODER_GENERAL_PN": 0.12,
+    "PODER_GENERAL_PJ": 0.5,
+    "RECONOCIMIENTO_FIRMA": 0.03,
+    "DECLARACION_JURAMENTADA": 0.05
+  }
+}

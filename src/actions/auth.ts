@@ -4,6 +4,7 @@ import { createClient } from '@/lib/supabase/server'
 import { createAdminClient } from '@/lib/supabase/admin'
 import { loginSchema, registerSchema, forgotPasswordSchema, type LoginInput, type RegisterInput, type ForgotPasswordInput } from '@/lib/validations/auth'
 import { headers } from 'next/headers'
+import { SITE_URL } from '@/lib/constants'
 
 type ActionResult<T = void> =
   | { success: true; data: T }
@@ -76,7 +77,7 @@ export async function register(data: RegisterInput): Promise<ActionResult> {
     }
 
     const supabase = await createClient()
-    const origin = (await headers()).get('origin') || process.env.NEXT_PUBLIC_APP_URL || 'http://localhost:3000'
+    const origin = (await headers()).get('origin') || process.env.NEXT_PUBLIC_APP_URL || SITE_URL
 
     // Crear usuario en Supabase Auth
     const { data: authData, error: authError } = await supabase.auth.signUp({
@@ -165,7 +166,7 @@ export async function forgotPassword(data: ForgotPasswordInput): Promise<ActionR
     }
 
     const supabase = await createClient()
-    const origin = (await headers()).get('origin') || process.env.NEXT_PUBLIC_APP_URL || 'http://localhost:3000'
+    const origin = (await headers()).get('origin') || process.env.NEXT_PUBLIC_APP_URL || SITE_URL
 
     const { error } = await supabase.auth.resetPasswordForEmail(validated.data.email, {
       redirectTo: `${origin}/auth/callback?next=/reset-password`,
@@ -196,7 +197,7 @@ export async function forgotPassword(data: ForgotPasswordInput): Promise<ActionR
 export async function loginWithGoogle(): Promise<ActionResult<string>> {
   try {
     const supabase = await createClient()
-    const origin = (await headers()).get('origin') || process.env.NEXT_PUBLIC_APP_URL || 'http://localhost:3000'
+    const origin = (await headers()).get('origin') || process.env.NEXT_PUBLIC_APP_URL || SITE_URL
 
     const { data, error } = await supabase.auth.signInWithOAuth({
       provider: 'google',

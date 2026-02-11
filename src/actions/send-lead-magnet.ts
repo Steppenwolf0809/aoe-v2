@@ -122,11 +122,11 @@ export async function sendLeadMagnet(params: SendLeadMagnetParams) {
     // 1. Generar el PDF correspondiente
     if (params.type === 'checklist') {
       pdfBuffer = await renderToBuffer(ChecklistEscrituracion());
-      subject = '✓ Tu Checklist de Escrituración - Abogados Online Ecuador';
+      subject = 'Tu Checklist de Escrituracion - Abogados Online Ecuador';
       pdfFilename = 'checklist-escrituracion.pdf';
     } else {
       pdfBuffer = await renderToBuffer(Guia5Errores());
-      subject = '⚠️ 5 Errores que Encarecen tu Escrituración';
+      subject = '5 Errores que Encarecen tu Escrituracion';
       pdfFilename = 'guia-5-errores-escritura.pdf';
     }
 

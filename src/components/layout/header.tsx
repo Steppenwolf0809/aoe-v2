@@ -4,7 +4,7 @@ import { motion, useScroll, useMotionValueEvent } from 'framer-motion'
 import Link from 'next/link'
 import Image from 'next/image'
 import { useState } from 'react'
-import { Menu, Calendar } from 'lucide-react'
+import { Menu, Calendar, FileText } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { Badge } from '@/components/ui/badge'
 import { NAV_LINKS } from '@/lib/constants'
@@ -71,8 +71,14 @@ export function Header() {
             >
               Iniciar Sesion
             </Link>
-            <Link href="/contacto" className="hidden sm:inline-flex">
+            <Link href="/contratos/vehicular" className="hidden sm:inline-flex">
               <Button size="sm" className="bg-accent-primary hover:bg-accent-primary-hover text-white">
+                <FileText className="w-4 h-4" />
+                Generar Contrato
+              </Button>
+            </Link>
+            <Link href="/contacto" className="hidden xl:inline-flex">
+              <Button size="sm" variant="outline">
                 <Calendar className="w-4 h-4" />
                 Agendar Cita
               </Button>

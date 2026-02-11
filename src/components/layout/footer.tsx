@@ -6,7 +6,7 @@ import { SITE_NAME, SOCIAL_LINKS } from '@/lib/constants'
 const footerSections = {
   Servicios: [
     { href: '/servicios', label: 'Todos los Servicios' },
-    { href: '/contratos', label: 'Contratos Vehiculares' },
+    { href: '/contratos/vehicular', label: 'Generar Contrato Vehicular' },
     { href: '/precios', label: 'Precios' },
   ],
   Calculadoras: [

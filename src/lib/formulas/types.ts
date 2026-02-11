@@ -28,10 +28,13 @@ export type TipoServicioNotarial =
   | 'HIPOTECA'
   | 'PROMESA_COMPRAVENTA'
   | 'CONSTITUCION_CIA'
+  | 'EMISION_OBLIGACIONES'
+  | 'ACTO_CUANTIA_INDETERMINADA'
   | 'CONTRATO_ARRIENDO_ESCRITURA'
   | 'INSCRIPCION_ARRENDAMIENTO'
   | 'PODER_GENERAL_PN'
   | 'PODER_GENERAL_PJ'
+  | 'CAPITULACIONES_MATRIMONIALES'
   | 'TESTAMENTO_ABIERTO'
   | 'TESTAMENTO_CERRADO'
   | 'UNION_HECHO'
@@ -50,6 +53,8 @@ export interface InputNotarial {
   tiempoMeses?: number // Para arrendamientos
   esViviendaSocial?: boolean
   esTerceraEdad?: boolean
+  actoIndeterminadoId?: string
+  cantidadActoIndeterminado?: number
 }
 
 export interface ItemAdicional {

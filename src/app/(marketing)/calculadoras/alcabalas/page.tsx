@@ -145,7 +145,8 @@ export default function CalculadoraAlcabalasPage() {
                     <li>• Primer año: 40% rebaja</li>
                     <li>• Segundo año: 30% rebaja</li>
                     <li>• Tercer año: 20% rebaja</li>
-                    <li>• Más de 3 años: Sin rebaja</li>
+                    <li>• Cuarto año: 10% rebaja</li>
+                    <li>• Más de 4 años: Sin rebaja</li>
                   </ul>
                 </div>
               </div>

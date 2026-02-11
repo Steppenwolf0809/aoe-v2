@@ -1,39 +1,105 @@
-/**
- * Lógica de Cálculo Notarial Ecuador (AOE v2)
- * Basado en: Reglamento del Sistema Notarial Integral de la Función Judicial
- * Resolución 216-2018 y reformas (005-2023)
- * SBU 2026 = $482
+﻿/**
+ * Notarial calculator logic for Ecuador (AOE v2)
+ * Uses tariff catalog from src/lib/tariffs/notarial-ecuador-2026.json
  */
 
-// ============================================
-// CONSTANTES
-// ============================================
-export const SBU_2026 = 482
-export const COSTO_FOJA = 1.79 // Art. 74 - Copias certificadas
-export const IVA_RATE = 0.15
+import tariffCatalog from '@/lib/tariffs/notarial-ecuador-2026.json'
 
 // ============================================
-// TIPOS DE TRÁMITES
+// CONSTANTS
+// ============================================
+
+type TipoValorIndeterminado = 'porcentaje_sbu' | 'fijo_usd'
+
+interface TarifaRangoRaw {
+  desde: number
+  hasta: number | null
+  sbu: number
+}
+
+interface TarifaExcedenteRaw {
+  desde: number
+  base_sbu: number
+  base_desde: number
+  factor: number
+}
+
+interface ActoIndeterminadoRaw {
+  id: string
+  concepto: string
+  valor: number
+  tipo: TipoValorIndeterminado
+}
+
+interface CatalogoTarifasNotariales {
+  metadata: {
+    sbu: number
+    iva: number
+  }
+  tablas: {
+    tabla1_transferencia_dominio: {
+      rangos: TarifaRangoRaw[]
+      excedente: TarifaExcedenteRaw
+    }
+    tabla2_promesa_compraventa: {
+      rangos: TarifaRangoRaw[]
+      excedente: TarifaExcedenteRaw
+    }
+    tabla3_hipoteca: {
+      rangos: TarifaRangoRaw[]
+      excedente: TarifaExcedenteRaw
+    }
+    tabla5_arrendamiento_inscripcion: {
+      regla_hasta_375: { factor: number }
+      rangos: TarifaRangoRaw[]
+    }
+    tabla6_emision_obligaciones: {
+      factor_cuantia: number
+    }
+    tabla7_constitucion_sociedades: {
+      rangos: TarifaRangoRaw[]
+      escalas_excedente: TarifaExcedenteRaw[]
+    }
+    tabla_indeterminada: {
+      actos: ActoIndeterminadoRaw[]
+    }
+  }
+  tarifas_fijas_sbu: Record<string, number>
+}
+
+const CATALOGO = tariffCatalog as CatalogoTarifasNotariales
+
+export const SBU_2026 = CATALOGO.metadata.sbu
+export const IVA_RATE = CATALOGO.metadata.iva
+export const COSTO_FOJA = 1.79 // Art. 74 - Copias certificadas
+
+const valorSBU = (multiplo: number) => Math.round(SBU_2026 * multiplo * 100) / 100
+
+// ============================================
+// SERVICE TYPES
 // ============================================
 export type TipoTramite =
-  | 'TRANSFERENCIA_DOMINIO' // Art. 26 (Tabla 1)
-  | 'HIPOTECA' // Art. 28 (Tabla 3)
-  | 'PROMESA_COMPRAVENTA' // Art. 27 (Tabla 2)
-  | 'CANCELACION_HIPOTECA' // Art. 62 (20% SBU)
-  | 'DIVORCIO' // Art. 81 (39% SBU)
-  | 'UNION_HECHO' // Art. 79 (10% SBU)
-  | 'TERMINACION_UNION_HECHO' // Art. 82 (39% SBU)
-  | 'SALIDA_PAIS' // Art. 83 (5% SBU por niño)
-  | 'TESTAMENTO_ABIERTO' // Art. 86 (120% SBU)
-  | 'TESTAMENTO_CERRADO' // Art. 86 (100% SBU)
-  | 'POSESION_EFECTIVA' // Art. 85 (40% SBU)
-  | 'PODER_GENERAL_PN' // Art. 116 (12% SBU - Persona Natural)
-  | 'PODER_GENERAL_PJ' // Art. 116 (50% SBU - Persona Jurídica)
-  | 'CONSTITUCION_CIA' // Art. 43 (Tabla 7)
-  | 'RECONOCIMIENTO_FIRMA' // Art. 66 (3% SBU)
-  | 'DECLARACION_JURAMENTADA' // Art. 95 (5% SBU)
-  | 'CONTRATO_ARRIENDO_ESCRITURA' // Art. 40 - Cuantía Total
-  | 'INSCRIPCION_ARRENDAMIENTO' // Art. 41 - Canon Mensual
+  | 'TRANSFERENCIA_DOMINIO'
+  | 'HIPOTECA'
+  | 'PROMESA_COMPRAVENTA'
+  | 'EMISION_OBLIGACIONES'
+  | 'ACTO_CUANTIA_INDETERMINADA'
+  | 'CANCELACION_HIPOTECA'
+  | 'DIVORCIO'
+  | 'UNION_HECHO'
+  | 'TERMINACION_UNION_HECHO'
+  | 'CAPITULACIONES_MATRIMONIALES'
+  | 'SALIDA_PAIS'
+  | 'TESTAMENTO_ABIERTO'
+  | 'TESTAMENTO_CERRADO'
+  | 'POSESION_EFECTIVA'
+  | 'PODER_GENERAL_PN'
+  | 'PODER_GENERAL_PJ'
+  | 'CONSTITUCION_CIA'
+  | 'RECONOCIMIENTO_FIRMA'
+  | 'DECLARACION_JURAMENTADA'
+  | 'CONTRATO_ARRIENDO_ESCRITURA'
+  | 'INSCRIPCION_ARRENDAMIENTO'
 
 // ============================================
 // INTERFACES
@@ -52,15 +118,15 @@ export interface ResultadoCalculo {
 
 export interface ItemAdicional {
   id: string
-  tipo: 
-    | 'copia_certificada' 
-    | 'declaracion_juramentada' 
-    | 'poder' 
+  tipo:
+    | 'copia_certificada'
+    | 'declaracion_juramentada'
+    | 'poder'
     | 'poder_especial'
     | 'cancelacion_hipoteca'
-    | 'reconocimiento_firma' 
+    | 'reconocimiento_firma'
     | 'autenticacion_firma'
-    | 'materializacion' 
+    | 'materializacion'
     | 'protocolizacion'
     | 'marginacion'
   descripcion: string
@@ -75,219 +141,183 @@ export interface OpcionesCalculo {
   esTerceraEdad?: boolean
   tiempoMeses?: number
   itemsAdicionales?: ItemAdicional[]
-  numeroOtorgantes?: number // Para poderes
-  numeroFirmas?: number // Para reconocimiento de firmas
-  numeroHojas?: number // Para copias/materializaciones
+  numeroOtorgantes?: number
+  numeroFirmas?: number
+  numeroHojas?: number
+  actoIndeterminadoId?: string
+  cantidadActoIndeterminado?: number
+}
+
+export interface ActoCuantiaIndeterminada {
+  id: string
+  concepto: string
+  valor: number
+  tipo: TipoValorIndeterminado
+  valorReferencial: number
 }
 
 interface RangoTarifa {
   desde: number
   hasta: number
   tarifaBase: number
-  porcentajeExcedente?: number
+}
+
+interface TarifaFija {
+  porcentajeSBU: number
+  descripcion: string
+  porcentajeAdicional?: number
 }
 
 // ============================================
-// TABLAS DE CUANTÍA (Anexo 1 - Resolución CJ)
+// TABLE MAPPERS
 // ============================================
 
-// TABLA 1: Transferencia de Dominio (Art. 26)
-const TABLA_1_TRANSFERENCIA: RangoTarifa[] = [
-  { desde: 0, hasta: 10000, tarifaBase: 90.0 },
-  { desde: 10000.01, hasta: 30000, tarifaBase: 157.5 },
-  { desde: 30000.01, hasta: 60000, tarifaBase: 225.0 },
-  { desde: 60000.01, hasta: 90000, tarifaBase: 360.0 },
-  { desde: 90000.01, hasta: 150000, tarifaBase: 607.5 },
-  { desde: 150000.01, hasta: 300000, tarifaBase: 900.0 },
-  { desde: 300000.01, hasta: 600000, tarifaBase: 1800.0 },
-  { desde: 600000.01, hasta: 1000000, tarifaBase: 2250.0 },
-  { desde: 1000001, hasta: 2000000, tarifaBase: 4500.0 },
-  { desde: 2000001, hasta: 3000000, tarifaBase: 6750.0 },
-  { desde: 3000001, hasta: 4000000, tarifaBase: 9000.0 },
-]
-
-// TABLA 2: Promesas de Compraventa (Art. 27)
-const TABLA_2_PROMESAS: RangoTarifa[] = [
-  { desde: 0, hasta: 10000, tarifaBase: 67.5 },
-  { desde: 10000.01, hasta: 30000, tarifaBase: 112.5 },
-  { desde: 30000.01, hasta: 60000, tarifaBase: 157.5 },
-  { desde: 60000.01, hasta: 90000, tarifaBase: 270.0 },
-  { desde: 90000.01, hasta: 150000, tarifaBase: 405.0 },
-  { desde: 150000.01, hasta: 300000, tarifaBase: 630.0 },
-  { desde: 300000.01, hasta: 600000, tarifaBase: 1260.0 },
-  { desde: 600000.01, hasta: 1000000, tarifaBase: 1575.0 },
-  { desde: 1000001, hasta: 2000000, tarifaBase: 3150.0 },
-  { desde: 2000001, hasta: 3000000, tarifaBase: 4725.0 },
-  { desde: 3000001, hasta: 4000000, tarifaBase: 6300.0 },
-]
-
-// TABLA 3: Hipotecas (Art. 28)
-const TABLA_3_HIPOTECAS: RangoTarifa[] = [
-  { desde: 0, hasta: 10000, tarifaBase: 58.5 },
-  { desde: 10000.01, hasta: 30000, tarifaBase: 121.5 },
-  { desde: 30000.01, hasta: 60000, tarifaBase: 162.0 },
-  { desde: 60000.01, hasta: 90000, tarifaBase: 243.0 },
-  { desde: 90000.01, hasta: 150000, tarifaBase: 324.0 },
-  { desde: 150000.01, hasta: 300000, tarifaBase: 567.0 },
-  { desde: 300000.01, hasta: 600000, tarifaBase: 810.0 },
-  { desde: 600000.01, hasta: 1000000, tarifaBase: 1012.5 },
-  { desde: 1000001, hasta: 2000000, tarifaBase: 2025.0 },
-  { desde: 2000001, hasta: 3000000, tarifaBase: 3037.5 },
-  { desde: 3000001, hasta: 4000000, tarifaBase: 4050.0 },
-]
-
-// TABLA 7: Constitución de Sociedades (Art. 43)
-const TABLA_7_SOCIEDADES: RangoTarifa[] = [
-  { desde: 0, hasta: 10000, tarifaBase: 315.0 },
-  { desde: 10000.01, hasta: 25000, tarifaBase: 450.0 },
-  { desde: 25000.01, hasta: 50000, tarifaBase: 675.0 },
-  { desde: 50000.01, hasta: 100000, tarifaBase: 787.5 },
-  { desde: 100000.01, hasta: 250000, tarifaBase: 900.0 },
-  { desde: 250000.01, hasta: 500000, tarifaBase: 1350.0 },
-  { desde: 500000.01, hasta: 750000, tarifaBase: 1800.0 },
-  { desde: 750000.01, hasta: 1000000, tarifaBase: 2250.0 },
-]
-
-// TABLA 5: Inscripción de Arrendamientos (Art. 41) - Canon Mensual
-const TABLA_5_ARRENDAMIENTOS: RangoTarifa[] = [
-  { desde: 0, hasta: 460, tarifaBase: 15.0 },
-  { desde: 460.01, hasta: 1000, tarifaBase: 30.0 },
-  { desde: 1000.01, hasta: 2000, tarifaBase: 45.0 },
-  { desde: 2000.01, hasta: 3000, tarifaBase: 60.0 },
-  { desde: 3000.01, hasta: 5000, tarifaBase: 80.0 },
-  { desde: 5000.01, hasta: 10000, tarifaBase: 120.0 },
-  { desde: 10000.01, hasta: 15000, tarifaBase: 180.0 },
-  { desde: 15000.01, hasta: 20000, tarifaBase: 240.0 },
-]
-
-// ============================================
-// TARIFAS FIJAS (Porcentaje SBU)
-// ============================================
-const TARIFAS_FIJAS: Record<string, { 
-  porcentajeSBU: number; 
-  descripcion: string;
-  porcentajeAdicional?: number; // Para otorgantes/firmas adicionales
-}> = {
-  CANCELACION_HIPOTECA: { porcentajeSBU: 0.2, descripcion: '20% SBU - Cancelación Hipoteca' },
-  DIVORCIO: { porcentajeSBU: 0.39, descripcion: '39% SBU - Divorcio' },
-  UNION_HECHO: { porcentajeSBU: 0.1, descripcion: '10% SBU - Unión de Hecho' },
-  TERMINACION_UNION_HECHO: { porcentajeSBU: 0.39, descripcion: '39% SBU - Terminación Unión de Hecho' },
-  SALIDA_PAIS: { porcentajeSBU: 0.05, descripcion: '5% SBU por menor - Autorización Salida del País' },
-  TESTAMENTO_ABIERTO: { porcentajeSBU: 1.2, descripcion: '120% SBU - Testamento Abierto' },
-  TESTAMENTO_CERRADO: { porcentajeSBU: 1.0, descripcion: '100% SBU - Testamento Cerrado' },
-  POSESION_EFECTIVA: { porcentajeSBU: 0.4, descripcion: '40% SBU - Posesión Efectiva' },
-  PODER_GENERAL_PN: { 
-    porcentajeSBU: 0.12, 
-    descripcion: '12% SBU - Poder General Persona Natural',
-    porcentajeAdicional: 0.03 // 3% por otorgante adicional
-  },
-  PODER_GENERAL_PJ: { porcentajeSBU: 0.5, descripcion: '50% SBU - Poder General Persona Jurídica' },
-  RECONOCIMIENTO_FIRMA: { porcentajeSBU: 0.03, descripcion: '3% SBU - Reconocimiento de Firma' },
-  DECLARACION_JURAMENTADA: { porcentajeSBU: 0.05, descripcion: '5% SBU - Declaración Juramentada' },
+function mapearRangos(rangos: TarifaRangoRaw[]): RangoTarifa[] {
+  return rangos.map((r) => ({
+    desde: r.desde,
+    hasta: r.hasta ?? Infinity,
+    tarifaBase: valorSBU(r.sbu),
+  }))
 }
 
+const TABLA_1_TRANSFERENCIA = mapearRangos(CATALOGO.tablas.tabla1_transferencia_dominio.rangos)
+const EXCEDENTE_TABLA_1 = CATALOGO.tablas.tabla1_transferencia_dominio.excedente
+
+const TABLA_2_PROMESAS = mapearRangos(CATALOGO.tablas.tabla2_promesa_compraventa.rangos)
+const EXCEDENTE_TABLA_2 = CATALOGO.tablas.tabla2_promesa_compraventa.excedente
+
+const TABLA_3_HIPOTECAS = mapearRangos(CATALOGO.tablas.tabla3_hipoteca.rangos)
+const EXCEDENTE_TABLA_3 = CATALOGO.tablas.tabla3_hipoteca.excedente
+
+const TABLA_7_SOCIEDADES = mapearRangos(CATALOGO.tablas.tabla7_constitucion_sociedades.rangos)
+const EXCEDENTES_TABLA_7 = [...CATALOGO.tablas.tabla7_constitucion_sociedades.escalas_excedente].sort(
+  (a, b) => b.desde - a.desde
+)
+
+const TABLA_5_ARRENDAMIENTOS = mapearRangos(CATALOGO.tablas.tabla5_arrendamiento_inscripcion.rangos)
+
+const ACTOS_CUANTIA_INDETERMINADA = CATALOGO.tablas.tabla_indeterminada.actos
+
+const DESCRIPCIONES_TARIFAS: Record<string, string> = {
+  CANCELACION_HIPOTECA: '20% SBU - Cancelacion Hipoteca',
+  CAPITULACIONES_MATRIMONIALES: '40% SBU - Capitulaciones Matrimoniales',
+  DIVORCIO: '39% SBU - Divorcio',
+  UNION_HECHO: '10% SBU - Union de Hecho',
+  TERMINACION_UNION_HECHO: '39% SBU - Terminacion Union de Hecho',
+  SALIDA_PAIS: '5% SBU por menor - Autorizacion Salida del Pais',
+  TESTAMENTO_ABIERTO: '120% SBU - Testamento Abierto',
+  TESTAMENTO_CERRADO: '100% SBU - Testamento Cerrado',
+  POSESION_EFECTIVA: '40% SBU - Posesion Efectiva',
+  PODER_GENERAL_PN: '12% SBU - Poder General Persona Natural',
+  PODER_GENERAL_PJ: '50% SBU - Poder General Persona Juridica',
+  RECONOCIMIENTO_FIRMA: '3% SBU - Reconocimiento de Firma',
+  DECLARACION_JURAMENTADA: '5% SBU - Declaracion Juramentada',
+}
+
+const TARIFAS_FIJAS: Record<string, TarifaFija> = Object.fromEntries(
+  Object.entries(CATALOGO.tarifas_fijas_sbu).map(([key, porcentajeSBU]) => [
+    key,
+    {
+      porcentajeSBU,
+      descripcion: DESCRIPCIONES_TARIFAS[key] ?? `${(porcentajeSBU * 100).toFixed(2)}% SBU`,
+      porcentajeAdicional: key === 'PODER_GENERAL_PN' ? 0.03 : undefined,
+    },
+  ])
+)
+
 // ============================================
-// TARIFAS ÍTEMS ADICIONALES
+// EXTRA ITEMS
 // ============================================
-export const TARIFAS_ITEMS_ADICIONALES: Record<string, { 
-  nombre: string; 
-  valorUnitario: number; 
-  unidad: string; 
-  descripcion?: string;
-  porcentajeSBU?: number;
-}> = {
-  // Certificaciones - por foja
+export const TARIFAS_ITEMS_ADICIONALES: Record<
+  string,
+  {
+    nombre: string
+    valorUnitario: number
+    unidad: string
+    descripcion?: string
+    porcentajeSBU?: number
+  }
+> = {
   copia_certificada: {
     nombre: 'Copia Certificada',
-    valorUnitario: COSTO_FOJA, // $1.79 por foja
+    valorUnitario: COSTO_FOJA,
     unidad: 'foja',
     descripcion: 'Copia certificada de la escritura',
   },
-  
-  // Declaraciones - por unidad
   declaracion_juramentada: {
-    nombre: 'Declaración Juramentada',
-    valorUnitario: SBU_2026 * 0.05, // 5% SBU = $24.10
-    unidad: 'declaración',
-    descripcion: 'Declaración juramentada',
+    nombre: 'Declaracion Juramentada',
+    valorUnitario: SBU_2026 * 0.05,
+    unidad: 'declaracion',
+    descripcion: 'Declaracion juramentada',
     porcentajeSBU: 0.05,
   },
-  
-  // Poderes - por otorgante (12% primer otorgante, 3% adicionales)
-  // Unificado: Poder General, Especial y Procuración tienen la misma tarifa base
   poder: {
-    nombre: 'Poder General/Especial/Procuración',
-    valorUnitario: SBU_2026 * 0.12, // 12% SBU = $57.84
+    nombre: 'Poder General/Especial/Procuracion',
+    valorUnitario: SBU_2026 * 0.12,
     unidad: 'otorgante',
-    descripcion: 'Poder general, especial o procuración (12% primer otorgante, 3% adicionales)',
+    descripcion: '12% primer otorgante, 3% adicionales',
     porcentajeSBU: 0.12,
   },
-  
-  // Cancelación de hipoteca - por unidad
-  cancelacion_hipoteca: {
-    nombre: 'Cancelación de Hipoteca',
-    valorUnitario: SBU_2026 * 0.20, // 20% SBU = $96.40
-    unidad: 'cancelación',
-    descripcion: 'Cancelación de hipoteca existente',
-    porcentajeSBU: 0.20,
+  poder_especial: {
+    nombre: 'Poder Especial',
+    valorUnitario: SBU_2026 * 0.12,
+    unidad: 'otorgante',
+    descripcion: '12% primer otorgante, 3% adicionales',
+    porcentajeSBU: 0.12,
   },
-  
-  // Firmas - por firma
+  cancelacion_hipoteca: {
+    nombre: 'Cancelacion de Hipoteca',
+    valorUnitario: SBU_2026 * 0.2,
+    unidad: 'cancelacion',
+    descripcion: 'Cancelacion de hipoteca existente',
+    porcentajeSBU: 0.2,
+  },
   reconocimiento_firma: {
     nombre: 'Reconocimiento de Firma',
-    valorUnitario: SBU_2026 * 0.03, // 3% SBU = $14.46
+    valorUnitario: SBU_2026 * 0.03,
     unidad: 'firma',
     descripcion: 'Reconocimiento de firma en documento',
     porcentajeSBU: 0.03,
   },
   autenticacion_firma: {
-    nombre: 'Autenticación de Firma',
-    valorUnitario: SBU_2026 * 0.04, // ~4% SBU = $19.28
+    nombre: 'Autenticacion de Firma',
+    valorUnitario: SBU_2026 * 0.04,
     unidad: 'firma',
-    descripcion: 'Autenticación de firma registrada',
+    descripcion: 'Autenticacion de firma registrada',
     porcentajeSBU: 0.04,
   },
-  
-  // Documentos especiales - por documento/hoja
   materializacion: {
-    nombre: 'Materialización',
-    valorUnitario: COSTO_FOJA * 2, // ~$3.58
+    nombre: 'Materializacion',
+    valorUnitario: COSTO_FOJA * 2,
     unidad: 'documento',
-    descripcion: 'Materialización de documento electrónico',
+    descripcion: 'Materializacion de documento electronico',
   },
   protocolizacion: {
-    nombre: 'Protocolización',
-    valorUnitario: SBU_2026 * 0.05, // 5% SBU = $24.10
+    nombre: 'Protocolizacion',
+    valorUnitario: SBU_2026 * 0.05,
     unidad: 'documento',
-    descripcion: 'Protocolización de documento privado',
+    descripcion: 'Protocolizacion de documento privado',
     porcentajeSBU: 0.05,
   },
-  
-  // Marginación - por unidad
   marginacion: {
-    nombre: 'Marginación/Razón',
-    valorUnitario: 3.00, // Valor aproximado
-    unidad: 'marginación',
-    descripcion: 'Marginación o razón de inscripción',
+    nombre: 'Marginacion/Razon',
+    valorUnitario: 3,
+    unidad: 'marginacion',
+    descripcion: 'Marginacion o razon de inscripcion',
   },
 }
 
 // ============================================
-// FUNCIONES AUXILIARES
+// HELPERS
 // ============================================
 
 function buscarEnTabla(monto: number, tabla: RangoTarifa[]): RangoTarifa | undefined {
   return tabla.find((r) => monto >= r.desde && monto <= r.hasta)
 }
 
-function calcularExcedente(
-  monto: number,
-  limite: number,
-  baseSBU: number,
-  porcentajeExcedente: number
-): number {
+function calcularExcedente(monto: number, limite: number, baseUSD: number, factor: number): number {
   const excedente = monto - limite
-  return baseSBU + excedente * porcentajeExcedente
+  return baseUSD + excedente * factor
 }
 
 function aplicarIVA(subtotal: number): { iva: number; total: number } {
@@ -296,8 +326,21 @@ function aplicarIVA(subtotal: number): { iva: number; total: number } {
   return { iva, total }
 }
 
+export function getActosCuantiaIndeterminada(): ActoCuantiaIndeterminada[] {
+  return ACTOS_CUANTIA_INDETERMINADA.map((acto) => ({
+    id: acto.id,
+    concepto: acto.concepto,
+    valor: acto.valor,
+    tipo: acto.tipo,
+    valorReferencial:
+      acto.tipo === 'porcentaje_sbu'
+        ? Math.round(SBU_2026 * acto.valor * 100) / 100
+        : Math.round(acto.valor * 100) / 100,
+  }))
+}
+
 // ============================================
-// FUNCIÓN PARA CALCULAR ÍTEMS ADICIONALES CON CANTIDAD
+// CALCULAR ITEMS ADICIONALES
 // ============================================
 
 export function calcularItemsAdicionales(
@@ -308,10 +351,9 @@ export function calcularItemsAdicionales(
 } {
   const itemsCalculados = items.map((item) => {
     const tarifa = TARIFAS_ITEMS_ADICIONALES[item.tipo]
-    let valorUnitario = tarifa.valorUnitario
-    
-    // Para poderes: primer otorgante 12%, adicionales 3%
-    if (item.tipo === 'poder' && item.cantidad > 1) {
+    const valorUnitario = tarifa.valorUnitario
+
+    if ((item.tipo === 'poder' || item.tipo === 'poder_especial') && item.cantidad > 1) {
       const primerOtorgante = SBU_2026 * 0.12
       const adicionales = (item.cantidad - 1) * (SBU_2026 * 0.03)
       const subtotal = primerOtorgante + adicionales
@@ -321,7 +363,7 @@ export function calcularItemsAdicionales(
         subtotal: Math.round(subtotal * 100) / 100,
       }
     }
-    
+
     const subtotal = Math.round(valorUnitario * item.cantidad * 100) / 100
     return {
       ...item,
@@ -331,12 +373,11 @@ export function calcularItemsAdicionales(
   })
 
   const total = itemsCalculados.reduce((sum, item) => sum + item.subtotal, 0)
-
   return { items: itemsCalculados, total }
 }
 
 // ============================================
-// FUNCIÓN PRINCIPAL DE CÁLCULO
+// MAIN CALCULATION
 // ============================================
 
 export function calcularTramiteNotarial(
@@ -349,166 +390,211 @@ export function calcularTramiteNotarial(
   let descuento = 0
   let razonDescuento = ''
 
-  // Procesar según tipo de trámite
   switch (tramite) {
-    case 'TRANSFERENCIA_DOMINIO':
-      if (cuantia > 4000000) {
-        costoBase = calcularExcedente(cuantia, 4000000, 20 * SBU_2026, 0.001)
-        detalles.push(`Art. 26 - Tabla 1 (Excedente > $4M): 20 SBU + 0.1% excedente`)
+    case 'TRANSFERENCIA_DOMINIO': {
+      if (cuantia >= EXCEDENTE_TABLA_1.desde) {
+        costoBase = calcularExcedente(
+          cuantia,
+          EXCEDENTE_TABLA_1.base_desde,
+          valorSBU(EXCEDENTE_TABLA_1.base_sbu),
+          EXCEDENTE_TABLA_1.factor
+        )
+        detalles.push('Art. 26 - Tabla 1 (Excedente)')
       } else {
         const rango = buscarEnTabla(cuantia, TABLA_1_TRANSFERENCIA)
         if (rango) {
           costoBase = rango.tarifaBase
-          detalles.push(
-            `Art. 26 - Tabla 1 (Rango: $${rango.desde.toLocaleString()} - $${rango.hasta.toLocaleString()})`
-          )
+          detalles.push(`Art. 26 - Tabla 1 (Rango: $${rango.desde.toLocaleString()} - $${rango.hasta.toLocaleString()})`)
         }
       }
       if (opciones.esViviendaSocial && cuantia <= 60000) {
         descuento = costoBase * 0.25
-        razonDescuento = 'Vivienda de Interés Social (-25%)'
+        razonDescuento = 'Vivienda de Interes Social (-25%)'
       }
       break
+    }
 
-    case 'PROMESA_COMPRAVENTA':
-      if (cuantia > 4000000) {
-        costoBase = calcularExcedente(cuantia, 4000000, 14 * SBU_2026, 0.001)
-        detalles.push(`Art. 27 - Tabla 2 (Excedente > $4M): 14 SBU + 0.1% excedente`)
+    case 'PROMESA_COMPRAVENTA': {
+      if (cuantia >= EXCEDENTE_TABLA_2.desde) {
+        costoBase = calcularExcedente(
+          cuantia,
+          EXCEDENTE_TABLA_2.base_desde,
+          valorSBU(EXCEDENTE_TABLA_2.base_sbu),
+          EXCEDENTE_TABLA_2.factor
+        )
+        detalles.push('Art. 27 - Tabla 2 (Excedente)')
       } else {
         const rango = buscarEnTabla(cuantia, TABLA_2_PROMESAS)
         if (rango) {
           costoBase = rango.tarifaBase
-          detalles.push(
-            `Art. 27 - Tabla 2 (Rango: $${rango.desde.toLocaleString()} - $${rango.hasta.toLocaleString()})`
-          )
+          detalles.push(`Art. 27 - Tabla 2 (Rango: $${rango.desde.toLocaleString()} - $${rango.hasta.toLocaleString()})`)
         }
       }
       break
+    }
 
-    case 'HIPOTECA':
-      if (cuantia > 4000000) {
-        costoBase = calcularExcedente(cuantia, 4000000, 9 * SBU_2026, 0.001)
-        detalles.push(`Art. 28 - Tabla 3 (Excedente > $4M): 9 SBU + 0.1% excedente`)
+    case 'HIPOTECA': {
+      if (cuantia >= EXCEDENTE_TABLA_3.desde) {
+        costoBase = calcularExcedente(
+          cuantia,
+          EXCEDENTE_TABLA_3.base_desde,
+          valorSBU(EXCEDENTE_TABLA_3.base_sbu),
+          EXCEDENTE_TABLA_3.factor
+        )
+        detalles.push('Art. 28 - Tabla 3 (Excedente)')
       } else {
         const rango = buscarEnTabla(cuantia, TABLA_3_HIPOTECAS)
         if (rango) {
           costoBase = rango.tarifaBase
-          detalles.push(
-            `Art. 28 - Tabla 3 (Rango: $${rango.desde.toLocaleString()} - $${rango.hasta.toLocaleString()})`
-          )
+          detalles.push(`Art. 28 - Tabla 3 (Rango: $${rango.desde.toLocaleString()} - $${rango.hasta.toLocaleString()})`)
         }
       }
       break
+    }
 
-    case 'CONSTITUCION_CIA':
-      if (cuantia > 1000000) {
-        costoBase = cuantia * 0.00225
-        detalles.push(`Art. 43 - Tabla 7 (Excedente > $1M): 0.225% del capital`)
+    case 'CONSTITUCION_CIA': {
+      const escala = EXCEDENTES_TABLA_7.find((e) => cuantia >= e.desde)
+      if (escala) {
+        costoBase = calcularExcedente(cuantia, escala.base_desde, valorSBU(escala.base_sbu), escala.factor)
+        detalles.push(`Art. 43 - Tabla 7 (Excedente sobre $${escala.base_desde.toLocaleString()})`)
       } else {
         const rango = buscarEnTabla(cuantia, TABLA_7_SOCIEDADES)
         if (rango) {
           costoBase = rango.tarifaBase
-          detalles.push(
-            `Art. 43 - Tabla 7 (Rango: $${rango.desde.toLocaleString()} - $${rango.hasta.toLocaleString()})`
-          )
+          detalles.push(`Art. 43 - Tabla 7 (Rango: $${rango.desde.toLocaleString()} - $${rango.hasta.toLocaleString()})`)
         }
       }
       break
+    }
 
-    case 'CONTRATO_ARRIENDO_ESCRITURA':
-      const cuantiaTotal = cuantia * (opciones.tiempoMeses || 12)
-      if (cuantiaTotal > 4000000) {
-        costoBase = calcularExcedente(cuantiaTotal, 4000000, 20 * SBU_2026, 0.001)
+    case 'CONTRATO_ARRIENDO_ESCRITURA': {
+      const meses = opciones.tiempoMeses || 12
+      const cuantiaTotal = cuantia * meses
+      if (cuantiaTotal >= EXCEDENTE_TABLA_1.desde) {
+        costoBase = calcularExcedente(
+          cuantiaTotal,
+          EXCEDENTE_TABLA_1.base_desde,
+          valorSBU(EXCEDENTE_TABLA_1.base_sbu),
+          EXCEDENTE_TABLA_1.factor
+        )
       } else {
         const rango = buscarEnTabla(cuantiaTotal, TABLA_1_TRANSFERENCIA)
         costoBase = rango ? rango.tarifaBase : 0
       }
-      detalles.push(
-        `Art. 40 - Escritura Pública: Canon $${cuantia} × ${opciones.tiempoMeses || 12} meses = $${cuantiaTotal.toLocaleString()}`
-      )
+      detalles.push(`Art. 40 - Escritura: Canon $${cuantia} x ${meses} meses = $${cuantiaTotal.toLocaleString()}`)
       break
+    }
 
-    case 'INSCRIPCION_ARRENDAMIENTO':
-      const rangoArriendo = buscarEnTabla(cuantia, TABLA_5_ARRENDAMIENTOS)
-      if (rangoArriendo) {
-        costoBase = rangoArriendo.tarifaBase
-        detalles.push(
-          `Art. 41 - Inscripción Arrendamiento (Canon mensual: $${cuantia.toLocaleString()})`
-        )
-      }
-      break
-
-    // Trámites con cantidad variable
-    case 'PODER_GENERAL_PN':
-      const numOtorgantes = opciones.numeroOtorgantes || 1
-      const tarifaPoder = TARIFAS_FIJAS[tramite]
-      if (tarifaPoder) {
-        // 12% primer otorgante, 3% adicionales
-        const primerOtorgante = SBU_2026 * tarifaPoder.porcentajeSBU
-        const adicionales = numOtorgantes > 1 
-          ? (numOtorgantes - 1) * (SBU_2026 * (tarifaPoder.porcentajeAdicional || 0.03))
-          : 0
-        costoBase = primerOtorgante + adicionales
-        detalles.push(`${tarifaPoder.descripcion}`)
-        if (numOtorgantes > 1) {
-          detalles.push(`Otorgantes adicionales: ${numOtorgantes - 1} × 3% SBU`)
+    case 'INSCRIPCION_ARRENDAMIENTO': {
+      const reglaBaja = CATALOGO.tablas.tabla5_arrendamiento_inscripcion.regla_hasta_375.factor
+      if (cuantia <= 375) {
+        costoBase = cuantia * reglaBaja
+        detalles.push(`Art. 41 - Inscripcion Arrendamiento (${(reglaBaja * 100).toFixed(0)}% del canon)`)
+      } else {
+        const rangoArriendo = buscarEnTabla(cuantia, TABLA_5_ARRENDAMIENTOS)
+        if (rangoArriendo) {
+          costoBase = rangoArriendo.tarifaBase
+          detalles.push(`Art. 41 - Inscripcion Arrendamiento (Canon: $${cuantia.toLocaleString()})`)
         }
       }
       break
+    }
 
-    case 'RECONOCIMIENTO_FIRMA':
+    case 'EMISION_OBLIGACIONES': {
+      const factor = CATALOGO.tablas.tabla6_emision_obligaciones.factor_cuantia
+      costoBase = cuantia * factor
+      detalles.push(`Tabla 6 - Emision de Obligaciones (${(factor * 100).toFixed(4)}%)`)
+      break
+    }
+
+    case 'ACTO_CUANTIA_INDETERMINADA': {
+      const actoId = opciones.actoIndeterminadoId || ACTOS_CUANTIA_INDETERMINADA[0]?.id
+      const acto = ACTOS_CUANTIA_INDETERMINADA.find((a) => a.id === actoId)
+      const cantidad = Math.max(1, opciones.cantidadActoIndeterminado || 1)
+
+      if (acto) {
+        if (acto.tipo === 'porcentaje_sbu') {
+          costoBase = SBU_2026 * acto.valor * cantidad
+          detalles.push(
+            `Cuantia indeterminada: ${acto.concepto} (${(acto.valor * 100).toFixed(2)}% SBU x ${cantidad})`
+          )
+        } else {
+          costoBase = acto.valor * cantidad
+          detalles.push(`Cuantia indeterminada: ${acto.concepto} ($${acto.valor.toFixed(2)} x ${cantidad})`)
+        }
+      }
+      break
+    }
+
+    case 'PODER_GENERAL_PN': {
+      const numOtorgantes = opciones.numeroOtorgantes || 1
+      const tarifaPoder = TARIFAS_FIJAS[tramite]
+      if (tarifaPoder) {
+        const primerOtorgante = SBU_2026 * tarifaPoder.porcentajeSBU
+        const adicionales =
+          numOtorgantes > 1
+            ? (numOtorgantes - 1) * (SBU_2026 * (tarifaPoder.porcentajeAdicional || 0.03))
+            : 0
+        costoBase = primerOtorgante + adicionales
+        detalles.push(tarifaPoder.descripcion)
+        if (numOtorgantes > 1) {
+          detalles.push(`Otorgantes adicionales: ${numOtorgantes - 1} x 3% SBU`)
+        }
+      }
+      break
+    }
+
+    case 'RECONOCIMIENTO_FIRMA': {
       const numFirmas = opciones.numeroFirmas || 1
       const tarifaFirma = TARIFAS_FIJAS[tramite]
       if (tarifaFirma) {
         costoBase = SBU_2026 * tarifaFirma.porcentajeSBU * numFirmas
-        detalles.push(`${tarifaFirma.descripcion} × ${numFirmas} firma(s)`)
+        detalles.push(`${tarifaFirma.descripcion} x ${numFirmas} firma(s)`)
       }
       break
+    }
 
-    case 'SALIDA_PAIS':
+    case 'SALIDA_PAIS': {
       const numMenores = opciones.cantidadMenores || 1
       const tarifaSalida = TARIFAS_FIJAS[tramite]
       if (tarifaSalida) {
         costoBase = SBU_2026 * tarifaSalida.porcentajeSBU * numMenores
-        detalles.push(`${tarifaSalida.descripcion} × ${numMenores} menor(es)`)
+        detalles.push(`${tarifaSalida.descripcion} x ${numMenores} menor(es)`)
       }
       break
+    }
 
-    default:
+    default: {
       const tarifaFija = TARIFAS_FIJAS[tramite]
       if (tarifaFija) {
         costoBase = SBU_2026 * tarifaFija.porcentajeSBU
         detalles.push(tarifaFija.descripcion)
       }
       break
+    }
   }
 
-  // Aplicar descuento de tercera edad
   if (opciones.esTerceraEdad && esActoUnilateral(tramite)) {
     descuento = costoBase * 0.5
     razonDescuento = 'Adulto Mayor (-50%)'
   }
 
-  // Calcular subtotal del trámite principal
   const subtotal = Math.max(0, Math.round((costoBase - descuento) * 100) / 100)
   const { iva, total } = aplicarIVA(subtotal)
 
-  // Calcular ítems adicionales
   const itemsAdicionales = opciones.itemsAdicionales || []
   const { items: itemsCalculados, total: totalItemsAdicionales } = calcularItemsAdicionales(itemsAdicionales)
 
-  // Calcular gran total
   const granTotal = Math.round((total + totalItemsAdicionales) * 100) / 100
 
-  // Agregar desglose al detalle
   if (descuento > 0) {
     detalles.push(`${razonDescuento}: -$${descuento.toFixed(2)}`)
   }
   detalles.push(`Subtotal: $${subtotal.toFixed(2)}`)
-  detalles.push(`IVA (15%): $${iva.toFixed(2)}`)
-  
+  detalles.push(`IVA (${(IVA_RATE * 100).toFixed(0)}%): $${iva.toFixed(2)}`)
+
   if (itemsCalculados.length > 0) {
-    detalles.push(`Ítems adicionales: $${totalItemsAdicionales.toFixed(2)}`)
+    detalles.push(`Items adicionales: $${totalItemsAdicionales.toFixed(2)}`)
   }
 
   return {
@@ -525,7 +611,7 @@ export function calcularTramiteNotarial(
 }
 
 // ============================================
-// FUNCIONES AUXILIARES
+// CATALOG HELPERS
 // ============================================
 
 function esActoUnilateral(tramite: TipoTramite): boolean {
@@ -549,39 +635,40 @@ export function getTramitesPorCategoria(): {
       { value: 'TRANSFERENCIA_DOMINIO', label: 'Transferencia de Dominio (Compraventa)' },
       { value: 'HIPOTECA', label: 'Hipoteca' },
       { value: 'PROMESA_COMPRAVENTA', label: 'Promesa de Compraventa' },
-      { value: 'CONSTITUCION_CIA', label: 'Constitución de Compañía' },
+      { value: 'CONSTITUCION_CIA', label: 'Constitucion de Compania' },
+      { value: 'EMISION_OBLIGACIONES', label: 'Emision de Obligaciones' },
     ],
     sinCuantia: [
+      { value: 'ACTO_CUANTIA_INDETERMINADA', label: 'Actos de Cuantia Indeterminada' },
       { value: 'PODER_GENERAL_PN', label: 'Poder General - Persona Natural' },
-      { value: 'PODER_GENERAL_PJ', label: 'Poder General - Persona Jurídica' },
+      { value: 'PODER_GENERAL_PJ', label: 'Poder General - Persona Juridica' },
+      { value: 'CAPITULACIONES_MATRIMONIALES', label: 'Capitulaciones Matrimoniales' },
       { value: 'TESTAMENTO_ABIERTO', label: 'Testamento Abierto' },
       { value: 'TESTAMENTO_CERRADO', label: 'Testamento Cerrado' },
-      { value: 'UNION_HECHO', label: 'Unión de Hecho' },
+      { value: 'UNION_HECHO', label: 'Union de Hecho' },
       { value: 'DIVORCIO', label: 'Divorcio' },
-      { value: 'TERMINACION_UNION_HECHO', label: 'Terminación Unión de Hecho' },
-      { value: 'POSESION_EFECTIVA', label: 'Posesión Efectiva' },
-      { value: 'CANCELACION_HIPOTECA', label: 'Cancelación de Hipoteca' },
-      { value: 'SALIDA_PAIS', label: 'Autorización Salida del País (por menor)' },
+      { value: 'TERMINACION_UNION_HECHO', label: 'Terminacion Union de Hecho' },
+      { value: 'POSESION_EFECTIVA', label: 'Posesion Efectiva' },
+      { value: 'CANCELACION_HIPOTECA', label: 'Cancelacion de Hipoteca' },
+      { value: 'SALIDA_PAIS', label: 'Autorizacion Salida del Pais (por menor)' },
       { value: 'RECONOCIMIENTO_FIRMA', label: 'Reconocimiento de Firma' },
-      { value: 'DECLARACION_JURAMENTADA', label: 'Declaración Juramentada' },
+      { value: 'DECLARACION_JURAMENTADA', label: 'Declaracion Juramentada' },
     ],
     arrendamientos: [
       { value: 'CONTRATO_ARRIENDO_ESCRITURA', label: 'Contrato de Arrendamiento por Escritura' },
-      { value: 'INSCRIPCION_ARRENDAMIENTO', label: 'Inscripción de Arrendamiento' },
+      { value: 'INSCRIPCION_ARRENDAMIENTO', label: 'Inscripcion de Arrendamiento' },
     ],
   }
 }
 
-// Helper para crear un ítem adicional
 export function crearItemAdicional(
   tipo: ItemAdicional['tipo'],
   descripcion: string,
   cantidad: number
 ): ItemAdicional {
   const tarifa = TARIFAS_ITEMS_ADICIONALES[tipo]
-  
-  // Para poderes: calcular con la lógica especial
-  if (tipo === 'poder' && cantidad > 1) {
+
+  if ((tipo === 'poder' || tipo === 'poder_especial') && cantidad > 1) {
     const primerOtorgante = SBU_2026 * 0.12
     const adicionales = (cantidad - 1) * (SBU_2026 * 0.03)
     const subtotal = primerOtorgante + adicionales
@@ -594,7 +681,7 @@ export function crearItemAdicional(
       subtotal: Math.round(subtotal * 100) / 100,
     }
   }
-  
+
   return {
     id: `${tipo}-${Date.now()}`,
     tipo,

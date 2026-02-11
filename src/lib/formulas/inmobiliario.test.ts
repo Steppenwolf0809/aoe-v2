@@ -53,15 +53,15 @@ describe('Estructura del resultado', () => {
 describe('Gastos del comprador', () => {
   it('notarial: usa tabla de transferencia de dominio', () => {
     const r = calcularPresupuestoInmobiliario(datosBase)
-    // $80,000 -> rango $60,001 - $90,000 -> tarifa $360
-    expect(r.comprador.notarial.subtotal).toBe(360)
-    expect(r.comprador.notarial.iva).toBeCloseTo(360 * 0.15, 2)
-    expect(r.comprador.notarial.total).toBeCloseTo(360 * 1.15, 2)
+    // $80,000 -> rango $60,001 - $90,000 -> 0.80 SBU = $385.60
+    expect(r.comprador.notarial.subtotal).toBe(385.6)
+    expect(r.comprador.notarial.iva).toBeCloseTo(385.6 * 0.15, 2)
+    expect(r.comprador.notarial.total).toBeCloseTo(385.6 * 1.15, 2)
   })
 
-  it('alcabala: 1% del mayor valor (sin rebaja >3 años)', () => {
+  it('alcabala: 1% del mayor valor (sin rebaja >4 años)', () => {
     const r = calcularPresupuestoInmobiliario(datosBase)
-    // Mayor(80000, 60000) = 80000. 1% = 800. >3 años = sin rebaja
+    // Mayor(80000, 60000) = 80000. 1% = 800. >4 años = sin rebaja
     expect(r.comprador.alcabala.baseImponible).toBe(80000)
     expect(r.comprador.alcabala.porcentajeRebaja).toBe(0)
     expect(r.comprador.alcabala.impuesto).toBe(800)
@@ -172,8 +172,8 @@ describe('Casos completos', () => {
     }
     const r = calcularPresupuestoInmobiliario(datos)
 
-    // Notarial: $120k -> rango $90,001-$150,000 -> $607.50
-    expect(r.comprador.notarial.subtotal).toBe(607.5)
+    // Notarial: $120k -> rango $90,001-$150,000 -> 1.35 SBU = $650.70
+    expect(r.comprador.notarial.subtotal).toBe(650.7)
 
     // Alcabala: 1% de 120k = 1200. ~25 meses -> 3er año -> 20% rebaja -> 960
     expect(r.comprador.alcabala.impuesto).toBe(960)
@@ -203,8 +203,8 @@ describe('Casos completos', () => {
     }
     const r = calcularPresupuestoInmobiliario(datos)
 
-    // Notarial: $50k -> rango $30,001-$60,000 -> $225. Vivienda social (-25%) -> $168.75
-    expect(r.comprador.notarial.subtotal).toBe(168.75)
+    // Notarial: $50k -> rango $30,001-$60,000 -> 0.50 SBU = $241. Vivienda social (-25%) -> $180.75
+    expect(r.comprador.notarial.subtotal).toBe(180.75)
 
     // Alcabala: 1% de 50k = 500. < 1 año -> 40% rebaja -> 300
     expect(r.comprador.alcabala.impuesto).toBe(300)
@@ -228,10 +228,10 @@ describe('Casos completos', () => {
     }
     const r = calcularPresupuestoInmobiliario(datos)
 
-    // Notarial: $200k -> rango $150,001-$300,000 -> $900
-    expect(r.comprador.notarial.subtotal).toBe(900)
+    // Notarial: $200k -> rango $150,001-$300,000 -> 2.00 SBU = $964
+    expect(r.comprador.notarial.subtotal).toBe(964)
 
-    // Alcabala: 1% de 200k = 2000. > 3 años -> sin rebaja
+    // Alcabala: 1% de 200k = 2000. > 4 años -> sin rebaja
     expect(r.comprador.alcabala.impuesto).toBe(2000)
 
     // CP: 10% de 2000 = 200 + 1.80 = 201.80
@@ -260,10 +260,10 @@ describe('Casos completos', () => {
     }
     const r = calcularPresupuestoInmobiliario(datos)
 
-    // Notarial: $500k -> rango $300,001-$600,000 -> $1,800
-    expect(r.comprador.notarial.subtotal).toBe(1800)
+    // Notarial: $500k -> rango $300,001-$600,000 -> 4.00 SBU = $1,928
+    expect(r.comprador.notarial.subtotal).toBe(1928)
 
-    // Alcabala: 1% de 500k = 5000. > 3 años -> sin rebaja
+    // Alcabala: 1% de 500k = 5000. > 4 años -> sin rebaja
     expect(r.comprador.alcabala.impuesto).toBe(5000)
 
     // Plusvalía con tarifa donación (1%)
@@ -285,11 +285,11 @@ describe('Casos completos', () => {
     }
     const r = calcularPresupuestoInmobiliario(datos)
 
-    // Notarial: $10k -> rango $0-$10,000 -> $90
-    expect(r.comprador.notarial.subtotal).toBe(90)
+    // Notarial: $10k -> rango $0-$10,000 -> 0.20 SBU = $96.40
+    expect(r.comprador.notarial.subtotal).toBe(96.4)
 
-    // Alcabala: 1% de 10k = 100. > 3 años -> sin rebaja
-    expect(r.comprador.alcabala.impuesto).toBe(100)
+    // Alcabala: 1% de 10k = 100. ~37 meses -> cuarto año -> 10% rebaja -> 90
+    expect(r.comprador.alcabala.impuesto).toBe(90)
 
     // Registro: $10k -> rango 3: $6,600.01-$10,000 -> $35
     expect(r.comprador.registro.arancelFinal).toBe(35)

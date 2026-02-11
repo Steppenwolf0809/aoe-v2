@@ -143,7 +143,7 @@ export const Guia5Errores = () => {
       <Page size="A4" style={styles.page}>
         <View style={styles.header}>
           <Text style={styles.title}>
-            ⚠️ 5 Errores que Encarecen tu Escrituración
+            5 Errores que Encarecen tu Escrituración
           </Text>
           <Text style={styles.subtitle}>
             Y cómo evitarlos para ahorrar miles de dólares en tu compra de
@@ -169,26 +169,26 @@ export const Guia5Errores = () => {
           </View>
           <View style={styles.errorContent}>
             <Text style={styles.errorText}>
-              Muchos vendedores sugieren "declarar menos" para pagar menos
+              Muchos vendedores sugieren declarar menos para pagar menos
               impuestos. Sin embargo, esto tiene graves consecuencias legales y
               económicas:
             </Text>
             <Text style={styles.errorText}>
-              • Es ilegal y puede resultar en multas hasta el 100% del impuesto
+              - Es ilegal y puede resultar en multas hasta el 100% del impuesto
               evadido
             </Text>
             <Text style={styles.errorText}>
-              • El SRI puede ajustar el valor con base en avalúos catastrales
+              - El SRI puede ajustar el valor con base en avalúos catastrales
             </Text>
             <Text style={styles.errorText}>
-              • Si necesitas vender en el futuro, pagarás más plusvalía
+              - Si necesitas vender en el futuro, pagarás más plusvalía
             </Text>
             <Text style={styles.errorText}>
-              • Los bancos no financian escrituras subdeclaradas
+              - Los bancos no financian escrituras subdeclaradas
             </Text>
 
             <View style={styles.errorSolution}>
-              <Text style={styles.solutionLabel}>✓ SOLUCIÓN:</Text>
+              <Text style={styles.solutionLabel}>SOLUCION:</Text>
               <Text style={styles.solutionText}>
                 Siempre declara el valor real de compraventa. Es más seguro y
                 evita problemas futuros. Si el monto es alto, existen formas
@@ -199,7 +199,7 @@ export const Guia5Errores = () => {
 
             <View style={styles.costBox}>
               <Text style={styles.costText}>
-                💰 Costo del error: Multas de $5,000 a $20,000 + estrés legal
+                Costo del error: Multas de $5,000 a $20,000 + estrés legal
               </Text>
             </View>
           </View>
@@ -221,7 +221,7 @@ export const Guia5Errores = () => {
             </Text>
 
             <View style={styles.errorSolution}>
-              <Text style={styles.solutionLabel}>✓ SOLUCIÓN:</Text>
+              <Text style={styles.solutionLabel}>SOLUCION:</Text>
               <Text style={styles.solutionText}>
                 Antes de firmar la promesa de compraventa, solicita el avalúo
                 catastral actualizado en el Municipio. Esto te permite calcular
@@ -231,7 +231,7 @@ export const Guia5Errores = () => {
 
             <View style={styles.costBox}>
               <Text style={styles.costText}>
-                💰 Costo del error: Hasta $2,000 extras en impuestos no
+                Costo del error: Hasta $2,000 extras en impuestos no
                 previstos
               </Text>
             </View>
@@ -250,22 +250,22 @@ export const Guia5Errores = () => {
           </View>
           <View style={styles.errorContent}>
             <Text style={styles.errorText}>
-              Si el vendedor compró la propiedad hace menos de 2 años, debe
-              pagar impuesto a la plusvalía. Muchos contratos no especifican
-              quién asume este costo.
+              Si el vendedor compro la propiedad hace menos de 20 anos, podria
+              pagar impuesto a la plusvalia. Muchos contratos no especifican
+              quien asume este costo.
             </Text>
             <Text style={styles.errorText}>
-              • Por ley, la plusvalía la paga el vendedor
+              - Por ley, la plusvalía la paga el vendedor
             </Text>
             <Text style={styles.errorText}>
-              • Pero algunos vendedores intentan trasladarla al comprador
+              - Pero algunos vendedores intentan trasladarla al comprador
             </Text>
             <Text style={styles.errorText}>
-              • Si no se negocia correctamente, puedes terminar pagándola tú
+              - Si no se negocia correctamente, puedes terminar pagándola tú
             </Text>
 
             <View style={styles.errorSolution}>
-              <Text style={styles.solutionLabel}>✓ SOLUCIÓN:</Text>
+              <Text style={styles.solutionLabel}>SOLUCION:</Text>
               <Text style={styles.solutionText}>
                 Incluye en la promesa de compraventa una cláusula que indique
                 claramente que el vendedor asume el pago de plusvalía. Verifica
@@ -275,7 +275,7 @@ export const Guia5Errores = () => {
 
             <View style={styles.costBox}>
               <Text style={styles.costText}>
-                💰 Costo del error: Hasta 10% del valor de compraventa ($10,000
+                Costo del error: Hasta 10% del valor de compraventa ($10,000
                 en una casa de $100,000)
               </Text>
             </View>
@@ -298,7 +298,7 @@ export const Guia5Errores = () => {
             </Text>
 
             <View style={styles.errorSolution}>
-              <Text style={styles.solutionLabel}>✓ SOLUCIÓN:</Text>
+              <Text style={styles.solutionLabel}>SOLUCION:</Text>
               <Text style={styles.solutionText}>
                 No tramites documentos con más de 30 días de anticipación.
                 Planifica el proceso de escrituración para que todos los
@@ -309,7 +309,7 @@ export const Guia5Errores = () => {
 
             <View style={styles.costBox}>
               <Text style={styles.costText}>
-                💰 Costo del error: $200 a $500 en duplicados + retrasos de 1-2
+                Costo del error: $200 a $500 en duplicados + retrasos de 1-2
                 semanas
               </Text>
             </View>
@@ -332,7 +332,7 @@ export const Guia5Errores = () => {
             </Text>
 
             <View style={styles.errorSolution}>
-              <Text style={styles.solutionLabel}>✓ SOLUCIÓN:</Text>
+              <Text style={styles.solutionLabel}>SOLUCION:</Text>
               <Text style={styles.solutionText}>
                 Busca una notaría que ofrezca servicio integral: elaboración de
                 minuta, gestión de pagos municipales, inscripción en Registro y
@@ -342,7 +342,7 @@ export const Guia5Errores = () => {
 
             <View style={styles.costBox}>
               <Text style={styles.costText}>
-                💰 Costo del error: Hasta $1,000 en honorarios innecesarios +
+                Costo del error: Hasta $1,000 en honorarios innecesarios +
                 pérdida de tiempo
               </Text>
             </View>
@@ -352,7 +352,7 @@ export const Guia5Errores = () => {
         {/* CTA */}
         <View style={styles.cta}>
           <Text style={styles.ctaText}>
-            📞 ¿Necesitas asesoría personalizada?
+            ¿Necesitas asesoría personalizada?
           </Text>
           <Text style={styles.ctaText}>
             Agenda tu cita gratuita en abogadosonlineecuador.com
@@ -362,10 +362,10 @@ export const Guia5Errores = () => {
         {/* FOOTER */}
         <View style={styles.footer}>
           <Text style={styles.footerText}>
-            Abogados Online Ecuador • Servicio legal digital independiente
+            Abogados Online Ecuador | Servicio legal digital independiente
           </Text>
           <Text style={styles.contactInfo}>
-            WhatsApp: +593 97 931 7579 • info@abogadosonlineecuador.com •
+            WhatsApp: +593 97 931 7579 | info@abogadosonlineecuador.com |
             abogadosonlineecuador.com
           </Text>
         </View>

@@ -113,6 +113,8 @@ export function calcularAlcabalaYConsejoProvincial(
     rebaja = 0.30 // 30%
   } else if (mesesTranscurridos <= 36) {
     rebaja = 0.20 // 20%
+  } else if (mesesTranscurridos <= 48) {
+    rebaja = 0.10 // 10%
   }
 
   // Calcular alcabala
@@ -152,5 +154,6 @@ export function obtenerRebajaDescripcion(meses: number): string {
   if (meses <= 12) return '40% - Primer año'
   if (meses <= 24) return '30% - Segundo año'
   if (meses <= 36) return '20% - Tercer año'
-  return 'Sin rebaja - Más de 3 años'
+  if (meses <= 48) return '10% - Cuarto año'
+  return 'Sin rebaja - Más de 4 años'
 }

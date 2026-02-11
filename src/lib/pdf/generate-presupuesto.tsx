@@ -344,27 +344,27 @@ export const PresupuestoDetallado = ({ data }: { data: PresupuestoData }) => {
         </View>
 
         <View style={styles.notes}>
-          <Text style={styles.notesTitle}>📌 Notas Importantes:</Text>
+          <Text style={styles.notesTitle}>Notas Importantes:</Text>
           <Text style={styles.notesText}>
-            • Este presupuesto es referencial y está basado en valores vigentes
+            - Este presupuesto es referencial y está basado en valores vigentes
             para Quito.
           </Text>
           <Text style={styles.notesText}>
-            • Los valores finales pueden variar según el avalúo catastral
+            - Los valores finales pueden variar según el avalúo catastral
             actualizado y descuentos aplicables.
           </Text>
           <Text style={styles.notesText}>
-            • Si el vendedor compró el inmueble hace menos de 2 años, debe
+            - Si el vendedor compró el inmueble hace menos de 20 años, podría
             pagar impuesto a la plusvalía (no incluido aquí).
           </Text>
           <Text style={styles.notesText}>
-            • Plazos estimados: 15 a 25 días hábiles para completar el proceso.
+            - Plazos estimados: 15 a 25 días hábiles para completar el proceso.
           </Text>
         </View>
 
         <View style={styles.ctaBox}>
           <Text style={styles.ctaText}>
-            📞 ¿Listo para escriturar? Agenda tu cita en
+            Listo para escriturar? Agenda tu cita en
             abogadosonlineecuador.com
           </Text>
         </View>
@@ -382,10 +382,10 @@ export const PresupuestoDetallado = ({ data }: { data: PresupuestoData }) => {
 
         <View style={styles.footer}>
           <Text style={styles.footerText}>
-            Abogados Online Ecuador • Servicio legal digital independiente
+            Abogados Online Ecuador | Servicio legal digital independiente
           </Text>
           <Text style={styles.contactInfo}>
-            WhatsApp: +593 97 931 7579 • info@abogadosonlineecuador.com •
+            WhatsApp: +593 97 931 7579 | info@abogadosonlineecuador.com |
             abogadosonlineecuador.com
           </Text>
         </View>

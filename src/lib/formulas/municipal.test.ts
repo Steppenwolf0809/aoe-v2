@@ -73,7 +73,7 @@ describe('calcularAlcabala', () => {
     expect(result.tarifa).toBe(0.01)
   })
 
-  it('sin rebaja cuando >3 años', () => {
+  it('sin rebaja cuando >4 años', () => {
     // 2020-01 a 2026-02 = ~6 años -> sin rebaja
     const result = calcularAlcabala(datosBase)
     expect(result.porcentajeRebaja).toBe(0)
@@ -112,6 +112,17 @@ describe('calcularAlcabala', () => {
     const result = calcularAlcabala(datos)
     expect(result.porcentajeRebaja).toBe(0.2)
     expect(result.impuesto).toBe(640)
+  })
+
+  it('rebaja 10% cuarto año', () => {
+    const datos: DatosMunicipales = {
+      ...datosBase,
+      fechaAdquisicion: '2022-06-01',
+      fechaTransferencia: '2026-02-01',
+    }
+    const result = calcularAlcabala(datos)
+    expect(result.porcentajeRebaja).toBe(0.1)
+    expect(result.impuesto).toBe(720)
   })
 
   it('usa avaluo catastral si es mayor que transferencia', () => {

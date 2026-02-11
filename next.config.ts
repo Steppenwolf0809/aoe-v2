@@ -62,7 +62,7 @@ const nextConfig: NextConfig = {
       },
       {
         source: '/servicios/transferencia',
-        destination: '/servicios/transferencia-de-dominio',
+        destination: '/servicios/compraventa-inmuebles',
         permanent: true,
       },
 
@@ -81,36 +81,36 @@ const nextConfig: NextConfig = {
       // Poderes
       {
         source: '/servicios/poderes',
-        destination: '/calculadoras/servicios',
+        destination: '/calculadoras/notarial',
         permanent: true,
       },
       {
         source: '/documentos/poderes',
-        destination: '/calculadoras/servicios',
+        destination: '/calculadoras/notarial',
         permanent: true,
       },
 
       // Declaraciones
       {
         source: '/servicios/declaraciones',
-        destination: '/calculadoras/servicios',
+        destination: '/calculadoras/notarial',
         permanent: true,
       },
       {
         source: '/documentos/declaraciones',
-        destination: '/calculadoras/servicios',
+        destination: '/calculadoras/notarial',
         permanent: true,
       },
 
       // Permisos de Salida / Viaje
       {
         source: '/servicios/viaje',
-        destination: '/calculadoras/servicios',
+        destination: '/calculadoras/notarial',
         permanent: true,
       },
       {
         source: '/documentos/viaje',
-        destination: '/calculadoras/servicios',
+        destination: '/calculadoras/notarial',
         permanent: true,
       },
 

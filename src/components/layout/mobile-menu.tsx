@@ -3,7 +3,7 @@
 import { motion, AnimatePresence } from 'framer-motion'
 import Link from 'next/link'
 import Image from 'next/image'
-import { X, Calendar } from 'lucide-react'
+import { X, Calendar, FileText } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { Badge } from '@/components/ui/badge'
 import { NAV_LINKS } from '@/lib/constants'
@@ -100,8 +100,14 @@ export function MobileMenu({ isOpen, onClose }: MobileMenuProps) {
                   Iniciar Sesion
                 </Button>
               </Link>
-              <Link href="/contacto" onClick={onClose} className="block mt-3">
+              <Link href="/contratos/vehicular" onClick={onClose} className="block mt-3">
                 <Button className="w-full">
+                  <FileText className="w-4 h-4" />
+                  Generar Contrato
+                </Button>
+              </Link>
+              <Link href="/contacto" onClick={onClose} className="block mt-3">
+                <Button variant="outline" className="w-full">
                   <Calendar className="w-4 h-4" />
                   Agendar Cita
                 </Button>

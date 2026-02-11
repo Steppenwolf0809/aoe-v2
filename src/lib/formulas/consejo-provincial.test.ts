@@ -70,8 +70,14 @@ describe('calcularAlcabalaYConsejoProvincial', () => {
     expect(r.baseImponibleAlcabala).toBe(120000)
   })
 
-  it('sin rebaja despues de 3 años', () => {
+  it('rebaja 10% en cuarto año', () => {
     const r = calcularAlcabalaYConsejoProvincial(100000, 100000, 40)
+    expect(r.rebajaAplicada).toBe(0.1)
+    expect(r.impuestoAlcabala).toBe(900)
+  })
+
+  it('sin rebaja despues de 4 años', () => {
+    const r = calcularAlcabalaYConsejoProvincial(100000, 100000, 49)
     expect(r.rebajaAplicada).toBe(0)
     expect(r.impuestoAlcabala).toBe(1000)
   })
