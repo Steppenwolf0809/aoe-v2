@@ -19,6 +19,7 @@ import {
   type ResultadoInmobiliario,
 } from '@/lib/formulas/inmobiliario'
 import { captureLead, trackCalculatorSession } from '@/actions/leads'
+import { sendPresupuestoDetallado } from '@/actions/send-lead-magnet'
 import type { LeadCaptureInput } from '@/lib/validations/leads'
 import { WizardStep, WizardOption } from './wizard-step'
 import { SliderInput } from './slider-input'
@@ -190,7 +191,43 @@ export function InmobiliarioWidget() {
   }
 
   const handleLeadSubmit = async (data: LeadCaptureInput) => {
-    await captureLead({ ...data, source: 'presupuestador_inmobiliario' })
+    if (!result || !wizardState.rol) {
+      throw new Error('No hay una cotización lista para enviar')
+    }
+
+    const leadResult = await captureLead(
+      { ...data, source: 'presupuestador_inmobiliario' },
+      { sendWelcomeEmail: false },
+    )
+
+    if (!leadResult.success) {
+      throw new Error(leadResult.error || 'Error guardando lead')
+    }
+
+    const esComprador = wizardState.rol === 'comprador'
+    const quoteResult = await sendPresupuestoDetallado({
+      clientName: data.name?.trim() || 'Cliente',
+      clientEmail: data.email,
+      rol: wizardState.rol,
+      valorInmueble: wizardState.valorTransferencia,
+      avaluoCatastral: wizardState.usarMismoValorAvaluo
+        ? undefined
+        : wizardState.avaluoCatastral,
+      desglose: {
+        notarial: esComprador ? result.comprador.notarial.total : 0,
+        alcabalas: esComprador ? result.comprador.alcabala.impuesto : 0,
+        utilidad: esComprador ? 0 : result.vendedor.plusvalia.impuesto,
+        registro: esComprador ? result.comprador.registro.arancelFinal : 0,
+        consejoProvincial: esComprador ? result.comprador.consejoProvincial.total : 0,
+      },
+      total: esComprador ? result.comprador.total : result.vendedor.total,
+    })
+
+    if (!quoteResult.success) {
+      throw new Error(
+        quoteResult.error || 'No se pudo enviar la cotización por correo',
+      )
+    }
   }
 
   const isStep1Valid = wizardState.rol !== null

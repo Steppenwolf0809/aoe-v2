@@ -72,11 +72,18 @@ export function EmailGate({
 
     try {
       // 1. Capturar lead en la base de datos
-      await captureLead({
-        email: formData.email,
-        name: formData.name,
-        source,
-      });
+      const leadResult = await captureLead(
+        {
+          email: formData.email,
+          name: formData.name,
+          source,
+        },
+        { sendWelcomeEmail: false }
+      );
+
+      if (!leadResult.success) {
+        throw new Error(leadResult.error || 'Error guardando lead');
+      }
 
       // 2. Enviar el email correspondiente
       let result;

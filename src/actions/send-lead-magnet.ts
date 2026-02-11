@@ -9,6 +9,9 @@ import { ChecklistEscrituracion } from '@/lib/pdf/checklist-escrituracion';
 import { Guia5Errores } from '@/lib/pdf/guia-5-errores';
 
 const resend = new Resend(process.env.RESEND_API_KEY);
+const emailFrom =
+  process.env.EMAIL_FROM || 'Abogados Online Ecuador <noreply@abogadosonlineecuador.com>';
+const emailReplyTo = process.env.EMAIL_REPLY_TO || 'info@abogadosonlineecuador.com';
 
 interface SendPresupuestoParams {
   clientName: string;
@@ -70,7 +73,8 @@ export async function sendPresupuestoDetallado(params: SendPresupuestoParams) {
 
     // 3. Enviar email con Resend
     const result = await resend.emails.send({
-      from: 'Abogados Online Ecuador <noreply@abogadosonlineecuador.com>',
+      from: emailFrom,
+      replyTo: emailReplyTo,
       to: params.clientEmail,
       subject: `Tu presupuesto de escrituración está listo - ${params.clientName}`,
       html: emailHtml,
@@ -215,7 +219,8 @@ export async function sendLeadMagnet(params: SendLeadMagnetParams) {
 
     // 3. Enviar email con Resend
     const result = await resend.emails.send({
-      from: 'Abogados Online Ecuador <noreply@abogadosonlineecuador.com>',
+      from: emailFrom,
+      replyTo: emailReplyTo,
       to: params.clientEmail,
       subject: subject,
       html: emailHtml,

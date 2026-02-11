@@ -48,8 +48,10 @@ export function EmailGate({
     try {
       await onSubmitProp({ ...data, source })
       setSubmitted(true)
-    } catch {
-      setServerError('Hubo un error. Inténtalo de nuevo.')
+    } catch (error) {
+      setServerError(
+        error instanceof Error ? error.message : 'Hubo un error. Inténtalo de nuevo.',
+      )
     } finally {
       setLoading(false)
     }
