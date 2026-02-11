@@ -43,3 +43,16 @@ coverage/
 
 # Misc
 *.pem
+
+# Local agent/workspace artifacts
+.claude/worktrees/
+.tmp/
+nul
+
+# Windows explorer metadata
+desktop.ini
+docs/desktop.ini
+
+# Local generated PDFs (debug/export)
+docs/reporteJasper*.pdf
+docs/presupuesto-escrituracion-*.pdf

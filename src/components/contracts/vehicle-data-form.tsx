@@ -3,9 +3,15 @@
 import { useFormContext } from 'react-hook-form'
 import { Car } from 'lucide-react'
 import { Input } from '@/components/ui/input'
+import { CuvUpload } from './cuv-upload'
 import type { ContratoVehicular } from '@/lib/validations/contract'
+import type { CuvData } from '@/lib/parsers/cuv-parser'
 
-export function VehicleDataForm() {
+interface VehicleDataFormProps {
+  onCuvParsed?: (data: CuvData) => void
+}
+
+export function VehicleDataForm({ onCuvParsed }: VehicleDataFormProps) {
   const {
     register,
     formState: { errors },
@@ -26,6 +32,21 @@ export function VehicleDataForm() {
           <p className="text-sm text-text-secondary">
             Ingresa la informacion del vehiculo a transferir.
           </p>
+        </div>
+      </div>
+
+      {/* CUV Upload */}
+      <CuvUpload onCuvParsed={onCuvParsed} />
+
+      {/* Divider */}
+      <div className="relative">
+        <div className="absolute inset-0 flex items-center">
+          <div className="w-full border-t border-[var(--glass-border)]" />
+        </div>
+        <div className="relative flex justify-center">
+          <span className="px-3 bg-[var(--glass-bg)] text-xs text-[var(--text-muted)]">
+            o ingresa los datos manualmente
+          </span>
         </div>
       </div>
 

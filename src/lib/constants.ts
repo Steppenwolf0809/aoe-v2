@@ -33,7 +33,6 @@ export const CALCULATOR_TYPES = {
 
 export const NAV_LINKS = [
   { href: '/servicios', label: 'Servicios', badge: null },
-  { href: '/contratos/vehicular', label: 'Generar Contrato', badge: 'Top' },
   { href: '/calculadoras', label: 'Calculadoras', badge: 'Gratis' },
   { href: '/blog', label: 'Blog', badge: null },
   { href: '/contacto', label: 'Contacto', badge: null },

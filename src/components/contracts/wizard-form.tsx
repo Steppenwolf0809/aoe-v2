@@ -10,6 +10,7 @@ import { cn } from '@/lib/utils'
 import { contratoVehicularSchema, type ContratoVehicular } from '@/lib/validations/contract'
 import { createContract } from '@/actions/contracts'
 import { Button } from '@/components/ui/button'
+import type { CuvData } from '@/lib/parsers/cuv-parser'
 import { VehicleDataForm } from './vehicle-data-form'
 import { BuyerForm } from './buyer-form'
 import { SellerForm } from './seller-form'
@@ -27,6 +28,7 @@ export function WizardForm() {
   const [isPending, startTransition] = useTransition()
   const [serverError, setServerError] = useState<string | null>(null)
   const [acceptedTerms, setAcceptedTerms] = useState(false)
+  const [cuvData, setCuvData] = useState<CuvData | null>(null)
   const router = useRouter()
 
   const methods = useForm<ContratoVehicular>({
@@ -123,7 +125,7 @@ export function WizardForm() {
               exit={{ opacity: 0, x: -20 }}
               transition={{ duration: 0.25, ease: 'easeInOut' }}
             >
-              {currentStep === 0 && <VehicleDataForm />}
+              {currentStep === 0 && <VehicleDataForm onCuvParsed={setCuvData} />}
               {currentStep === 1 && <BuyerForm />}
               {currentStep === 2 && <SellerForm />}
               {currentStep === 3 && (
@@ -131,6 +133,7 @@ export function WizardForm() {
                   data={getValues()}
                   acceptedTerms={acceptedTerms}
                   onAcceptedTermsChange={setAcceptedTerms}
+                  cuvWarnings={cuvData}
                 />
               )}
             </motion.div>

@@ -16,7 +16,7 @@ export default defineConfig({
       '**/.tmp/**',
       '**/dist/**',
     ],
-    // Use threads pool for Windows compatibility (avoids spawn EPERM)
-    pool: 'threads',
+    // Use vmThreads pool for Windows compatibility
+    pool: 'vmThreads',
   },
 })

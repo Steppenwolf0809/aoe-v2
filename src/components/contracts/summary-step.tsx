@@ -1,8 +1,9 @@
 'use client'
 
-import { Car, UserCheck, UserMinus, Receipt } from 'lucide-react'
+import { Car, UserCheck, UserMinus, Receipt, AlertTriangle } from 'lucide-react'
 import { cn, formatCurrency } from '@/lib/utils'
 import type { ContratoVehicular } from '@/lib/validations/contract'
+import type { CuvData } from '@/lib/parsers/cuv-parser'
 import {
   calcularCotizacionVehicular,
   PRECIO_CONTRATO_BASICO,
@@ -12,12 +13,14 @@ interface SummaryStepProps {
   data: ContratoVehicular
   acceptedTerms: boolean
   onAcceptedTermsChange: (accepted: boolean) => void
+  cuvWarnings?: CuvData | null
 }
 
 export function SummaryStep({
   data,
   acceptedTerms,
   onAcceptedTermsChange,
+  cuvWarnings,
 }: SummaryStepProps) {
   const cotizacion = calcularCotizacionVehicular({
     valorVehiculo: data.vehiculo.avaluo,
@@ -108,6 +111,55 @@ export function SummaryStep({
           Por ahora se guarda como borrador.
         </p>
       </SummarySection>
+
+      {/* CUV Warnings */}
+      {cuvWarnings &&
+        (cuvWarnings.gravamenes.tiene ||
+          cuvWarnings.bloqueos.tiene ||
+          cuvWarnings.infracciones.tiene) && (
+          <div className="rounded-xl border border-accent-warning/30 bg-accent-warning/5 p-4 space-y-2">
+            <div className="flex items-center gap-2">
+              <AlertTriangle className="w-4 h-4 text-accent-warning" />
+              <h3 className="text-sm font-semibold text-accent-warning">
+                Alertas del CUV
+              </h3>
+            </div>
+            <p className="text-xs text-text-secondary">
+              El CUV del vehiculo reporta las siguientes alertas. Verifique
+              antes de continuar.
+            </p>
+            {cuvWarnings.gravamenes.tiene && (
+              <div className="rounded-lg px-3 py-2 border border-accent-error/30 bg-accent-error/5">
+                <p className="text-sm font-medium text-accent-error">
+                  Gravamenes vigentes
+                </p>
+                <p className="text-xs text-text-secondary mt-0.5">
+                  {cuvWarnings.gravamenes.detalle}
+                </p>
+              </div>
+            )}
+            {cuvWarnings.bloqueos.tiene && (
+              <div className="rounded-lg px-3 py-2 border border-accent-error/30 bg-accent-error/5">
+                <p className="text-sm font-medium text-accent-error">
+                  Bloqueos vigentes
+                </p>
+                <p className="text-xs text-text-secondary mt-0.5">
+                  {cuvWarnings.bloqueos.detalle}
+                </p>
+              </div>
+            )}
+            {cuvWarnings.infracciones.tiene && (
+              <div className="rounded-lg px-3 py-2 border border-accent-warning/30 bg-accent-warning/5">
+                <p className="text-sm font-medium text-accent-warning">
+                  {cuvWarnings.infracciones.cantidad} infracciones pendientes
+                </p>
+                <p className="text-xs text-text-secondary mt-0.5">
+                  Total adeudado: ${cuvWarnings.infracciones.total.toFixed(2)}
+                </p>
+              </div>
+            )}
+          </div>
+        )}
 
       {/* Terms checkbox */}
       <label className="flex items-start gap-3 cursor-pointer group">

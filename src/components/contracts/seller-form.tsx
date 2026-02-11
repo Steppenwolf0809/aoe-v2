@@ -1,7 +1,7 @@
 'use client'
 
 import { useFormContext } from 'react-hook-form'
-import { UserMinus } from 'lucide-react'
+import { UserMinus, FileText } from 'lucide-react'
 import { Input } from '@/components/ui/input'
 import type { ContratoVehicular } from '@/lib/validations/contract'
 
@@ -9,7 +9,10 @@ export function SellerForm() {
   const {
     register,
     formState: { errors },
+    watch,
   } = useFormContext<ContratoVehicular>()
+
+  const vendedorNombres = watch('vendedor.nombres')
 
   const se = errors.vendedor
 
@@ -26,6 +29,12 @@ export function SellerForm() {
           <p className="text-sm text-text-secondary">
             Informacion de quien vende el vehiculo.
           </p>
+          {vendedorNombres && (
+            <div className="flex items-center gap-1 mt-1 text-xs text-accent-primary">
+              <FileText className="w-3 h-3" />
+              <span>Pre-llenado desde CUV</span>
+            </div>
+          )}
         </div>
       </div>
 
