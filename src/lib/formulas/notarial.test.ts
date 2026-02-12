@@ -299,9 +299,42 @@ describe('Arrendamientos', () => {
     expect(r.subtotal).toBeCloseTo(SBU_2026 * 0.35, 2)
   })
 
-  it('inscripcion arrendamiento: Tabla 5', () => {
-    // Canon mensual $2500 -> rango $1,500.01-$5,000 -> 0.15 SBU
-    const r = calcularTramiteNotarial('INSCRIPCION_ARRENDAMIENTO', 2500)
-    expect(r.subtotal).toBeCloseTo(SBU_2026 * 0.15, 2)
+  describe('Inscripcion de Arrendamiento (Tabla 5)', () => {
+    it('canon <= $375: 10% del canon (regla porcentual)', () => {
+      // Canon $300 -> 10% = $30
+      const r = calcularTramiteNotarial('INSCRIPCION_ARRENDAMIENTO', 300)
+      expect(r.subtotal).toBeCloseTo(30, 2)
+      expect(r.detalles.some(d => d.includes('10%'))).toBe(true)
+    })
+
+    it('canon $375 (limite): 10% del canon = $37.50', () => {
+      const r = calcularTramiteNotarial('INSCRIPCION_ARRENDAMIENTO', 375)
+      expect(r.subtotal).toBeCloseTo(37.5, 2)
+    })
+
+    it('canon $375.01: usa rangos SBU -> rango $375.01-$1500 -> 0.10 SBU', () => {
+      const r = calcularTramiteNotarial('INSCRIPCION_ARRENDAMIENTO', 376)
+      expect(r.subtotal).toBeCloseTo(SBU_2026 * 0.10, 2)
+    })
+
+    it('canon $1000: rango $375.01-$1500 -> 0.10 SBU', () => {
+      const r = calcularTramiteNotarial('INSCRIPCION_ARRENDAMIENTO', 1000)
+      expect(r.subtotal).toBeCloseTo(SBU_2026 * 0.10, 2)
+    })
+
+    it('canon $2500: rango $1,500.01-$5,000 -> 0.15 SBU', () => {
+      const r = calcularTramiteNotarial('INSCRIPCION_ARRENDAMIENTO', 2500)
+      expect(r.subtotal).toBeCloseTo(SBU_2026 * 0.15, 2)
+    })
+
+    it('canon $8000: rango $5,000.01-$10,000 -> 0.20 SBU', () => {
+      const r = calcularTramiteNotarial('INSCRIPCION_ARRENDAMIENTO', 8000)
+      expect(r.subtotal).toBeCloseTo(SBU_2026 * 0.20, 2)
+    })
+
+    it('canon $15000: rango >$10,000 -> 0.30 SBU', () => {
+      const r = calcularTramiteNotarial('INSCRIPCION_ARRENDAMIENTO', 15000)
+      expect(r.subtotal).toBeCloseTo(SBU_2026 * 0.30, 2)
+    })
   })
 })

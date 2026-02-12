@@ -179,9 +179,10 @@ function normalizarCatalogo(rawCatalog: TariffCatalogRaw): CatalogoTarifasNotari
   const tabla01Excedente = tabla01.reglas.find((rule) => rule.tipo === 'excedente_unico')
   const tabla02Excedente = tabla02.reglas.find((rule) => rule.tipo === 'excedente_unico')
   const tabla03Excedente = tabla03.reglas.find((rule) => rule.tipo === 'excedente_unico')
+  const tabla05Porcentaje = tabla05.reglas.find((rule) => rule.tipo === 'porcentaje_monto')
   const tabla07Excedentes = tabla07.reglas.filter((rule) => rule.tipo === 'excedente_escalonado')
 
-  if (!tabla01Excedente || !tabla02Excedente || !tabla03Excedente) {
+  if (!tabla01Excedente || !tabla02Excedente || !tabla03Excedente || !tabla05Porcentaje) {
     throw new Error('[notarial] Catalogo de tarifas incompleto o con formato no soportado')
   }
 
@@ -205,7 +206,7 @@ function normalizarCatalogo(rawCatalog: TariffCatalogRaw): CatalogoTarifasNotari
       },
       tabla5_arrendamiento_inscripcion: {
         regla_hasta_375: {
-          factor: 0,
+          factor: tabla05Porcentaje.factor_porcentaje_monto ?? 0,
         },
         rangos: crearRangos(tabla05.reglas),
       },
