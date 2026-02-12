@@ -144,13 +144,13 @@ export async function createPaymentLink(
 ): Promise<PayPhoneLinkResponse> {
   const { token, storeId } = getPayPhoneConfig()
 
-  const url = resolveLinksUrl()
+  const endpointUrl = resolveLinksUrl()
   const body = {
     ...request,
     storeId,
   }
 
-  const response = await fetch(url, {
+  const response = await fetch(endpointUrl, {
     method: 'POST',
     headers: {
       'Content-Type': 'application/json',
@@ -169,7 +169,7 @@ export async function createPaymentLink(
     console.error('[PayPhone Links] Response:', errorText.slice(0, 500))
     console.error('[PayPhone Links] Token length:', token.length, 'last5:', token.slice(-5))
     console.error('[PayPhone Links] StoreId:', storeId, 'length:', storeId.length)
-    console.error('[PayPhone Links] Using proxy:', !!PAYPHONE_PROXY_URL, 'url:', url)
+    console.error('[PayPhone Links] Using proxy:', !!PAYPHONE_PROXY_URL, 'url:', endpointUrl)
     console.error('[PayPhone Links] Request:', JSON.stringify(body))
     const summarizedError = summarizeHtmlError(errorText)
     throw new Error(
