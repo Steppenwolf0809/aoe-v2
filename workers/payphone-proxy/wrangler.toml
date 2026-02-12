@@ -1,0 +1,16 @@
+name = "payphone-proxy"
+main = "src/index.ts"
+compatibility_date = "2026-02-12"
+
+# Configure these secrets/vars in Cloudflare:
+# - PROXY_SECRET (secret) must match Vercel PAYPHONE_PROXY_SECRET
+# - UPSTREAM_BASE_URL (var) e.g. https://pay.payphonetodoesposible.com
+#
+# The Worker exposes:
+#   /api/*  -> forwards to ${UPSTREAM_BASE_URL}/api/*
+# Example Worker URL:
+#   https://payphone-proxy.<account>.workers.dev/api/Links
+
+[vars]
+UPSTREAM_BASE_URL = "https://pay.payphonetodoesposible.com"
+

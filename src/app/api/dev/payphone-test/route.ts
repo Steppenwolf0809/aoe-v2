@@ -4,6 +4,28 @@ import { createPaymentLink, generateShortTransactionId } from '@/lib/payphone'
 // PayPhone WAF blocks Vercel US IPs → run from São Paulo
 export const preferredRegion = 'gru1'
 
+function getPayPhoneBaseUrlForTest(): { baseUrl: string; usingProxy: boolean } {
+  const proxyUrl = process.env.PAYPHONE_PROXY_URL?.trim()
+  const upstreamUrl =
+    (process.env.PAYPHONE_API_URL || 'https://pay.payphonetodoesposible.com/api').trim()
+  const baseUrl = (proxyUrl || upstreamUrl).replace(/\/+$/, '')
+  return { baseUrl, usingProxy: !!proxyUrl }
+}
+
+function getProxyHeadersForTest(): Record<string, string> {
+  const proxyUrl = process.env.PAYPHONE_PROXY_URL?.trim()
+  if (!proxyUrl) return {}
+
+  const secret = process.env.PAYPHONE_PROXY_SECRET
+  if (!secret) {
+    throw new Error(
+      'PAYPHONE_PROXY_URL is set but PAYPHONE_PROXY_SECRET is missing (Vercel). Set PAYPHONE_PROXY_SECRET to match the Worker secret.'
+    )
+  }
+
+  return { 'X-Proxy-Secret': secret }
+}
+
 function isAuthorized(request: NextRequest): boolean {
   const secret = request.nextUrl.searchParams.get('secret')
   const devSecret = process.env.DEV_SECRET
@@ -29,7 +51,10 @@ export async function GET(request: NextRequest) {
 
   const rawToken = process.env.PAYPHONE_TOKEN ?? ''
   const storeId = process.env.PAYPHONE_STORE_ID ?? ''
-  const apiUrl = process.env.PAYPHONE_API_URL || 'https://pay.payphonetodoesposible.com/api'
+  const upstreamApiUrl =
+    process.env.PAYPHONE_API_URL || 'https://pay.payphonetodoesposible.com/api'
+  const proxyUrl = process.env.PAYPHONE_PROXY_URL ?? ''
+  const { baseUrl, usingProxy } = getPayPhoneBaseUrlForTest()
 
   // Token health analysis
   const tokenIssues: string[] = []
@@ -51,11 +76,15 @@ export async function GET(request: NextRequest) {
       tokenIssues: tokenIssues.length ? tokenIssues : 'NONE',
       storeIdSet: !!storeId,
       storeId: storeId || 'N/A',
-      apiUrl,
+      apiUrlUpstream: upstreamApiUrl,
+      proxyUrl: proxyUrl || 'NOT SET',
+      baseUrlInUse: baseUrl,
+      usingProxy,
       mode: process.env.PAYPHONE_MODE ?? 'NOT SET',
       appUrl: process.env.NEXT_PUBLIC_APP_URL ?? 'NOT SET',
       clientIdSet: !!process.env.PAYPHONE_CLIENT_ID,
       clientSecretSet: !!process.env.PAYPHONE_CLIENT_SECRET,
+      proxySecretSet: !!process.env.PAYPHONE_PROXY_SECRET,
     },
   })
 }
@@ -98,19 +127,20 @@ export async function POST(request: NextRequest) {
 
     const clientTransactionId = generateShortTransactionId()
 
-    const apiUrl = process.env.PAYPHONE_API_URL || 'https://pay.payphonetodoesposible.com/api'
+    const { baseUrl, usingProxy } = getPayPhoneBaseUrlForTest()
     const rawToken = process.env.PAYPHONE_TOKEN ?? ''
     const storeId = process.env.PAYPHONE_STORE_ID ?? ''
 
     // Build Bearer token (handle if raw token already includes "Bearer " prefix)
     const cleanToken = rawToken.trim()
     const bearerToken = /^bearer\s+/i.test(cleanToken) ? cleanToken : `Bearer ${cleanToken}`
+    const proxyHeaders = getProxyHeadersForTest()
 
     // ========================================
     // MULTI TEST — comprehensive diagnostics
     // ========================================
     if (multiTest) {
-      const linksUrl = `${apiUrl}/Links`
+      const linksUrl = `${baseUrl}/Links`
 
       // Body matching EXACT PayPhone docs example (no responseUrl!)
       const docsExampleBody = {
@@ -140,7 +170,7 @@ export async function POST(request: NextRequest) {
         expireIn: 1,
       }
 
-      const jsonHeaders = { 'Content-Type': 'application/json' }
+      const jsonHeaders = { 'Content-Type': 'application/json', ...proxyHeaders }
 
       // Run ALL tests in parallel
       const [
@@ -172,7 +202,7 @@ export async function POST(request: NextRequest) {
         }),
 
         // 4. GET request to API root (health check)
-        rawFetch(`${apiUrl}`, { method: 'GET' }),
+        rawFetch(`${baseUrl}`, { method: 'GET', headers: proxyHeaders }),
 
         // 5. Lowercase "bearer" (docs show lowercase)
         rawFetch(linksUrl, {
@@ -185,6 +215,8 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({
         multiTest: true,
         version: 3,
+        baseUrlInUse: baseUrl,
+        usingProxy,
         tokenInfo: {
           length: rawToken.length,
           first10: rawToken.slice(0, 10),
@@ -255,11 +287,12 @@ export async function POST(request: NextRequest) {
         expireIn: 1,
       }
 
-      const ppResponse = await fetch(`${apiUrl}/Links`, {
+      const ppResponse = await fetch(`${baseUrl}/Links`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
           Authorization: bearerToken,
+          ...proxyHeaders,
         },
         body: JSON.stringify(requestBody),
       })
@@ -276,10 +309,11 @@ export async function POST(request: NextRequest) {
           isHtml: /<html/i.test(responseText),
         },
         sentRequest: {
-          url: `${apiUrl}/Links`,
+          url: `${baseUrl}/Links`,
           method: 'POST',
           authHeader: `${bearerToken.slice(0, 10)}...${bearerToken.slice(-5)}`,
           body: requestBody,
+          usingProxy,
         },
       })
     }

@@ -7,8 +7,28 @@ import {
   payphoneConfirmResponseSchema,
 } from './validations/payment'
 
-const PAYPHONE_API_URL =
+const PAYPHONE_UPSTREAM_API_URL =
   process.env.PAYPHONE_API_URL || 'https://pay.payphonetodoesposible.com/api'
+
+// Optional Cloudflare Worker / proxy to bypass PayPhone WAF blocking Vercel egress.
+// If set, requests go to this URL instead of PAYPHONE_API_URL.
+// Example: https://<worker>.<account>.workers.dev/api
+const PAYPHONE_PROXY_URL = process.env.PAYPHONE_PROXY_URL
+const PAYPHONE_PROXY_SECRET = process.env.PAYPHONE_PROXY_SECRET
+
+function getPayPhoneBaseUrl(): string {
+  return (PAYPHONE_PROXY_URL || PAYPHONE_UPSTREAM_API_URL).replace(/\/+$/, '')
+}
+
+function getProxyHeaders(): Record<string, string> {
+  if (!PAYPHONE_PROXY_URL) return {}
+  if (!PAYPHONE_PROXY_SECRET) {
+    throw new Error(
+      'PAYPHONE_PROXY_URL is set but PAYPHONE_PROXY_SECRET is missing. Configure PAYPHONE_PROXY_SECRET in Vercel and PROXY_SECRET in the Cloudflare Worker.'
+    )
+  }
+  return { 'X-Proxy-Secret': PAYPHONE_PROXY_SECRET }
+}
 
 function looksLikePlaceholder(value: string): boolean {
   const normalized = value.trim().toLowerCase()
@@ -31,7 +51,9 @@ function normalizeAuthToken(rawToken: string): string {
 
 function summarizeHtmlError(htmlOrText: string): string {
   if (/<html/i.test(htmlOrText) || /<body/i.test(htmlOrText)) {
-    return 'PayPhone devolvio una pagina HTML de error (500). Verifique token, storeId y tipo de aplicacion.'
+    // In our diagnostics this often indicates WAF / origin blocking (e.g. Vercel IPs),
+    // not an auth/body/schema issue. Keep message actionable and not misleading.
+    return 'PayPhone devolvio una pagina HTML de error (500). Si esto ocurre solo desde Vercel pero funciona desde tu PC, es probable bloqueo por IP/ASN (WAF).'
   }
   return htmlOrText
 }
@@ -83,18 +105,20 @@ export async function createPaymentLink(
 ): Promise<PayPhoneLinkResponse> {
   const { token, storeId } = getPayPhoneConfig()
 
+  const baseUrl = getPayPhoneBaseUrl()
   const body = {
     ...request,
     storeId,
   }
 
-  const response = await fetch(`${PAYPHONE_API_URL}/Links`, {
+  const response = await fetch(`${baseUrl}/Links`, {
     method: 'POST',
     headers: {
       'Content-Type': 'application/json',
       Authorization: token,
       Accept: 'application/json',
       'User-Agent': 'AOE-v2/1.0',
+      ...getProxyHeaders(),
     },
     body: JSON.stringify(body),
   })
@@ -105,6 +129,7 @@ export async function createPaymentLink(
     console.error('[PayPhone Links] Response:', errorText.slice(0, 500))
     console.error('[PayPhone Links] Token length:', token.length, 'last5:', token.slice(-5))
     console.error('[PayPhone Links] StoreId:', storeId, 'length:', storeId.length)
+    console.error('[PayPhone Links] Using proxy:', !!PAYPHONE_PROXY_URL, 'baseUrl:', baseUrl)
     console.error('[PayPhone Links] Request:', JSON.stringify(body))
     const summarizedError = summarizeHtmlError(errorText)
     throw new Error(
@@ -132,13 +157,15 @@ export async function checkTransactionStatus(
   transactionId: string
 ): Promise<PayPhoneConfirmResponse> {
   const { token } = getPayPhoneConfig()
+  const baseUrl = getPayPhoneBaseUrl()
 
-  const response = await fetch(`${PAYPHONE_API_URL}/Sale/${transactionId}`, {
+  const response = await fetch(`${baseUrl}/Sale/${transactionId}`, {
     method: 'GET',
     headers: {
       Authorization: token,
       Accept: 'application/json',
       'User-Agent': 'AOE-v2/1.0',
+      ...getProxyHeaders(),
     },
   })
 
@@ -161,14 +188,16 @@ export async function confirmPayment(
   request: PayPhoneConfirmRequest
 ): Promise<PayPhoneConfirmResponse> {
   const { token } = getPayPhoneConfig()
+  const baseUrl = getPayPhoneBaseUrl()
 
-  const response = await fetch(`${PAYPHONE_API_URL}/button/V2/Confirm`, {
+  const response = await fetch(`${baseUrl}/button/V2/Confirm`, {
     method: 'POST',
     headers: {
       'Content-Type': 'application/json',
       Authorization: token,
       Accept: 'application/json',
       'User-Agent': 'AOE-v2/1.0',
+      ...getProxyHeaders(),
     },
     body: JSON.stringify(request),
   })
