@@ -25,6 +25,11 @@ export const metadata: Metadata = {
     index: true,
     follow: true,
   },
+  icons: {
+    icon: '/logo/favicon-32.png',
+    shortcut: '/logo/favicon-32.png',
+    apple: '/logo/favicon-32.png',
+  },
 }
 
 export default function RootLayout({
