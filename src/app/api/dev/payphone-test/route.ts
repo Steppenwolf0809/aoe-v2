@@ -66,6 +66,8 @@ export async function POST(request: NextRequest) {
 
     const apiUrl = process.env.PAYPHONE_API_URL || 'https://pay.payphonetodoesposible.com/api'
 
+    const appUrl = process.env.NEXT_PUBLIC_APP_URL || 'https://abogadosonlineecuador.com'
+
     const requestBody = {
       amount: totalCents,
       amountWithoutTax: 0,
@@ -75,6 +77,7 @@ export async function POST(request: NextRequest) {
       tip: 0,
       clientTransactionId,
       currency: 'USD',
+      responseUrl: `${appUrl}/contratos/pago/callback`,
       reference: 'Test PayPhone - AOE',
       oneTime: true,
       expireIn: 1,
@@ -134,6 +137,7 @@ export async function POST(request: NextRequest) {
       tip: 0,
       clientTransactionId,
       currency: 'USD',
+      responseUrl: `${appUrl}/contratos/pago/callback`,
       reference: 'Test PayPhone - AOE',
       oneTime: true,
       expireIn: 1,
