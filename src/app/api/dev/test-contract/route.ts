@@ -63,7 +63,7 @@ export async function POST(request: NextRequest) {
     const updateResult = await updateContractStatus(contractId, {
       status: 'PAID',
       payment_id: `DEV-${Date.now()}`,
-      amount: 9.99,
+      amount: 11.99,
     })
 
     if (!updateResult.success) {

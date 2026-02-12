@@ -112,7 +112,7 @@ const servicesData: Record<string, {
     ],
     estimatedTime: '24 - 72 horas',
     documentsDelivered: 'Contrato de compraventa vehicular listo para tramite',
-    priceRange: 'Desde $9.99'
+    priceRange: 'Desde $11.99'
   },
   'constitucion-sas': {
     title: 'Constitucion de Compania SAS',

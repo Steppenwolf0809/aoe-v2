@@ -4,10 +4,10 @@ import { WizardForm } from '@/components/contracts/wizard-form'
 export const metadata: Metadata = {
   title: 'Crear Contrato de Compraventa de Vehículo | Abogados Online Ecuador',
   description:
-    'Genera tu contrato de compraventa vehicular en minutos. Solo $9.99. Paga después de completar los datos.',
+    'Genera tu contrato de compraventa vehicular en minutos. Solo \$11.99. Paga después de completar los datos.',
   openGraph: {
     title: 'Crear Contrato de Compraventa de Vehículo',
-    description: 'Genera tu contrato vehicular en minutos. Solo $9.99',
+    description: 'Genera tu contrato vehicular en minutos. Solo \$11.99',
   },
 }
 
@@ -21,7 +21,7 @@ export default function ContratoVehicularPage() {
             Crea tu contrato de compraventa vehicular
           </h1>
           <p className="text-lg text-text-secondary">
-            Completa los datos y paga solo $9.99 para generar tu contrato
+            Completa los datos y paga solo \$11.99 para generar tu contrato
             vehicular listo para su legalización en cualquier notaría
           </p>
           <div className="flex items-center justify-center gap-4 text-sm text-text-muted">

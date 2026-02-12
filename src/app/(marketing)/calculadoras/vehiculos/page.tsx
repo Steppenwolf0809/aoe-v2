@@ -47,7 +47,7 @@ const faqs = [
   {
     question: '¿Cuánto cuesta el contrato de compraventa de un vehículo?',
     answer:
-      'El costo del contrato de compraventa vehicular depende del número de firmas que requieran reconocimiento notarial. Para una transferencia simple (comprador + vendedor), el costo notarial es de aproximadamente $28.92 más IVA (15%), para un total de $33.26 en reconocimiento de firmas. Adicionalmente, se paga el 1% del valor del vehículo como impuesto fiscal de transferencia de dominio. Con nuestro servicio AOE, el contrato generado tiene un costo de $9.99.',
+      'El costo del contrato de compraventa vehicular depende del número de firmas que requieran reconocimiento notarial. Para una transferencia simple (comprador + vendedor), el costo notarial es de aproximadamente $28.92 más IVA (15%), para un total de $33.26 en reconocimiento de firmas. Adicionalmente, se paga el 1% del valor del vehículo como impuesto fiscal de transferencia de dominio. Con nuestro servicio AOE, el contrato generado tiene un costo de \$11.99.',
   },
   {
     question: '¿Qué es el reconocimiento de firmas y por qué lo necesito?',
@@ -212,7 +212,7 @@ export default function CotizadorVehicularPage() {
                   <CheckCircle2 className="w-4 h-4 text-accent-success shrink-0 mt-0.5" />
                   <span>
                     <strong className="text-text-primary">Servicio AOE</strong> — Contrato
-                    generado por solo $9.99
+                    generado por solo \$11.99
                   </span>
                 </li>
               </ul>
@@ -248,7 +248,7 @@ export default function CotizadorVehicularPage() {
               </h3>
               <p className="text-sm text-text-secondary mb-4">
                 Generamos su contrato de compraventa vehicular con formato legal ecuatoriano por
-                solo $9.99.
+                solo \$11.99.
               </p>
               <a
                 href="https://wa.me/593979317579?text=Hola%2C%20necesito%20un%20contrato%20de%20compraventa%20vehicular"
