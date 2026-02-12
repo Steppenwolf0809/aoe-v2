@@ -1,6 +1,13 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { createPaymentLink, generateShortTransactionId } from '@/lib/payphone'
 
+function normalizeAuthToken(rawToken: string): string {
+  const token = rawToken.trim()
+  if (/^bearer\s+/i.test(token)) return token
+  if (/^bearer_/i.test(token)) return `Bearer ${token.slice('Bearer_'.length)}`
+  return `Bearer ${token}`
+}
+
 function isAuthorized(request: NextRequest): boolean {
   const secret = request.nextUrl.searchParams.get('secret')
   const devSecret = process.env.DEV_SECRET
@@ -49,7 +56,7 @@ export async function POST(request: NextRequest) {
   try {
     const body = await request.json().catch(() => ({}))
     const totalCents = body.amount ?? 100 // default $1.00 IVA incluido
-    const email = body.email ?? 'dev-test@aoe.ec'
+    const rawMode = body.raw ?? false // raw mode: bypass wrapper, show exact PayPhone response
 
     // Descomponer IVA 15%: amount = amountWithTax + tax
     const baseCents = Math.floor(totalCents / 1.15)
@@ -57,13 +64,65 @@ export async function POST(request: NextRequest) {
 
     const clientTransactionId = generateShortTransactionId()
 
+    const apiUrl = process.env.PAYPHONE_API_URL || 'https://pay.payphonetodoesposible.com/api'
+
+    const requestBody = {
+      amount: totalCents,
+      amountWithoutTax: 0,
+      amountWithTax: baseCents,
+      tax: taxCents,
+      service: 0,
+      tip: 0,
+      clientTransactionId,
+      currency: 'USD',
+      reference: 'Test PayPhone - AOE',
+      oneTime: true,
+      expireIn: 1,
+      storeId: process.env.PAYPHONE_STORE_ID,
+    }
+
+    // Raw mode: call PayPhone directly and return full diagnostic
+    if (rawMode) {
+      const rawToken = process.env.PAYPHONE_TOKEN ?? ''
+      const token = normalizeAuthToken(rawToken)
+
+      const ppResponse = await fetch(`${apiUrl}/Links`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          Authorization: token,
+          Accept: 'application/json',
+          'User-Agent': 'AOE-v2/1.0',
+        },
+        body: JSON.stringify(requestBody),
+      })
+
+      const responseText = await ppResponse.text()
+
+      return NextResponse.json({
+        diagnostic: true,
+        payphone: {
+          status: ppResponse.status,
+          statusText: ppResponse.statusText,
+          headers: Object.fromEntries(ppResponse.headers.entries()),
+          bodyRaw: responseText.slice(0, 2000),
+          isHtml: /<html/i.test(responseText),
+        },
+        sentRequest: {
+          url: `${apiUrl}/Links`,
+          method: 'POST',
+          authHeader: `Bearer ...${rawToken.slice(-10)}`,
+          body: requestBody,
+        },
+      })
+    }
+
     console.log('[PayPhone Test] Firing Links with:', {
       totalCents,
       baseCents,
       taxCents,
-      email,
       clientTransactionId,
-      apiUrl: process.env.PAYPHONE_API_URL || 'https://pay.payphonetodoesposible.com/api',
+      apiUrl,
     })
 
     const result = await createPaymentLink({

@@ -47,7 +47,7 @@ export function PayPhoneTestClient() {
       .catch(() => setAuthorized(false))
   }, [secret])
 
-  async function runTest() {
+  async function runTest(raw = false) {
     setLoading(true)
     setResult(null)
     try {
@@ -57,6 +57,7 @@ export function PayPhoneTestClient() {
         body: JSON.stringify({
           amount: parseInt(amount, 10),
           email,
+          raw,
         }),
       })
       const data = await res.json()
@@ -172,23 +173,41 @@ export function PayPhoneTestClient() {
             />
           </label>
         </div>
-        <button
-          onClick={runTest}
-          disabled={loading}
-          style={{
-            width: '100%',
-            padding: '12px',
-            background: loading ? '#333' : '#2563eb',
-            color: '#fff',
-            border: 'none',
-            borderRadius: 6,
-            fontSize: 14,
-            cursor: loading ? 'not-allowed' : 'pointer',
-            fontFamily: 'monospace',
-          }}
-        >
-          {loading ? 'Enviando...' : `Disparar Links ($${(parseInt(amount, 10) / 100).toFixed(2)})`}
-        </button>
+        <div style={{ display: 'flex', gap: 8 }}>
+          <button
+            onClick={() => runTest(false)}
+            disabled={loading}
+            style={{
+              flex: 1,
+              padding: '12px',
+              background: loading ? '#333' : '#2563eb',
+              color: '#fff',
+              border: 'none',
+              borderRadius: 6,
+              fontSize: 14,
+              cursor: loading ? 'not-allowed' : 'pointer',
+              fontFamily: 'monospace',
+            }}
+          >
+            {loading ? 'Enviando...' : `Disparar Links ($${(parseInt(amount, 10) / 100).toFixed(2)})`}
+          </button>
+          <button
+            onClick={() => runTest(true)}
+            disabled={loading}
+            style={{
+              padding: '12px 16px',
+              background: loading ? '#333' : '#b45309',
+              color: '#fff',
+              border: 'none',
+              borderRadius: 6,
+              fontSize: 14,
+              cursor: loading ? 'not-allowed' : 'pointer',
+              fontFamily: 'monospace',
+            }}
+          >
+            RAW
+          </button>
+        </div>
       </div>
 
       {/* Result */}
