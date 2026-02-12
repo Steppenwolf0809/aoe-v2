@@ -171,10 +171,22 @@ export async function createPaymentLink(
     console.error('[PayPhone Links] StoreId:', storeId, 'length:', storeId.length)
     console.error('[PayPhone Links] Using proxy:', !!PAYPHONE_PROXY_URL, 'url:', endpointUrl)
     console.error('[PayPhone Links] Request:', JSON.stringify(body))
-    const summarizedError = summarizeHtmlError(errorText)
-    throw new Error(
-      `PayPhone Links failed: ${response.status} ${summarizedError}`
-    )
+
+    // Try to parse structured error from n8n proxy
+    let errorMsg = errorText
+    try {
+      const errorJson = JSON.parse(errorText)
+      if (errorJson.proxySource) {
+        errorMsg = `[${errorJson.proxySource}] ${errorJson.error || `HTTP ${errorJson.statusCode}`}`
+        if (errorJson.location) errorMsg += ` (redirect: ${errorJson.location})`
+        if (errorJson.rawBody) errorMsg += ` | ${errorJson.rawBody.slice(0, 200)}`
+      }
+    } catch {
+      // Not JSON — use raw text with HTML summarizer
+      errorMsg = summarizeHtmlError(errorText)
+    }
+
+    throw new Error(`PayPhone Links failed: ${response.status} ${errorMsg}`)
   }
 
   // Links API may return a plain URL string or a JSON object
@@ -212,10 +224,25 @@ export async function checkTransactionStatus(
 
   if (!response.ok) {
     const errorText = await response.text()
-    const summarizedError = summarizeHtmlError(errorText)
-    throw new Error(
-      `PayPhone status check failed: ${response.status} ${summarizedError}`
-    )
+    let errorMsg = errorText
+    try {
+      const errorJson = JSON.parse(errorText)
+      if (errorJson.proxySource) {
+        errorMsg = `[${errorJson.proxySource}] ${errorJson.error || `HTTP ${errorJson.statusCode}`}`
+      }
+    } catch {
+      errorMsg = summarizeHtmlError(errorText)
+    }
+    throw new Error(`PayPhone status check failed: ${response.status} ${errorMsg}`)
+  }
+
+  // Handle n8n proxy JSON wrapper (Sale endpoint returns body as nested JSON)
+  const contentType = response.headers.get('content-type') || ''
+  if (contentType.includes('application/json')) {
+    const data = await response.json()
+    // n8n proxy wraps PayPhone response in {body, statusCode} — unwrap if needed
+    const saleData = data.body && typeof data.body === 'object' ? data.body : data
+    return payphoneConfirmResponseSchema.parse(saleData)
   }
 
   const data = await response.json()

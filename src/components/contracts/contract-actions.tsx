@@ -6,6 +6,8 @@ import { CreditCard, Download, Loader2, FileText } from 'lucide-react'
 import { initiatePayment } from '@/actions/payments'
 import { getContractDownloadUrl } from '@/actions/pdf'
 import Link from 'next/link'
+import { PRECIO_CONTRATO_BASICO } from '@/lib/formulas/vehicular'
+import { formatCurrency } from '@/lib/utils'
 
 interface ContractActionsProps {
   contractId: string
@@ -94,7 +96,7 @@ export function ContractActions({
           ) : (
             <>
               <CreditCard className="mr-2 h-4 w-4" />
-              Pagar y generar contrato ($9.99)
+              Pagar y generar contrato ({formatCurrency(PRECIO_CONTRATO_BASICO)})
             </>
           )}
         </Button>

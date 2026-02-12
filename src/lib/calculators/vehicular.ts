@@ -1,6 +1,5 @@
 import { SBU_VIGENTE } from '@/lib/calculators/constants';
-
-export const PRECIO_SAAS_VEHICULAR = 9.99;
+import { PRECIO_CONTRATO_BASICO } from '@/lib/formulas/vehicular';
 
 export function calcularCostoVehicular(valorVehiculo: number, numFirmas: number = 2) {
     // CORRECCIÓN: El costo notarial NO es por cuantía (valor vehículo).
@@ -18,12 +17,12 @@ export function calcularCostoVehicular(valorVehiculo: number, numFirmas: number 
     const totalExternos = costoNotarial + impuestoTransferencia;
 
     return {
-        precioServicioAOE: PRECIO_SAAS_VEHICULAR,
+        precioServicioAOE: PRECIO_CONTRATO_BASICO,
         gastosExternos: {
             notaria: costoNotarial, // Solo firmas
             impuestos: impuestoTransferencia, // 1% Avalúo
             total: totalExternos
         },
-        totalEstimado: PRECIO_SAAS_VEHICULAR + totalExternos
+        totalEstimado: PRECIO_CONTRATO_BASICO + totalExternos
     };
 }
