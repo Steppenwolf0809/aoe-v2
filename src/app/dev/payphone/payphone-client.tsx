@@ -15,12 +15,8 @@ type Config = {
   appUrl: string
 }
 
-type TestResult = {
-  success: boolean
-  clientTransactionId?: string
-  paymentUrl?: string
-  error?: string
-}
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+type TestResult = Record<string, any>
 
 export function PayPhoneTestClient() {
   const searchParams = useSearchParams()
@@ -47,7 +43,7 @@ export function PayPhoneTestClient() {
       .catch(() => setAuthorized(false))
   }, [secret])
 
-  async function runTest(raw = false) {
+  async function runTest(mode: 'normal' | 'raw' | 'multi' = 'normal') {
     setLoading(true)
     setResult(null)
     try {
@@ -57,7 +53,8 @@ export function PayPhoneTestClient() {
         body: JSON.stringify({
           amount: parseInt(amount, 10),
           email,
-          raw,
+          raw: mode === 'raw',
+          multiTest: mode === 'multi',
         }),
       })
       const data = await res.json()
@@ -173,9 +170,9 @@ export function PayPhoneTestClient() {
             />
           </label>
         </div>
-        <div style={{ display: 'flex', gap: 8 }}>
+        <div style={{ display: 'flex', gap: 8, flexWrap: 'wrap' }}>
           <button
-            onClick={() => runTest(false)}
+            onClick={() => runTest('normal')}
             disabled={loading}
             style={{
               flex: 1,
@@ -189,10 +186,10 @@ export function PayPhoneTestClient() {
               fontFamily: 'monospace',
             }}
           >
-            {loading ? 'Enviando...' : `Disparar Links ($${(parseInt(amount, 10) / 100).toFixed(2)})`}
+            {loading ? 'Enviando...' : `Links ($${(parseInt(amount, 10) / 100).toFixed(2)})`}
           </button>
           <button
-            onClick={() => runTest(true)}
+            onClick={() => runTest('raw')}
             disabled={loading}
             style={{
               padding: '12px 16px',
@@ -206,6 +203,22 @@ export function PayPhoneTestClient() {
             }}
           >
             RAW
+          </button>
+          <button
+            onClick={() => runTest('multi')}
+            disabled={loading}
+            style={{
+              padding: '12px 16px',
+              background: loading ? '#333' : '#7c3aed',
+              color: '#fff',
+              border: 'none',
+              borderRadius: 6,
+              fontSize: 14,
+              cursor: loading ? 'not-allowed' : 'pointer',
+              fontFamily: 'monospace',
+            }}
+          >
+            MULTI TEST
           </button>
         </div>
       </div>
@@ -223,11 +236,17 @@ export function PayPhoneTestClient() {
           <h2
             style={{
               fontSize: 14,
-              color: result.success ? '#2a5' : '#f44',
+              color: result.success ? '#2a5' : result.multiTest || result.diagnostic ? '#ff8' : '#f44',
               marginBottom: 12,
             }}
           >
-            {result.success ? 'OK - PayPhone respondio correctamente' : 'ERROR'}
+            {result.success
+              ? 'OK - PayPhone respondio correctamente'
+              : result.multiTest
+                ? 'MULTI TEST - Resultados de 4 endpoints'
+                : result.diagnostic
+                  ? 'RAW DIAGNOSTIC'
+                  : 'ERROR'}
           </h2>
           <pre
             style={{
