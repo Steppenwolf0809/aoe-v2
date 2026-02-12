@@ -60,12 +60,17 @@ export function NotarialCalculatorWidget() {
       itemsAdicionales?: ItemAdicional[]
       actoIndeterminadoId?: string
       cantidadActoIndeterminado?: number
+      numeroOtorgantes?: number
     } = {
       itemsAdicionales,
     }
 
     if (tipoServicio === 'SALIDA_PAIS') {
       opciones.cantidadMenores = cantidadMenores
+    }
+
+    if (tipoServicio === 'PODER_GENERAL_PN') {
+      opciones.numeroOtorgantes = numeroOtorgantes
     }
 
     if (tipoServicio === 'TRANSFERENCIA_DOMINIO') {
