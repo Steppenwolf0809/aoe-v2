@@ -11,7 +11,7 @@ import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Textarea } from '@/components/ui/textarea'
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select'
-import { submitContactForm, type ContactState } from '@/actions/contact'
+import { submitContactForm } from '@/actions/contact'
 import { cn } from '@/lib/utils'
 
 const formSchema = z.object({
@@ -34,7 +34,7 @@ const serviceOptions = [
 
 export function ContactForm() {
     const [state, formAction, isPending] = useActionState(submitContactForm, undefined)
-    const [isSuccess, setIsSuccess] = useState(false)
+    const [successDismissed, setSuccessDismissed] = useState(false)
 
     const {
         register,
@@ -56,15 +56,16 @@ export function ContactForm() {
 
     useEffect(() => {
         if (state?.success) {
-            setIsSuccess(true)
             reset()
         }
-    }, [state, reset])
+    }, [state?.success, reset])
+
+    const showSuccess = Boolean(state?.success) && !successDismissed
 
     return (
         <div className="w-full max-w-md mx-auto">
             <AnimatePresence mode="wait">
-                {isSuccess ? (
+                {showSuccess ? (
                     <motion.div
                         initial={{ opacity: 0, scale: 0.9 }}
                         animate={{ opacity: 1, scale: 1 }}
@@ -82,7 +83,7 @@ export function ContactForm() {
                         </p>
                         <Button
                             variant="outline"
-                            onClick={() => setIsSuccess(false)}
+                            onClick={() => setSuccessDismissed(true)}
                             className="mt-4 border-green-200 hover:bg-green-100 dark:border-green-800 dark:hover:bg-green-900/40 text-green-700 dark:text-green-300"
                         >
                             Enviar otro mensaje
@@ -97,8 +98,10 @@ export function ContactForm() {
                         className="space-y-6 bg-white/40 dark:bg-slate-900/40 p-6 md:p-8 rounded-2xl border border-slate-200/60 dark:border-slate-800/60 backdrop-blur-md shadow-xl"
                         onSubmit={(evt) => {
                             evt.preventDefault()
+                            setSuccessDismissed(false)
+                            const formEl = evt.currentTarget
                             handleSubmit(() => {
-                                const formData = new FormData(evt.currentTarget)
+                                const formData = new FormData(formEl)
                                 formAction(formData)
                             })(evt)
                         }}
