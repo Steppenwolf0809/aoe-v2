@@ -76,7 +76,7 @@ export function VehicleDataForm({ onCuvParsed }: VehicleDataFormProps) {
         />
         <Input
           id="vehiculo.anio"
-          label="Ano"
+          label="Año"
           type="number"
           placeholder="2024"
           error={ve?.anio?.message}
