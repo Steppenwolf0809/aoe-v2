@@ -1,6 +1,9 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { createPaymentLink, generateShortTransactionId } from '@/lib/payphone'
 
+// PayPhone WAF blocks Vercel US IPs → run from São Paulo
+export const preferredRegion = 'gru1'
+
 function isAuthorized(request: NextRequest): boolean {
   const secret = request.nextUrl.searchParams.get('secret')
   const devSecret = process.env.DEV_SECRET

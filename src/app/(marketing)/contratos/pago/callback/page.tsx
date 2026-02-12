@@ -7,6 +7,9 @@ import { isPaymentApproved } from '@/lib/validations/payment'
 import { PRECIO_CONTRATO_BASICO } from '@/lib/formulas/vehicular'
 import { XCircle } from 'lucide-react'
 
+// PayPhone WAF blocks Vercel US IPs → run from São Paulo
+export const preferredRegion = 'gru1'
+
 interface PaymentCallbackPageProps {
   searchParams: Promise<{
     id?: string

@@ -8,6 +8,9 @@ import { formatCurrency } from '@/lib/utils'
 import { PRECIO_CONTRATO_BASICO } from '@/lib/formulas/vehicular'
 import { initiatePayment } from '@/actions/payments'
 
+// PayPhone WAF blocks Vercel US IPs → run from São Paulo
+export const preferredRegion = 'gru1'
+
 export const metadata: Metadata = {
   title: 'Pagar y Generar Contrato | Abogados Online Ecuador',
 }

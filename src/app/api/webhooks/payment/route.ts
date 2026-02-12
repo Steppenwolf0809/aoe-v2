@@ -3,6 +3,9 @@ import { createAdminClient } from '@/lib/supabase/admin'
 import { payphoneWebhookSchema, isPaymentApproved } from '@/lib/validations/payment'
 import { PRECIO_CONTRATO_BASICO } from '@/lib/formulas/vehicular'
 
+// PayPhone WAF blocks Vercel US IPs → run from São Paulo
+export const preferredRegion = 'gru1'
+
 export async function POST(request: NextRequest) {
   try {
     const body = await request.json()
