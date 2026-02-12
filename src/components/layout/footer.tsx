@@ -7,7 +7,6 @@ const footerSections = {
   Servicios: [
     { href: '/servicios', label: 'Todos los Servicios' },
     { href: '/contratos/vehicular', label: 'Generar Contrato Vehicular' },
-    { href: '/precios', label: 'Precios' },
   ],
   Calculadoras: [
     { href: '/calculadoras/notarial', label: 'Calculadora Notarial' },
@@ -135,3 +134,4 @@ export function Footer() {
 
   )
 }
+
