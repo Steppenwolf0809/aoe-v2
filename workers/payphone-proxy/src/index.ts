@@ -40,8 +40,9 @@ export default {
     }
 
     const url = new URL(request.url)
-    if (!url.pathname.startsWith('/api/')) {
-      return json(404, { error: 'Not found' })
+    // Accept both "/api" and "/api/*" (some clients use "/api" as a health check).
+    if (!(url.pathname === '/api' || url.pathname.startsWith('/api/'))) {
+      return json(404, { error: 'Not found', path: url.pathname })
     }
 
     const upstreamBase = (env.UPSTREAM_BASE_URL || '').replace(/\/+$/, '')
@@ -74,7 +75,17 @@ export default {
       init.body = request.body
     }
 
-    return fetch(upstreamUrl.toString(), init)
+    const upstreamResponse = await fetch(upstreamUrl.toString(), init)
+
+    // Add lightweight debug headers so we can confirm correct upstream mapping from Vercel logs.
+    const outHeaders = new Headers(upstreamResponse.headers)
+    outHeaders.set('x-proxy-upstream-url', upstreamUrl.toString())
+    outHeaders.set('x-proxy-path', url.pathname)
+
+    return new Response(upstreamResponse.body, {
+      status: upstreamResponse.status,
+      statusText: upstreamResponse.statusText,
+      headers: outHeaders,
+    })
   },
 }
-
