@@ -40,10 +40,8 @@ export default {
     }
 
     const url = new URL(request.url)
-    // Accept both "/api" and "/api/*" (some clients use "/api" as a health check).
-    if (!(url.pathname === '/api' || url.pathname.startsWith('/api/'))) {
-      return json(404, { error: 'Not found', path: url.pathname })
-    }
+    // We previously restricted to /api/*, but PayPhone may redirect to /Errors/500.html.
+    // Since we already require X-Proxy-Secret, proxy any path safely.
 
     const upstreamBase = (env.UPSTREAM_BASE_URL || '').replace(/\/+$/, '')
     if (!upstreamBase) {

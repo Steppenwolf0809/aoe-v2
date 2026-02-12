@@ -120,6 +120,7 @@ export async function createPaymentLink(
       'User-Agent': 'AOE-v2/1.0',
       ...getProxyHeaders(),
     },
+    redirect: 'manual',
     body: JSON.stringify(body),
   })
 
@@ -167,6 +168,7 @@ export async function checkTransactionStatus(
       'User-Agent': 'AOE-v2/1.0',
       ...getProxyHeaders(),
     },
+    redirect: 'manual',
   })
 
   if (!response.ok) {
@@ -199,6 +201,7 @@ export async function confirmPayment(
       'User-Agent': 'AOE-v2/1.0',
       ...getProxyHeaders(),
     },
+    redirect: 'manual',
     body: JSON.stringify(request),
   })
 

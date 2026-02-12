@@ -93,15 +93,27 @@ export async function GET(request: NextRequest) {
 async function rawFetch(
   url: string,
   options: RequestInit
-): Promise<{ status: number; body: string; isHtml: boolean; ok: boolean; error?: string }> {
+): Promise<{
+  status: number
+  body: string
+  isHtml: boolean
+  ok: boolean
+  location?: string | null
+  proxyUpstreamUrl?: string | null
+  error?: string
+}> {
   try {
-    const response = await fetch(url, options)
+    // Avoid following redirects: PayPhone sometimes responds with Location: /Errors/500.html
+    // and the follow-up request would hit the Worker root and look like a proxy 404.
+    const response = await fetch(url, { ...options, redirect: options.redirect ?? 'manual' })
     const text = await response.text()
     return {
       status: response.status,
       body: text.slice(0, 600),
       isHtml: /<html/i.test(text),
       ok: response.ok,
+      location: response.headers.get('location'),
+      proxyUpstreamUrl: response.headers.get('x-proxy-upstream-url'),
     }
   } catch (err) {
     return {
@@ -231,6 +243,8 @@ export async function POST(request: NextRequest) {
             status: noAuthResult.status,
             ok: noAuthResult.ok,
             isHtml: noAuthResult.isHtml,
+            location: noAuthResult.location,
+            proxyUpstreamUrl: noAuthResult.proxyUpstreamUrl,
             verdict: noAuthResult.status === 401 ? 'SERVER OK - needs auth' :
                      noAuthResult.status === 500 ? 'SERVER ERROR (not auth issue!)' :
                      noAuthResult.ok ? 'UNEXPECTED SUCCESS' : `status ${noAuthResult.status}`,
@@ -240,23 +254,31 @@ export async function POST(request: NextRequest) {
             status: bearerTokenResult.status,
             ok: bearerTokenResult.ok,
             isHtml: bearerTokenResult.isHtml,
+            location: bearerTokenResult.location,
+            proxyUpstreamUrl: bearerTokenResult.proxyUpstreamUrl,
           },
           '3_BEARER_DOCS_EXAMPLE': {
             status: docsExampleResult.status,
             ok: docsExampleResult.ok,
             isHtml: docsExampleResult.isHtml,
+            location: docsExampleResult.location,
+            proxyUpstreamUrl: docsExampleResult.proxyUpstreamUrl,
             body: docsExampleResult.body?.slice(0, 300),
           },
           '4_GET_API_ROOT (health)': {
             status: getHealthResult.status,
             ok: getHealthResult.ok,
             isHtml: getHealthResult.isHtml,
+            location: getHealthResult.location,
+            proxyUpstreamUrl: getHealthResult.proxyUpstreamUrl,
             body: getHealthResult.body?.slice(0, 200),
           },
           '5_LOWERCASE_BEARER': {
             status: bearerLowercaseResult.status,
             ok: bearerLowercaseResult.ok,
             isHtml: bearerLowercaseResult.isHtml,
+            location: bearerLowercaseResult.location,
+            proxyUpstreamUrl: bearerLowercaseResult.proxyUpstreamUrl,
             body: bearerLowercaseResult.body?.slice(0, 200),
           },
         },
