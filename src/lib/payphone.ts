@@ -91,8 +91,8 @@ export async function preparePayment(
     const errorText = await response.text()
     console.error('[PayPhone Prepare] Status:', response.status)
     console.error('[PayPhone Prepare] Response:', errorText.slice(0, 500))
-    console.error('[PayPhone Prepare] Token prefix:', token.slice(0, 15) + '...')
-    console.error('[PayPhone Prepare] StoreId:', storeId)
+    console.error('[PayPhone Prepare] Token length:', token.length, 'last5:', token.slice(-5))
+    console.error('[PayPhone Prepare] StoreId:', storeId, 'length:', storeId.length)
     console.error('[PayPhone Prepare] Request:', JSON.stringify({ ...request, storeId }))
     const summarizedError = summarizeHtmlError(errorText)
     throw new Error(
