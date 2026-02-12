@@ -55,10 +55,10 @@ function getPayPhoneConfig() {
     )
   }
 
-  const storeId = Number(rawStoreId)
-  if (!Number.isInteger(storeId) || storeId <= 0) {
+  const storeId = rawStoreId.trim()
+  if (storeId.length === 0) {
     throw new Error(
-      'PAYPHONE_STORE_ID invalido. Debe ser un numero entero positivo.'
+      'PAYPHONE_STORE_ID invalido. No puede estar vacio.'
     )
   }
 
