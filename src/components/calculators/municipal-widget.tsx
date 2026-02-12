@@ -8,6 +8,7 @@ import { Slider } from '@/components/ui/slider'
 import { calcularImpuestosMunicipales } from '@/lib/formulas/municipal'
 import { ResultadoMunicipal } from '@/lib/formulas/types'
 import { AnimatedCounter } from './animated-counter'
+import { CalculatorLeadCTA } from './calculator-lead-cta'
 
 export function MunicipalCalculatorWidget() {
   const [fechaAdquisicion, setFechaAdquisicion] = useState('')
@@ -44,7 +45,7 @@ export function MunicipalCalculatorWidget() {
       {/* Fechas */}
       <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
         <div className="space-y-2">
-          <label className="text-sm font-medium text-text-primary">Fecha de AdquisiciÃ³n</label>
+          <label className="text-sm font-medium text-text-primary">Fecha de Adquisición</label>
           <input
             type="date"
             value={fechaAdquisicion}
@@ -129,7 +130,7 @@ export function MunicipalCalculatorWidget() {
         </div>
 
         <div className="space-y-2">
-          <label className="text-sm font-medium text-text-primary">Valor de AdquisiciÃ³n (Compra)</label>
+          <label className="text-sm font-medium text-text-primary">Valor de Adquisición (Compra)</label>
           <div className="relative">
             <span className="absolute left-4 top-1/2 -translate-y-1/2 text-text-muted">$</span>
             <input
@@ -151,7 +152,7 @@ export function MunicipalCalculatorWidget() {
         <div className="space-y-2">
           <label className="text-sm font-medium text-text-primary flex items-center gap-2">
             <Home className="w-4 h-4" />
-            AvalÃºo Catastral
+            Avalúo Catastral
           </label>
           <div className="relative">
             <span className="absolute left-4 top-1/2 -translate-y-1/2 text-text-muted">$</span>
@@ -185,7 +186,7 @@ export function MunicipalCalculatorWidget() {
         </div>
       </div>
 
-      {/* BotÃ³n Calcular */}
+      {/* Botón Calcular */}
       <Button
         onClick={handleCalcular}
         disabled={!fechaAdquisicion || !fechaTransferencia}
@@ -236,13 +237,13 @@ export function MunicipalCalculatorWidget() {
                   <span className="text-text-primary">${resultado.utilidad.utilidadBruta.toLocaleString()}</span>
                 </div>
                 <div className="flex justify-between">
-                  <span className="text-[var(--text-secondary)]">AÃ±os de Tenencia</span>
+                  <span className="text-[var(--text-secondary)]">Años de Tenencia</span>
                   <span className="text-text-primary">
-                    {resultado.utilidad['a\u00F1osTranscurridos']} aÃ±os
+                    {resultado.utilidad['a\u00F1osTranscurridos']} años
                   </span>
                 </div>
                 <div className="flex justify-between">
-                  <span className="text-[var(--text-secondary)]">DeducciÃ³n por Tiempo</span>
+                  <span className="text-[var(--text-secondary)]">Deducción por Tiempo</span>
                   <span className="text-green-400">
                     -${resultado.utilidad.deduccionTiempo.toLocaleString()}
                   </span>
@@ -305,12 +306,20 @@ export function MunicipalCalculatorWidget() {
         </div>
       )}
 
+      {/* Lead Capture CTA */}
+      {resultado && (
+        <CalculatorLeadCTA
+          source="calc_municipal"
+          calculatorLabel="Municipal (Alcabalas)"
+        />
+      )}
+
       {/* Nota legal */}
       <div className="flex items-start gap-2 text-xs text-[var(--text-secondary)] bg-bg-secondary p-3 rounded-lg">
         <AlertCircle className="w-4 h-4 flex-shrink-0 mt-0.5" />
         <p>
-          Los cÃ¡lculos son referenciales para la ciudad de Quito. Las tarifas de impuestos municipales
-          pueden variar segÃºn la ordenanza vigente. Las rebajas aplicables tambiÃ©n dependen del historial
+          Los cálculos son referenciales para la ciudad de Quito. Las tarifas de impuestos municipales
+          pueden variar según la ordenanza vigente. Las rebajas aplicables también dependen del historial
           del inmueble y condiciones legales del acto. Se recomienda verificar con el Municipio.
         </p>
       </div>
