@@ -1,13 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { createPaymentLink, generateShortTransactionId } from '@/lib/payphone'
 
-function normalizeAuthToken(rawToken: string): string {
-  const token = rawToken.trim()
-  if (/^bearer\s+/i.test(token)) return token
-  if (/^bearer_/i.test(token)) return `Bearer ${token.slice('Bearer_'.length)}`
-  return `Bearer ${token}`
-}
-
 function isAuthorized(request: NextRequest): boolean {
   const secret = request.nextUrl.searchParams.get('secret')
   const devSecret = process.env.DEV_SECRET
@@ -19,67 +12,72 @@ function isAuthorized(request: NextRequest): boolean {
  * Test PayPhone Links endpoint directly
  * Protected by DEV_SECRET query param (works in prod too)
  *
- * GET  /api/dev/payphone-test?secret=xxx  → shows config status
+ * GET  /api/dev/payphone-test?secret=xxx  → shows config + token health
  * POST /api/dev/payphone-test?secret=xxx  → fires a test payment link
  *
  * POST body options:
  *   { raw: true }       → full diagnostic with raw PayPhone response
- *   { multiTest: true } → tries multiple endpoints/auth combos
+ *   { multiTest: true } → comprehensive auth & body diagnostics
  */
 export async function GET(request: NextRequest) {
   if (!isAuthorized(request)) {
     return NextResponse.json({ error: 'Unauthorized' }, { status: 403 })
   }
 
-  const token = process.env.PAYPHONE_TOKEN
-  const storeId = process.env.PAYPHONE_STORE_ID
+  const rawToken = process.env.PAYPHONE_TOKEN ?? ''
+  const storeId = process.env.PAYPHONE_STORE_ID ?? ''
   const apiUrl = process.env.PAYPHONE_API_URL || 'https://pay.payphonetodoesposible.com/api'
+
+  // Token health analysis
+  const tokenIssues: string[] = []
+  if (!rawToken) tokenIssues.push('TOKEN EMPTY')
+  if (rawToken.includes('\n') || rawToken.includes('\r')) tokenIssues.push('CONTAINS NEWLINE')
+  if (rawToken.includes(' ') && !rawToken.startsWith('Bearer')) tokenIssues.push('CONTAINS SPACES (not Bearer prefix)')
+  if (/[^\x20-\x7E]/.test(rawToken)) tokenIssues.push('CONTAINS NON-ASCII CHARS')
+  if (rawToken.startsWith('"') || rawToken.endsWith('"')) tokenIssues.push('WRAPPED IN QUOTES')
+  if (rawToken.startsWith("'") || rawToken.endsWith("'")) tokenIssues.push('WRAPPED IN SINGLE QUOTES')
 
   return NextResponse.json({
     status: 'ready',
-    endpoint: '/Links (API type)',
     config: {
-      tokenSet: !!token,
-      tokenLength: token?.length ?? 0,
-      tokenLast5: token?.slice(-5) ?? 'N/A',
+      tokenSet: !!rawToken,
+      tokenLength: rawToken.length,
+      tokenFirst10: rawToken.slice(0, 10),
+      tokenLast5: rawToken.slice(-5),
+      tokenStartsWithBearer: /^bearer/i.test(rawToken),
+      tokenIssues: tokenIssues.length ? tokenIssues : 'NONE',
       storeIdSet: !!storeId,
-      storeId: storeId ?? 'N/A',
+      storeId: storeId || 'N/A',
       apiUrl,
       mode: process.env.PAYPHONE_MODE ?? 'NOT SET',
-      prefix: process.env.PAYPHONE_REGION_PREFIX ?? 'NOT SET',
       appUrl: process.env.NEXT_PUBLIC_APP_URL ?? 'NOT SET',
+      clientIdSet: !!process.env.PAYPHONE_CLIENT_ID,
+      clientSecretSet: !!process.env.PAYPHONE_CLIENT_SECRET,
     },
   })
 }
 
-async function tryPayPhoneCall(
+// Helper: make a raw fetch and return diagnostic
+async function rawFetch(
   url: string,
-  token: string,
-  body: Record<string, unknown>
-): Promise<{ status: number; bodyRaw: string; isHtml: boolean; ok: boolean }> {
+  options: RequestInit
+): Promise<{ status: number; body: string; isHtml: boolean; ok: boolean; error?: string }> {
   try {
-    const response = await fetch(url, {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-        Authorization: token,
-        Accept: 'application/json',
-      },
-      body: JSON.stringify(body),
-    })
+    const response = await fetch(url, options)
     const text = await response.text()
     return {
       status: response.status,
-      bodyRaw: text.slice(0, 500),
+      body: text.slice(0, 600),
       isHtml: /<html/i.test(text),
       ok: response.ok,
     }
   } catch (err) {
     return {
       status: 0,
-      bodyRaw: err instanceof Error ? err.message : 'fetch failed',
+      body: '',
       isHtml: false,
       ok: false,
+      error: err instanceof Error ? err.message : 'fetch failed',
     }
   }
 }
@@ -91,147 +89,174 @@ export async function POST(request: NextRequest) {
 
   try {
     const body = await request.json().catch(() => ({}))
-    const totalCents = body.amount ?? 100 // default $1.00 IVA incluido
+    const totalCents = body.amount ?? 315 // default $3.15 (from docs example)
     const rawMode = body.raw ?? false
     const multiTest = body.multiTest ?? false
-
-    // Descomponer IVA 15%: amount = amountWithTax + tax
-    const baseCents = Math.floor(totalCents / 1.15)
-    const taxCents = totalCents - baseCents
 
     const clientTransactionId = generateShortTransactionId()
 
     const apiUrl = process.env.PAYPHONE_API_URL || 'https://pay.payphonetodoesposible.com/api'
-    const appUrl = process.env.NEXT_PUBLIC_APP_URL || 'https://abogadosonlineecuador.com'
     const rawToken = process.env.PAYPHONE_TOKEN ?? ''
-    const bearerToken = normalizeAuthToken(rawToken)
     const storeId = process.env.PAYPHONE_STORE_ID ?? ''
 
-    // Multi-test: try multiple AUTH methods on /Links
-    if (multiTest) {
-      const clientId = process.env.PAYPHONE_CLIENT_ID ?? ''
-      const clientSecret = process.env.PAYPHONE_CLIENT_SECRET ?? ''
+    // Build Bearer token (handle if raw token already includes "Bearer " prefix)
+    const cleanToken = rawToken.trim()
+    const bearerToken = /^bearer\s+/i.test(cleanToken) ? cleanToken : `Bearer ${cleanToken}`
 
-      const linksBody = {
-        amount: totalCents,
-        amountWithoutTax: 0,
-        amountWithTax: baseCents,
-        tax: taxCents,
-        service: 0,
-        tip: 0,
+    // ========================================
+    // MULTI TEST — comprehensive diagnostics
+    // ========================================
+    if (multiTest) {
+      const linksUrl = `${apiUrl}/Links`
+
+      // Body matching EXACT PayPhone docs example (no responseUrl!)
+      const docsExampleBody = {
+        amount: 315,
+        amountWithoutTax: 200,
+        amountWithTax: 100,
+        tax: 15,
+        currency: 'USD',
+        reference: 'Payment via API Link',
         clientTransactionId,
         storeId,
-        currency: 'USD',
-        responseUrl: `${appUrl}/contratos/pago/callback`,
-        reference: 'Test AOE',
-        oneTime: true,
-        expireIn: 30,
       }
 
-      const jsonHeaders = { 'Content-Type': 'application/json', Accept: 'application/json' }
+      // Our real body (also no responseUrl!)
+      const realBody = {
+        amount: totalCents,
+        amountWithoutTax: 0,
+        amountWithTax: Math.floor(totalCents / 1.15),
+        tax: totalCents - Math.floor(totalCents / 1.15),
+        service: 0,
+        tip: 0,
+        clientTransactionId: `AOE${Date.now().toString(36).toUpperCase().slice(0, 4)}`,
+        currency: 'USD',
+        storeId,
+        reference: 'Test AOE v2',
+        oneTime: true,
+        expireIn: 1,
+      }
 
-      // Build Basic auth
-      const basicAuth = `Basic ${Buffer.from(`${clientId}:${clientSecret}`).toString('base64')}`
+      const jsonHeaders = { 'Content-Type': 'application/json' }
 
-      // Step 1: Try OAuth2 token endpoints
-      const tokenEndpoints = [
-        { url: `${apiUrl}/token`, label: '/api/token' },
-        { url: 'https://pay.payphonetodoesposible.com/token', label: '/token (root)' },
-        { url: `${apiUrl}/Auth/token`, label: '/api/Auth/token' },
-      ]
+      // Run ALL tests in parallel
+      const [
+        noAuthResult,
+        bearerTokenResult,
+        docsExampleResult,
+        getHealthResult,
+        bearerLowercaseResult,
+      ] = await Promise.all([
+        // 1. NO AUTH — if 500, server is broken. If 401/403, server works but needs auth
+        rawFetch(linksUrl, {
+          method: 'POST',
+          headers: jsonHeaders,
+          body: JSON.stringify(docsExampleBody),
+        }),
 
-      const oauthForm = new URLSearchParams({
-        grant_type: 'client_credentials',
-        client_id: clientId,
-        client_secret: clientSecret,
-      })
+        // 2. Bearer token with our real body (current approach)
+        rawFetch(linksUrl, {
+          method: 'POST',
+          headers: { ...jsonHeaders, Authorization: bearerToken },
+          body: JSON.stringify(realBody),
+        }),
 
-      const oauthResults = await Promise.all(
-        tokenEndpoints.map(async ({ url, label }) => {
-          const r = await tryPayPhoneCall(url, '', {})
-            .catch(() => ({ status: 0, bodyRaw: 'error', isHtml: false, ok: false }))
-          // Actually try form-encoded POST
-          try {
-            const resp = await fetch(url, {
-              method: 'POST',
-              headers: { 'Content-Type': 'application/x-www-form-urlencoded', Accept: 'application/json' },
-              body: oauthForm.toString(),
-            })
-            const text = await resp.text()
-            return { label, status: resp.status, body: text.slice(0, 400), ok: resp.ok }
-          } catch (err) {
-            return { label, status: 0, body: err instanceof Error ? err.message : 'failed', ok: false }
-          }
-        })
-      )
+        // 3. Bearer token with EXACT docs example body
+        rawFetch(linksUrl, {
+          method: 'POST',
+          headers: { ...jsonHeaders, Authorization: bearerToken },
+          body: JSON.stringify(docsExampleBody),
+        }),
 
-      // Step 2: Try /Links with different auth methods
-      const authTests = await Promise.all([
-        // Bearer store-token (current)
-        tryPayPhoneCall(`${apiUrl}/Links`, bearerToken, linksBody),
-        // Basic auth (clientId:clientSecret)
-        tryPayPhoneCall(`${apiUrl}/Links`, basicAuth, linksBody),
-        // Bearer with clientSecret directly
-        tryPayPhoneCall(`${apiUrl}/Links`, `Bearer ${clientSecret}`, linksBody),
-        // No auth header at all
-        (async () => {
-          try {
-            const resp = await fetch(`${apiUrl}/Links`, {
-              method: 'POST',
-              headers: jsonHeaders,
-              body: JSON.stringify(linksBody),
-            })
-            const text = await resp.text()
-            return { status: resp.status, bodyRaw: text.slice(0, 400), isHtml: /<html/i.test(text), ok: resp.ok }
-          } catch (err) {
-            return { status: 0, bodyRaw: err instanceof Error ? err.message : 'failed', isHtml: false, ok: false }
-          }
-        })(),
+        // 4. GET request to API root (health check)
+        rawFetch(`${apiUrl}`, { method: 'GET' }),
+
+        // 5. Lowercase "bearer" (docs show lowercase)
+        rawFetch(linksUrl, {
+          method: 'POST',
+          headers: { ...jsonHeaders, Authorization: bearerToken.replace(/^Bearer/i, 'bearer') },
+          body: JSON.stringify(docsExampleBody),
+        }),
       ])
 
       return NextResponse.json({
         multiTest: true,
-        credentials: {
-          bearerToken: { length: rawToken.length, last5: rawToken.slice(-5) },
-          storeId,
-          clientId: clientId || 'NOT SET',
-          clientSecretSet: !!clientSecret,
+        version: 3,
+        tokenInfo: {
+          length: rawToken.length,
+          first10: rawToken.slice(0, 10),
+          last5: rawToken.slice(-5),
+          startsWithBearer: /^bearer/i.test(rawToken),
+          hasNewlines: /[\n\r]/.test(rawToken),
+          hasNonAscii: /[^\x20-\x7E]/.test(rawToken),
         },
-        oauthTokenEndpoints: Object.fromEntries(oauthResults.map(r => [r.label, { status: r.status, body: r.body, ok: r.ok }])),
-        linksWithDifferentAuth: {
-          'Bearer store-token': { status: authTests[0].status, ok: authTests[0].ok, isHtml: authTests[0].isHtml },
-          'Basic clientId:secret': { status: authTests[1].status, ok: authTests[1].ok, body: authTests[1].bodyRaw },
-          'Bearer clientSecret': { status: authTests[2].status, ok: authTests[2].ok, body: authTests[2].bodyRaw },
-          'No auth': { status: authTests[3].status, ok: authTests[3].ok, body: authTests[3].bodyRaw },
+        storeId,
+        tests: {
+          '1_NO_AUTH (server alive?)': {
+            status: noAuthResult.status,
+            ok: noAuthResult.ok,
+            isHtml: noAuthResult.isHtml,
+            verdict: noAuthResult.status === 401 ? 'SERVER OK - needs auth' :
+                     noAuthResult.status === 500 ? 'SERVER ERROR (not auth issue!)' :
+                     noAuthResult.ok ? 'UNEXPECTED SUCCESS' : `status ${noAuthResult.status}`,
+            body: noAuthResult.body?.slice(0, 200),
+          },
+          '2_BEARER_REAL_BODY': {
+            status: bearerTokenResult.status,
+            ok: bearerTokenResult.ok,
+            isHtml: bearerTokenResult.isHtml,
+          },
+          '3_BEARER_DOCS_EXAMPLE': {
+            status: docsExampleResult.status,
+            ok: docsExampleResult.ok,
+            isHtml: docsExampleResult.isHtml,
+            body: docsExampleResult.body?.slice(0, 300),
+          },
+          '4_GET_API_ROOT (health)': {
+            status: getHealthResult.status,
+            ok: getHealthResult.ok,
+            isHtml: getHealthResult.isHtml,
+            body: getHealthResult.body?.slice(0, 200),
+          },
+          '5_LOWERCASE_BEARER': {
+            status: bearerLowercaseResult.status,
+            ok: bearerLowercaseResult.ok,
+            isHtml: bearerLowercaseResult.isHtml,
+            body: bearerLowercaseResult.body?.slice(0, 200),
+          },
+        },
+        sentBodies: {
+          docsExample: docsExampleBody,
+          realBody: realBody,
         },
       })
     }
 
-    const requestBody = {
-      amount: totalCents,
-      amountWithoutTax: 0,
-      amountWithTax: baseCents,
-      tax: taxCents,
-      service: 0,
-      tip: 0,
-      clientTransactionId,
-      currency: 'USD',
-      responseUrl: `${appUrl}/contratos/pago/callback`,
-      reference: 'Test PayPhone - AOE',
-      oneTime: true,
-      expireIn: 1,
-      storeId,
-    }
-
-    // Raw mode: call PayPhone directly and return full diagnostic
+    // ========================================
+    // RAW MODE — single call with full response
+    // ========================================
     if (rawMode) {
+      // Use exact docs format (no responseUrl!)
+      const requestBody = {
+        amount: totalCents,
+        amountWithoutTax: 0,
+        amountWithTax: Math.floor(totalCents / 1.15),
+        tax: totalCents - Math.floor(totalCents / 1.15),
+        service: 0,
+        tip: 0,
+        clientTransactionId,
+        currency: 'USD',
+        storeId,
+        reference: 'Test PayPhone - AOE',
+        oneTime: true,
+        expireIn: 1,
+      }
+
       const ppResponse = await fetch(`${apiUrl}/Links`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
           Authorization: bearerToken,
-          Accept: 'application/json',
-          'User-Agent': 'AOE-v2/1.0',
         },
         body: JSON.stringify(requestBody),
       })
@@ -250,30 +275,24 @@ export async function POST(request: NextRequest) {
         sentRequest: {
           url: `${apiUrl}/Links`,
           method: 'POST',
-          authHeader: `Bearer ...${rawToken.slice(-10)}`,
+          authHeader: `${bearerToken.slice(0, 10)}...${bearerToken.slice(-5)}`,
           body: requestBody,
         },
       })
     }
 
-    console.log('[PayPhone Test] Firing Links with:', {
-      totalCents,
-      baseCents,
-      taxCents,
-      clientTransactionId,
-      apiUrl,
-    })
-
+    // ========================================
+    // NORMAL MODE — use library function
+    // ========================================
     const result = await createPaymentLink({
       amount: totalCents,
       amountWithoutTax: 0,
-      amountWithTax: baseCents,
-      tax: taxCents,
+      amountWithTax: Math.floor(totalCents / 1.15),
+      tax: totalCents - Math.floor(totalCents / 1.15),
       service: 0,
       tip: 0,
       clientTransactionId,
       currency: 'USD',
-      responseUrl: `${appUrl}/contratos/pago/callback`,
       reference: 'Test PayPhone - AOE',
       oneTime: true,
       expireIn: 1,

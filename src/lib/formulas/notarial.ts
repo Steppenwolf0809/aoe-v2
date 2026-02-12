@@ -50,7 +50,8 @@ interface CatalogoTarifasNotariales {
       excedente: TarifaExcedenteRaw
     }
     tabla5_arrendamiento_inscripcion: {
-      regla_hasta_375: { factor: number }
+      // Art. 41: para canon <= limite, la tarifa es porcentual sobre el canon (no SBU).
+      regla_hasta_375: { factor: number; limite: number }
       rangos: TarifaRangoRaw[]
     }
     tabla7_constitucion_sociedades: {
@@ -207,6 +208,8 @@ function normalizarCatalogo(rawCatalog: TariffCatalogRaw): CatalogoTarifasNotari
       tabla5_arrendamiento_inscripcion: {
         regla_hasta_375: {
           factor: tabla05Porcentaje.factor_porcentaje_monto ?? 0,
+          // Default defensivo: el catalogo actual usa max=375.
+          limite: tabla05Porcentaje.max ?? 375,
         },
         rangos: crearRangos(tabla05.reglas),
       },
@@ -273,16 +276,16 @@ export interface ResultadoCalculo {
 export interface ItemAdicional {
   id: string
   tipo:
-    | 'copia_certificada'
-    | 'declaracion_juramentada'
-    | 'poder'
-    | 'poder_especial'
-    | 'cancelacion_hipoteca'
-    | 'reconocimiento_firma'
-    | 'autenticacion_firma'
-    | 'materializacion'
-    | 'protocolizacion'
-    | 'marginacion'
+  | 'copia_certificada'
+  | 'declaracion_juramentada'
+  | 'poder'
+  | 'poder_especial'
+  | 'cancelacion_hipoteca'
+  | 'reconocimiento_firma'
+  | 'autenticacion_firma'
+  | 'materializacion'
+  | 'protocolizacion'
+  | 'marginacion'
   descripcion: string
   cantidad: number
   valorUnitario: number
@@ -640,15 +643,17 @@ export function calcularTramiteNotarial(
     }
 
     case 'INSCRIPCION_ARRENDAMIENTO': {
-      const reglaBaja = CATALOGO.tablas.tabla5_arrendamiento_inscripcion.regla_hasta_375.factor
-      if (cuantia <= 375) {
-        costoBase = cuantia * reglaBaja
-        detalles.push(`Art. 41 - Inscripcion Arrendamiento (${(reglaBaja * 100).toFixed(0)}% del canon)`)
+      const { factor, limite } = CATALOGO.tablas.tabla5_arrendamiento_inscripcion.regla_hasta_375
+      // Evita casos borde por floats/inputs con decimales: comparar siempre a 2 decimales.
+      const canon = Math.round(cuantia * 100) / 100
+      if (canon <= limite) {
+        costoBase = canon * factor
+        detalles.push(`Art. 41 - Inscripcion Arrendamiento (${(factor * 100).toFixed(0)}% del canon)`)
       } else {
-        const rangoArriendo = buscarEnTabla(cuantia, TABLA_5_ARRENDAMIENTOS)
+        const rangoArriendo = buscarEnTabla(canon, TABLA_5_ARRENDAMIENTOS)
         if (rangoArriendo) {
           costoBase = rangoArriendo.tarifaBase
-          detalles.push(`Art. 41 - Inscripcion Arrendamiento (Canon: $${cuantia.toLocaleString()})`)
+          detalles.push(`Art. 41 - Inscripcion Arrendamiento (Canon: $${canon.toLocaleString()})`)
         }
       }
       break
@@ -785,7 +790,7 @@ export function getTramitesPorCategoria(): {
       { value: 'CONSTITUCION_CIA', label: 'Constitucion de Compania' },
     ],
     sinCuantia: [
-      { value: 'ACTO_CUANTIA_INDETERMINADA', label: 'Actos de Cuantia Indeterminada' },
+
       { value: 'PODER_GENERAL_PN', label: 'Poder General - Persona Natural' },
       { value: 'PODER_GENERAL_PJ', label: 'Poder General - Persona Juridica' },
       { value: 'CAPITULACIONES_MATRIMONIALES', label: 'Capitulaciones Matrimoniales' },

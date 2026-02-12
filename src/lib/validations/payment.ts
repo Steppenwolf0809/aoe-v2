@@ -15,7 +15,6 @@ export const payphoneLinkRequestSchema = z.object({
   tip: z.number().nonnegative().default(0),
   clientTransactionId: z.string().min(1).max(15), // Max 15 chars para Links
   currency: z.literal('USD'),
-  responseUrl: z.string().url(), // URL de retorno despues del pago
   reference: z.string().max(100).optional(),
   oneTime: z.boolean().default(true), // Link de un solo uso
   expireIn: z.number().optional(), // Horas hasta que expire

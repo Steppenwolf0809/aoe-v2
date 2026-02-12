@@ -63,8 +63,6 @@ export async function initiatePayment(
     const baseCents = Math.floor(totalCents / 1.15) // base imponible
     const taxCents = totalCents - baseCents // IVA
 
-    const appUrl = process.env.NEXT_PUBLIC_APP_URL || 'https://abogadosonlineecuador.com'
-
     const paymentResponse = await createPaymentLink({
       amount: totalCents,
       amountWithoutTax: 0,
@@ -74,7 +72,6 @@ export async function initiatePayment(
       tip: 0,
       clientTransactionId,
       currency: 'USD',
-      responseUrl: `${appUrl}/contratos/pago/callback`,
       reference: 'Contrato Vehicular - AOE',
       oneTime: true,
       expireIn: 24, // Link expira en 24 horas

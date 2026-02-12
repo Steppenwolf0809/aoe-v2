@@ -58,14 +58,14 @@ const blogPosts: SeedBlogPost[] = [
       <p><strong>En España:</strong></p>
       <ul>
         <li>Notaría española (costo aproximado €60-120)</li>
-        <li>Consulado de Ecuador en Madrid o Barcelona (gratis, pero demora 15-30 días hábiles)</li>
+        <li>Consulado de Ecuador en Madrid o Barcelona (demora 15-30 días hábiles, requiere cita previa)</li>
       </ul>
       <p><strong>En Estados Unidos:</strong></p>
       <ul>
-        <li>Consulado de Ecuador (Miami, Nueva York, Houston, Los Ángeles) — sin costo, agenda con 3 semanas de anticipación</li>
+        <li>Consulado de Ecuador (Miami, Nueva York, Houston, Los Ángeles) — agenda con 3 semanas de anticipación</li>
         <li>Notary Public + apostilla estatal (válido pero requiere dos trámites separados)</li>
       </ul>
-      <p>💡 <strong>Recomendación:</strong> Si estás en España, usa notaría española porque es más rápida. En Estados Unidos, el consulado es más económico pero menos flexible con horarios.</p>
+      <p>💡 <strong>Recomendación:</strong> Si estás en España, usa notaría española porque es más rápida. En Estados Unidos, el consulado requiere cita previa pero puede resultar una opción conveniente dependiendo de tu ubicación.</p>
 
       <h3>Paso 3: Apostillar (no legalizar) según Convenio de La Haya</h3>
       <p>Tanto España como Estados Unidos son parte del Convenio de La Haya, así que necesitas <strong>apostilla</strong>, no cadena de legalizaciones.</p>
