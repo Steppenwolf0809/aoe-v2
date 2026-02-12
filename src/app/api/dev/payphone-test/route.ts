@@ -107,72 +107,102 @@ export async function POST(request: NextRequest) {
     const bearerToken = normalizeAuthToken(rawToken)
     const storeId = process.env.PAYPHONE_STORE_ID ?? ''
 
-    // Multi-test: try several endpoints and auth methods
+    // Multi-test: try multiple AUTH methods on /Links
     if (multiTest) {
-      const baseBody = {
+      const clientId = process.env.PAYPHONE_CLIENT_ID ?? ''
+      const clientSecret = process.env.PAYPHONE_CLIENT_SECRET ?? ''
+
+      const linksBody = {
         amount: totalCents,
+        amountWithoutTax: 0,
         amountWithTax: baseCents,
         tax: taxCents,
-        clientTransactionId,
-        storeId,
-        responseUrl: `${appUrl}/contratos/pago/callback`,
-      }
-
-      const fullBody = {
-        ...baseBody,
-        amountWithoutTax: 0,
         service: 0,
         tip: 0,
+        clientTransactionId,
+        storeId,
         currency: 'USD',
+        responseUrl: `${appUrl}/contratos/pago/callback`,
         reference: 'Test AOE',
         oneTime: true,
-        expireIn: 1,
+        expireIn: 30,
       }
 
-      // Button/Prepare body (the old Web-type format)
-      const prepareBody = {
-        amount: totalCents,
-        amountWithoutTax: 0,
-        amountWithTax: baseCents,
-        tax: taxCents,
-        service: 0,
-        tip: 0,
-        clientTransactionId,
-        storeId,
-        currency: 'USD',
-        responseUrl: `${appUrl}/contratos/pago/callback`,
-        reference: 'Test AOE',
-      }
+      const jsonHeaders = { 'Content-Type': 'application/json', Accept: 'application/json' }
 
-      const altApiUrl = 'https://pay.payphone.app/api'
+      // Build Basic auth
+      const basicAuth = `Basic ${Buffer.from(`${clientId}:${clientSecret}`).toString('base64')}`
 
-      const results = await Promise.all([
-        // Test 1: /Links with Bearer token (current domain)
-        tryPayPhoneCall(`${apiUrl}/Links`, bearerToken, fullBody),
-        // Test 2: /Links on pay.payphone.app domain
-        tryPayPhoneCall(`${altApiUrl}/Links`, bearerToken, fullBody),
-        // Test 3: /button/Prepare with Bearer token (old Web approach)
-        tryPayPhoneCall(`${apiUrl}/button/Prepare`, bearerToken, prepareBody),
-        // Test 4: /Sale with Bearer token
-        tryPayPhoneCall(`${apiUrl}/Sale`, bearerToken, {
-          ...prepareBody,
-          phoneNumber: '0999999999',
-          countryCode: '593',
-        }),
-        // Test 5: /Links minimal body (current domain)
-        tryPayPhoneCall(`${apiUrl}/Links`, bearerToken, baseBody),
+      // Step 1: Try OAuth2 token endpoints
+      const tokenEndpoints = [
+        { url: `${apiUrl}/token`, label: '/api/token' },
+        { url: 'https://pay.payphonetodoesposible.com/token', label: '/token (root)' },
+        { url: `${apiUrl}/Auth/token`, label: '/api/Auth/token' },
+      ]
+
+      const oauthForm = new URLSearchParams({
+        grant_type: 'client_credentials',
+        client_id: clientId,
+        client_secret: clientSecret,
+      })
+
+      const oauthResults = await Promise.all(
+        tokenEndpoints.map(async ({ url, label }) => {
+          const r = await tryPayPhoneCall(url, '', {})
+            .catch(() => ({ status: 0, bodyRaw: 'error', isHtml: false, ok: false }))
+          // Actually try form-encoded POST
+          try {
+            const resp = await fetch(url, {
+              method: 'POST',
+              headers: { 'Content-Type': 'application/x-www-form-urlencoded', Accept: 'application/json' },
+              body: oauthForm.toString(),
+            })
+            const text = await resp.text()
+            return { label, status: resp.status, body: text.slice(0, 400), ok: resp.ok }
+          } catch (err) {
+            return { label, status: 0, body: err instanceof Error ? err.message : 'failed', ok: false }
+          }
+        })
+      )
+
+      // Step 2: Try /Links with different auth methods
+      const authTests = await Promise.all([
+        // Bearer store-token (current)
+        tryPayPhoneCall(`${apiUrl}/Links`, bearerToken, linksBody),
+        // Basic auth (clientId:clientSecret)
+        tryPayPhoneCall(`${apiUrl}/Links`, basicAuth, linksBody),
+        // Bearer with clientSecret directly
+        tryPayPhoneCall(`${apiUrl}/Links`, `Bearer ${clientSecret}`, linksBody),
+        // No auth header at all
+        (async () => {
+          try {
+            const resp = await fetch(`${apiUrl}/Links`, {
+              method: 'POST',
+              headers: jsonHeaders,
+              body: JSON.stringify(linksBody),
+            })
+            const text = await resp.text()
+            return { status: resp.status, bodyRaw: text.slice(0, 400), isHtml: /<html/i.test(text), ok: resp.ok }
+          } catch (err) {
+            return { status: 0, bodyRaw: err instanceof Error ? err.message : 'failed', isHtml: false, ok: false }
+          }
+        })(),
       ])
 
       return NextResponse.json({
         multiTest: true,
-        token: { length: rawToken.length, last5: rawToken.slice(-5) },
-        storeId,
-        tests: {
-          [`POST ${apiUrl}/Links (full)`]: results[0],
-          [`POST ${altApiUrl}/Links (alt domain)`]: results[1],
-          [`POST ${apiUrl}/button/Prepare`]: results[2],
-          [`POST ${apiUrl}/Sale`]: results[3],
-          [`POST ${apiUrl}/Links (minimal)`]: results[4],
+        credentials: {
+          bearerToken: { length: rawToken.length, last5: rawToken.slice(-5) },
+          storeId,
+          clientId: clientId || 'NOT SET',
+          clientSecretSet: !!clientSecret,
+        },
+        oauthTokenEndpoints: Object.fromEntries(oauthResults.map(r => [r.label, { status: r.status, body: r.body, ok: r.ok }])),
+        linksWithDifferentAuth: {
+          'Bearer store-token': { status: authTests[0].status, ok: authTests[0].ok, isHtml: authTests[0].isHtml },
+          'Basic clientId:secret': { status: authTests[1].status, ok: authTests[1].ok, body: authTests[1].bodyRaw },
+          'Bearer clientSecret': { status: authTests[2].status, ok: authTests[2].ok, body: authTests[2].bodyRaw },
+          'No auth': { status: authTests[3].status, ok: authTests[3].ok, body: authTests[3].bodyRaw },
         },
       })
     }
