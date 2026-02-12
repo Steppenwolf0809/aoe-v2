@@ -12,6 +12,10 @@ function getPayPhoneBaseUrlForTest(): { baseUrl: string; usingProxy: boolean } {
   return { baseUrl, usingProxy: !!proxyUrl }
 }
 
+function resolveLinksUrlForTest(baseUrl: string): string {
+  return (process.env.PAYPHONE_LINKS_URL?.trim() || `${baseUrl}/Links`).trim()
+}
+
 function getProxyHeadersForTest(): Record<string, string> {
   const proxyUrl = process.env.PAYPHONE_PROXY_URL?.trim()
   if (!proxyUrl) return {}
@@ -55,6 +59,7 @@ export async function GET(request: NextRequest) {
     process.env.PAYPHONE_API_URL || 'https://pay.payphonetodoesposible.com/api'
   const proxyUrl = process.env.PAYPHONE_PROXY_URL ?? ''
   const { baseUrl, usingProxy } = getPayPhoneBaseUrlForTest()
+  const linksUrl = resolveLinksUrlForTest(baseUrl)
 
   // Token health analysis
   const tokenIssues: string[] = []
@@ -80,6 +85,9 @@ export async function GET(request: NextRequest) {
       proxyUrl: proxyUrl || 'NOT SET',
       baseUrlInUse: baseUrl,
       usingProxy,
+      linksUrlInUse: linksUrl,
+      saleUrlOverride: process.env.PAYPHONE_SALE_URL ?? 'NOT SET',
+      confirmUrlOverride: process.env.PAYPHONE_CONFIRM_URL ?? 'NOT SET',
       mode: process.env.PAYPHONE_MODE ?? 'NOT SET',
       appUrl: process.env.NEXT_PUBLIC_APP_URL ?? 'NOT SET',
       clientIdSet: !!process.env.PAYPHONE_CLIENT_ID,
@@ -152,7 +160,7 @@ export async function POST(request: NextRequest) {
     // MULTI TEST — comprehensive diagnostics
     // ========================================
     if (multiTest) {
-      const linksUrl = `${baseUrl}/Links`
+      const linksUrl = resolveLinksUrlForTest(baseUrl)
 
       // Body matching EXACT PayPhone docs example (no responseUrl!)
       const docsExampleBody = {
@@ -229,6 +237,7 @@ export async function POST(request: NextRequest) {
         version: 3,
         baseUrlInUse: baseUrl,
         usingProxy,
+        linksUrlInUse: linksUrl,
         tokenInfo: {
           length: rawToken.length,
           first10: rawToken.slice(0, 10),

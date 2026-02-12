@@ -16,8 +16,47 @@ const PAYPHONE_UPSTREAM_API_URL =
 const PAYPHONE_PROXY_URL = process.env.PAYPHONE_PROXY_URL
 const PAYPHONE_PROXY_SECRET = process.env.PAYPHONE_PROXY_SECRET
 
+// Optional per-endpoint overrides (useful for n8n/Railway proxy webhooks).
+// If set, these should be full URLs.
+const PAYPHONE_LINKS_URL = process.env.PAYPHONE_LINKS_URL
+const PAYPHONE_SALE_URL = process.env.PAYPHONE_SALE_URL
+const PAYPHONE_CONFIRM_URL = process.env.PAYPHONE_CONFIRM_URL
+
 function getPayPhoneBaseUrl(): string {
   return (PAYPHONE_PROXY_URL || PAYPHONE_UPSTREAM_API_URL).replace(/\/+$/, '')
+}
+
+function applyIdTemplate(url: string, id: string): string {
+  // Support common placeholder variants.
+  return url
+    .replace(/\{\{id\}\}/g, id)
+    .replace(/\{id\}/g, id)
+    .replace(/\{\{transactionId\}\}/g, id)
+    .replace(/\{transactionId\}/g, id)
+}
+
+function resolveLinksUrl(): string {
+  if (PAYPHONE_LINKS_URL) return PAYPHONE_LINKS_URL.trim()
+  const baseUrl = getPayPhoneBaseUrl()
+  return `${baseUrl}/Links`
+}
+
+function resolveSaleUrl(transactionId: string): string {
+  if (PAYPHONE_SALE_URL) {
+    const raw = PAYPHONE_SALE_URL.trim()
+    const templated = applyIdTemplate(raw, transactionId)
+    // If user provided a base URL without a placeholder, append /{id}.
+    if (templated === raw) return `${raw.replace(/\/+$/, '')}/${transactionId}`
+    return templated
+  }
+  const baseUrl = getPayPhoneBaseUrl()
+  return `${baseUrl}/Sale/${transactionId}`
+}
+
+function resolveConfirmUrl(): string {
+  if (PAYPHONE_CONFIRM_URL) return PAYPHONE_CONFIRM_URL.trim()
+  const baseUrl = getPayPhoneBaseUrl()
+  return `${baseUrl}/button/V2/Confirm`
 }
 
 function getProxyHeaders(): Record<string, string> {
@@ -105,13 +144,13 @@ export async function createPaymentLink(
 ): Promise<PayPhoneLinkResponse> {
   const { token, storeId } = getPayPhoneConfig()
 
-  const baseUrl = getPayPhoneBaseUrl()
+  const url = resolveLinksUrl()
   const body = {
     ...request,
     storeId,
   }
 
-  const response = await fetch(`${baseUrl}/Links`, {
+  const response = await fetch(url, {
     method: 'POST',
     headers: {
       'Content-Type': 'application/json',
@@ -130,7 +169,7 @@ export async function createPaymentLink(
     console.error('[PayPhone Links] Response:', errorText.slice(0, 500))
     console.error('[PayPhone Links] Token length:', token.length, 'last5:', token.slice(-5))
     console.error('[PayPhone Links] StoreId:', storeId, 'length:', storeId.length)
-    console.error('[PayPhone Links] Using proxy:', !!PAYPHONE_PROXY_URL, 'baseUrl:', baseUrl)
+    console.error('[PayPhone Links] Using proxy:', !!PAYPHONE_PROXY_URL, 'url:', url)
     console.error('[PayPhone Links] Request:', JSON.stringify(body))
     const summarizedError = summarizeHtmlError(errorText)
     throw new Error(
@@ -158,9 +197,9 @@ export async function checkTransactionStatus(
   transactionId: string
 ): Promise<PayPhoneConfirmResponse> {
   const { token } = getPayPhoneConfig()
-  const baseUrl = getPayPhoneBaseUrl()
+  const url = resolveSaleUrl(transactionId)
 
-  const response = await fetch(`${baseUrl}/Sale/${transactionId}`, {
+  const response = await fetch(url, {
     method: 'GET',
     headers: {
       Authorization: token,
@@ -190,9 +229,9 @@ export async function confirmPayment(
   request: PayPhoneConfirmRequest
 ): Promise<PayPhoneConfirmResponse> {
   const { token } = getPayPhoneConfig()
-  const baseUrl = getPayPhoneBaseUrl()
+  const url = resolveConfirmUrl()
 
-  const response = await fetch(`${baseUrl}/button/V2/Confirm`, {
+  const response = await fetch(url, {
     method: 'POST',
     headers: {
       'Content-Type': 'application/json',
