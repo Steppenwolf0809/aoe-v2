@@ -144,11 +144,13 @@ export async function POST(request: NextRequest) {
         reference: 'Test AOE',
       }
 
+      const altApiUrl = 'https://pay.payphone.app/api'
+
       const results = await Promise.all([
-        // Test 1: /Links with Bearer token (current approach)
+        // Test 1: /Links with Bearer token (current domain)
         tryPayPhoneCall(`${apiUrl}/Links`, bearerToken, fullBody),
-        // Test 2: /Links with minimal body
-        tryPayPhoneCall(`${apiUrl}/Links`, bearerToken, baseBody),
+        // Test 2: /Links on pay.payphone.app domain
+        tryPayPhoneCall(`${altApiUrl}/Links`, bearerToken, fullBody),
         // Test 3: /button/Prepare with Bearer token (old Web approach)
         tryPayPhoneCall(`${apiUrl}/button/Prepare`, bearerToken, prepareBody),
         // Test 4: /Sale with Bearer token
@@ -157,6 +159,8 @@ export async function POST(request: NextRequest) {
           phoneNumber: '0999999999',
           countryCode: '593',
         }),
+        // Test 5: /Links minimal body (current domain)
+        tryPayPhoneCall(`${apiUrl}/Links`, bearerToken, baseBody),
       ])
 
       return NextResponse.json({
@@ -164,10 +168,11 @@ export async function POST(request: NextRequest) {
         token: { length: rawToken.length, last5: rawToken.slice(-5) },
         storeId,
         tests: {
-          'POST /Links (full body)': results[0],
-          'POST /Links (minimal body)': results[1],
-          'POST /button/Prepare (old Web)': results[2],
-          'POST /Sale (phone-based)': results[3],
+          [`POST ${apiUrl}/Links (full)`]: results[0],
+          [`POST ${altApiUrl}/Links (alt domain)`]: results[1],
+          [`POST ${apiUrl}/button/Prepare`]: results[2],
+          [`POST ${apiUrl}/Sale`]: results[3],
+          [`POST ${apiUrl}/Links (minimal)`]: results[4],
         },
       })
     }
