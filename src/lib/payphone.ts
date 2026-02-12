@@ -80,6 +80,9 @@ export async function preparePayment(
     headers: {
       'Content-Type': 'application/json',
       Authorization: token,
+      Accept: 'application/json',
+      'Accept-Encoding': 'gzip',
+      'User-Agent': 'AOE-v2/1.0',
     },
     body: JSON.stringify({
       ...request,
@@ -118,6 +121,9 @@ export async function confirmPayment(
     headers: {
       'Content-Type': 'application/json',
       Authorization: token,
+      Accept: 'application/json',
+      'Accept-Encoding': 'gzip',
+      'User-Agent': 'AOE-v2/1.0',
     },
     body: JSON.stringify(request),
   })
