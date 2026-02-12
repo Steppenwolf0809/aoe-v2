@@ -18,24 +18,41 @@ export async function POST(request: NextRequest) {
     }
 
     const payload = validated.data
-    const contractId = payload.clientTransactionId.split('-')[0]
-    if (!contractId) {
-      console.error('[PayPhone Webhook] Invalid clientTransactionId')
-      return NextResponse.json(
-        { error: 'Invalid clientTransactionId' },
-        { status: 400 }
-      )
-    }
-
     const supabase = createAdminClient()
+
+    // Look up contract by clientTransactionId stored in payment_id
     const { data: contract, error: fetchError } = await supabase
       .from('contracts')
       .select('*')
-      .eq('id', contractId)
+      .eq('payment_id', payload.clientTransactionId)
       .single()
 
     if (fetchError || !contract) {
-      console.error('[PayPhone Webhook] Contract not found:', contractId)
+      // Fallback: try splitting the old format (contractId-timestamp)
+      const legacyContractId = payload.clientTransactionId.split('-')[0]
+      if (legacyContractId) {
+        const { data: legacyContract } = await supabase
+          .from('contracts')
+          .select('*')
+          .eq('id', legacyContractId)
+          .single()
+
+        if (legacyContract && isPaymentApproved(payload.statusCode) &&
+            (legacyContract.status === 'DRAFT' || legacyContract.status === 'PENDING_PAYMENT')) {
+          await supabase
+            .from('contracts')
+            .update({
+              status: 'PAID',
+              payment_id: payload.id,
+              amount: PRECIO_CONTRATO_BASICO,
+            })
+            .eq('id', legacyContractId)
+
+          return NextResponse.json({ success: true, message: 'Payment processed (legacy)' })
+        }
+      }
+
+      console.error('[PayPhone Webhook] Contract not found for txId:', payload.clientTransactionId)
       return NextResponse.json(
         { error: 'Contract not found' },
         { status: 404 }
@@ -46,7 +63,7 @@ export async function POST(request: NextRequest) {
       isPaymentApproved(payload.statusCode) &&
       (contract.status === 'DRAFT' || contract.status === 'PENDING_PAYMENT')
     ) {
-      console.log('[PayPhone Webhook] Processing payment for contract:', contractId)
+      console.log('[PayPhone Webhook] Processing payment for contract:', contract.id)
       await supabase
         .from('contracts')
         .update({
@@ -54,7 +71,7 @@ export async function POST(request: NextRequest) {
           payment_id: payload.id,
           amount: PRECIO_CONTRATO_BASICO,
         })
-        .eq('id', contractId)
+        .eq('id', contract.id)
 
       return NextResponse.json({
         success: true,

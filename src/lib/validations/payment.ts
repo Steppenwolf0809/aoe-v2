@@ -1,45 +1,49 @@
 import { z } from 'zod'
 
-// PayPhone Prepare Payment Request
+// ============================================
+// PayPhone Links API (Tipo de app: API)
+// ============================================
+
+// Links Request
 // Regla: amount = amountWithoutTax + amountWithTax + tax + service + tip
-export const payphonePrepareRequestSchema = z.object({
+export const payphoneLinkRequestSchema = z.object({
   amount: z.number().positive(), // Total en centavos
-  amountWithoutTax: z.number().nonnegative().default(0), // Monto sin impuesto
-  amountWithTax: z.number().nonnegative().default(0), // Monto gravado (base imponible)
-  tax: z.number().nonnegative().default(0), // IVA calculado
-  service: z.number().nonnegative().default(0), // Cargo por servicio
-  tip: z.number().nonnegative().default(0), // Propina
-  clientTransactionId: z.string().min(1),
+  amountWithoutTax: z.number().nonnegative().default(0),
+  amountWithTax: z.number().nonnegative().default(0),
+  tax: z.number().nonnegative().default(0),
+  service: z.number().nonnegative().default(0),
+  tip: z.number().nonnegative().default(0),
+  clientTransactionId: z.string().min(1).max(15), // Max 15 chars para Links
   currency: z.literal('USD'),
-  email: z.string().email().optional(),
-  phone: z.string().optional(),
-  documentId: z.string().optional(),
-  lang: z.enum(['es', 'en']).default('es'),
-  responseUrl: z.string().url(),
-  reference: z.string().optional(),
-  storeId: z.string().optional(), // Se inyecta desde env si no viene
+  reference: z.string().max(100).optional(),
+  oneTime: z.boolean().default(true), // Link de un solo uso
+  expireIn: z.number().optional(), // Horas hasta que expire
+  additionalData: z.string().max(250).optional(), // Datos extra (contractId)
+  storeId: z.string().optional(), // Se inyecta desde env
 })
 
-export type PayPhonePrepareRequest = z.infer<typeof payphonePrepareRequestSchema>
+export type PayPhoneLinkRequest = z.infer<typeof payphoneLinkRequestSchema>
 
-// PayPhone Prepare Payment Response
-export const payphonePrepareResponseSchema = z.object({
-  paymentId: z.string(),
-  payWithCard: z.string().url(),
-  payWithPayPhone: z.string().url().optional(),
+// Links Response - PayPhone devuelve una URL (string o JSON)
+export const payphoneLinkResponseSchema = z.object({
+  paymentUrl: z.string(), // URL del link de pago
 })
 
-export type PayPhonePrepareResponse = z.infer<typeof payphonePrepareResponseSchema>
+export type PayPhoneLinkResponse = z.infer<typeof payphoneLinkResponseSchema>
 
-// PayPhone Confirm Payment Request
+// ============================================
+// PayPhone Confirm / Status Check
+// ============================================
+
+// Confirm Request (para /button/V2/Confirm - backward compat)
 export const payphoneConfirmRequestSchema = z.object({
-  id: z.string().min(1), // PayPhone transaction ID
-  clientTxId: z.string().min(1), // Client transaction ID
+  id: z.string().min(1),
+  clientTxId: z.string().min(1),
 })
 
 export type PayPhoneConfirmRequest = z.infer<typeof payphoneConfirmRequestSchema>
 
-// PayPhone Confirm Payment Response
+// Confirm/Status Response (shared between Confirm and GET /Sale/{id})
 export const payphoneConfirmResponseSchema = z.object({
   transactionId: z.coerce.string(),
   clientTransactionId: z.string().optional(),
@@ -59,7 +63,10 @@ export const payphoneConfirmResponseSchema = z.object({
 
 export type PayPhoneConfirmResponse = z.infer<typeof payphoneConfirmResponseSchema>
 
-// PayPhone Webhook Payload
+// ============================================
+// Webhook
+// ============================================
+
 export const payphoneWebhookSchema = z.object({
   id: z.string(),
   clientTransactionId: z.string(),
@@ -74,7 +81,10 @@ export const payphoneWebhookSchema = z.object({
 
 export type PayPhoneWebhook = z.infer<typeof payphoneWebhookSchema>
 
-// Helper function to validate payment status
+// ============================================
+// Helpers
+// ============================================
+
 export function isPaymentApproved(statusCode: number): boolean {
   return statusCode === 3
 }

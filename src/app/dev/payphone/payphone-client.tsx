@@ -18,8 +18,7 @@ type Config = {
 type TestResult = {
   success: boolean
   clientTransactionId?: string
-  payWithCard?: string
-  paymentId?: string
+  paymentUrl?: string
   error?: string
 }
 
@@ -87,7 +86,7 @@ export function PayPhoneTestClient() {
     <div style={{ maxWidth: 700, margin: '40px auto', fontFamily: 'monospace', padding: 20 }}>
       <h1 style={{ fontSize: 24, marginBottom: 8 }}>PayPhone Test</h1>
       <p style={{ color: '#888', marginBottom: 24 }}>
-        Prueba directa del endpoint Prepare - sin contrato, sin formularios.
+        Prueba directa del endpoint Links - sin contrato, sin formularios.
       </p>
 
       {/* Config Status */}
@@ -134,7 +133,7 @@ export function PayPhoneTestClient() {
           marginBottom: 24,
         }}
       >
-        <h2 style={{ fontSize: 14, color: '#888', marginBottom: 12 }}>TEST PREPARE</h2>
+        <h2 style={{ fontSize: 14, color: '#888', marginBottom: 12 }}>TEST LINKS</h2>
         <div style={{ display: 'flex', gap: 12, marginBottom: 12 }}>
           <label style={{ flex: 1 }}>
             <span style={{ fontSize: 12, color: '#888' }}>Amount (centavos)</span>
@@ -188,7 +187,7 @@ export function PayPhoneTestClient() {
             fontFamily: 'monospace',
           }}
         >
-          {loading ? 'Enviando...' : `Disparar Prepare ($${(parseInt(amount, 10) / 100).toFixed(2)})`}
+          {loading ? 'Enviando...' : `Disparar Links ($${(parseInt(amount, 10) / 100).toFixed(2)})`}
         </button>
       </div>
 
@@ -221,9 +220,9 @@ export function PayPhoneTestClient() {
           >
             {JSON.stringify(result, null, 2)}
           </pre>
-          {result.payWithCard && (
+          {result.paymentUrl && (
             <a
-              href={result.payWithCard}
+              href={result.paymentUrl}
               target="_blank"
               rel="noopener noreferrer"
               style={{

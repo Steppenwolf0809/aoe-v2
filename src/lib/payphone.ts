@@ -1,9 +1,9 @@
 import {
-  type PayPhonePrepareRequest,
-  type PayPhonePrepareResponse,
+  type PayPhoneLinkRequest,
+  type PayPhoneLinkResponse,
   type PayPhoneConfirmRequest,
   type PayPhoneConfirmResponse,
-  payphonePrepareResponseSchema,
+  payphoneLinkResponseSchema,
   payphoneConfirmResponseSchema,
 } from './validations/payment'
 
@@ -31,7 +31,7 @@ function normalizeAuthToken(rawToken: string): string {
 
 function summarizeHtmlError(htmlOrText: string): string {
   if (/<html/i.test(htmlOrText) || /<body/i.test(htmlOrText)) {
-    return 'PayPhone devolvio una pagina HTML de error (500). Verifique token, storeId y modo sandbox.'
+    return 'PayPhone devolvio una pagina HTML de error (500). Verifique token, storeId y tipo de aplicacion.'
   }
   return htmlOrText
 }
@@ -67,49 +67,95 @@ function getPayPhoneConfig() {
 }
 
 /**
- * Prepare payment with PayPhone (Step 1)
+ * Generate a short client transaction ID (max 15 chars for PayPhone Links)
+ * Format: AOE + base36 timestamp = ~11 chars
+ */
+export function generateShortTransactionId(): string {
+  return `AOE${Date.now().toString(36).toUpperCase()}`
+}
+
+/**
+ * Create payment link with PayPhone Links API
  * Returns URL for user to complete payment
  */
-export async function preparePayment(
-  request: PayPhonePrepareRequest
-): Promise<PayPhonePrepareResponse> {
+export async function createPaymentLink(
+  request: PayPhoneLinkRequest
+): Promise<PayPhoneLinkResponse> {
   const { token, storeId } = getPayPhoneConfig()
 
-  const response = await fetch(`${PAYPHONE_API_URL}/button/Prepare`, {
+  const body = {
+    ...request,
+    storeId,
+  }
+
+  const response = await fetch(`${PAYPHONE_API_URL}/Links`, {
     method: 'POST',
     headers: {
       'Content-Type': 'application/json',
       Authorization: token,
       Accept: 'application/json',
-      'Accept-Encoding': 'gzip',
       'User-Agent': 'AOE-v2/1.0',
     },
-    body: JSON.stringify({
-      ...request,
-      storeId,
-    }),
+    body: JSON.stringify(body),
   })
 
   if (!response.ok) {
     const errorText = await response.text()
-    console.error('[PayPhone Prepare] Status:', response.status)
-    console.error('[PayPhone Prepare] Response:', errorText.slice(0, 500))
-    console.error('[PayPhone Prepare] Token length:', token.length, 'last5:', token.slice(-5))
-    console.error('[PayPhone Prepare] StoreId:', storeId, 'length:', storeId.length)
-    console.error('[PayPhone Prepare] Request:', JSON.stringify({ ...request, storeId }))
+    console.error('[PayPhone Links] Status:', response.status)
+    console.error('[PayPhone Links] Response:', errorText.slice(0, 500))
+    console.error('[PayPhone Links] Token length:', token.length, 'last5:', token.slice(-5))
+    console.error('[PayPhone Links] StoreId:', storeId, 'length:', storeId.length)
+    console.error('[PayPhone Links] Request:', JSON.stringify(body))
     const summarizedError = summarizeHtmlError(errorText)
     throw new Error(
-      `PayPhone Prepare failed: ${response.status} ${summarizedError}`
+      `PayPhone Links failed: ${response.status} ${summarizedError}`
+    )
+  }
+
+  // Links API may return a plain URL string or a JSON object
+  const contentType = response.headers.get('content-type') || ''
+  if (contentType.includes('application/json')) {
+    const data = await response.json()
+    return payphoneLinkResponseSchema.parse(data)
+  }
+
+  // Plain text response = direct URL
+  const url = (await response.text()).trim().replace(/^"|"$/g, '')
+  return payphoneLinkResponseSchema.parse({ paymentUrl: url })
+}
+
+/**
+ * Check transaction status via Sale endpoint
+ * Used after PayPhone redirects back to verify payment
+ */
+export async function checkTransactionStatus(
+  transactionId: string
+): Promise<PayPhoneConfirmResponse> {
+  const { token } = getPayPhoneConfig()
+
+  const response = await fetch(`${PAYPHONE_API_URL}/Sale/${transactionId}`, {
+    method: 'GET',
+    headers: {
+      Authorization: token,
+      Accept: 'application/json',
+      'User-Agent': 'AOE-v2/1.0',
+    },
+  })
+
+  if (!response.ok) {
+    const errorText = await response.text()
+    const summarizedError = summarizeHtmlError(errorText)
+    throw new Error(
+      `PayPhone status check failed: ${response.status} ${summarizedError}`
     )
   }
 
   const data = await response.json()
-  return payphonePrepareResponseSchema.parse(data)
+  return payphoneConfirmResponseSchema.parse(data)
 }
 
 /**
- * Confirm payment with PayPhone (Step 2)
- * Verifies payment was completed successfully
+ * Confirm payment with PayPhone (V2 Confirm - kept for backward compatibility)
  */
 export async function confirmPayment(
   request: PayPhoneConfirmRequest
@@ -122,7 +168,6 @@ export async function confirmPayment(
       'Content-Type': 'application/json',
       Authorization: token,
       Accept: 'application/json',
-      'Accept-Encoding': 'gzip',
       'User-Agent': 'AOE-v2/1.0',
     },
     body: JSON.stringify(request),

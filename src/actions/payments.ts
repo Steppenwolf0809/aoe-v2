@@ -1,19 +1,22 @@
 'use server'
 
 import { createClient } from '@/lib/supabase/server'
-import { preparePayment, confirmPayment } from '@/lib/payphone'
+import {
+  createPaymentLink,
+  checkTransactionStatus,
+  generateShortTransactionId,
+} from '@/lib/payphone'
 import { getContract, updateContractStatus } from './contracts'
 import { generateContractPdf } from './pdf'
 import { PRECIO_CONTRATO_BASICO } from '@/lib/formulas/vehicular'
 import { isPaymentApproved } from '@/lib/validations/payment'
-import { headers } from 'next/headers'
 
 type ActionResult<T> =
   | { success: true; data: T }
   | { success: false; error: string }
 
 /**
- * Initiate payment with PayPhone
+ * Initiate payment with PayPhone Links API
  * Returns URL for user to complete payment
  * Works for both authenticated and anonymous contracts
  */
@@ -51,30 +54,16 @@ export async function initiatePayment(
       }
     }
 
-    // Get email from user or contract
-    const {
-      data: { user },
-    } = await supabase.auth.getUser()
-    const email = user?.email || contract.email || 'noreply@example.com'
+    // Generate short transaction ID (max 15 chars for PayPhone Links)
+    const clientTransactionId = generateShortTransactionId()
 
-    // Generate client transaction ID
-    const clientTransactionId = `${contractId}-${Date.now()}`
-
-    // Get app URL from env
-    const appUrl =
-      process.env.NEXT_PUBLIC_APP_URL || (await headers()).get('origin')
-    if (!appUrl) {
-      return { success: false, error: 'App URL no configurada' }
-    }
-
-    // Prepare payment with PayPhone
     // Precio incluye IVA 15% → descomponemos base + impuesto
     // Regla PayPhone: amount = amountWithoutTax + amountWithTax + tax + service + tip
     const totalCents = Math.round(PRECIO_CONTRATO_BASICO * 100) // $11.99 → 1199
     const baseCents = Math.floor(totalCents / 1.15) // base imponible
     const taxCents = totalCents - baseCents // IVA
 
-    const paymentResponse = await preparePayment({
+    const paymentResponse = await createPaymentLink({
       amount: totalCents,
       amountWithoutTax: 0,
       amountWithTax: baseCents,
@@ -83,25 +72,27 @@ export async function initiatePayment(
       tip: 0,
       clientTransactionId,
       currency: 'USD',
-      email,
-      responseUrl: `${appUrl}/contratos/pago/callback?contractId=${contractId}`,
-      lang: 'es',
       reference: 'Contrato Vehicular - AOE',
+      oneTime: true,
+      expireIn: 24, // Link expira en 24 horas
+      additionalData: contractId, // Guardamos el contractId para el callback
     })
 
-    // Store clientTransactionId in contract metadata for later verification
-    // Use admin client to bypass RLS
+    // Store clientTransactionId in contract for callback lookup
     const { createAdminClient } = await import('@/lib/supabase/admin')
     const adminSupabase = createAdminClient()
     await adminSupabase
       .from('contracts')
-      .update({ status: 'PENDING_PAYMENT' })
+      .update({
+        status: 'PENDING_PAYMENT',
+        payment_id: clientTransactionId, // Temporal: se sobreescribe con el ID real de PayPhone al confirmar
+      })
       .eq('id', contractId)
 
     return {
       success: true,
       data: {
-        paymentUrl: paymentResponse.payWithCard,
+        paymentUrl: paymentResponse.paymentUrl,
         clientTransactionId,
       },
     }
@@ -126,76 +117,67 @@ export async function initiatePayment(
 }
 
 /**
- * Confirm payment and process contract (generate PDF + send email)
- * Called from the payment callback page
+ * Verify payment and process contract (generate PDF + send email)
+ * Called from the payment callback page after PayPhone redirects back
+ *
+ * PayPhone redirects to: /contratos/pago/callback?id=PAYPHONE_TX_ID&clientTransactionId=AOExxx
+ * We look up the contract by the clientTransactionId stored in payment_id
  */
-export async function confirmAndProcessPayment(
-  contractId: string,
-  clientTransactionId: string,
-  payphoneTransactionId: string
+export async function verifyAndProcessPayment(
+  payphoneTransactionId: string,
+  clientTransactionId: string
 ): Promise<ActionResult<{ contractId: string; pdfGenerated: boolean }>> {
   try {
-    const supabase = await createClient()
+    // Look up contract by clientTransactionId
+    const { createAdminClient } = await import('@/lib/supabase/admin')
+    const adminSupabase = createAdminClient()
 
-    const {
-      data: { user },
-    } = await supabase.auth.getUser()
-    if (!user) {
-      return { success: false, error: 'No autenticado' }
+    const { data: contract, error: lookupError } = await adminSupabase
+      .from('contracts')
+      .select('*')
+      .eq('payment_id', clientTransactionId)
+      .eq('status', 'PENDING_PAYMENT')
+      .single()
+
+    if (lookupError || !contract) {
+      console.error('[verifyAndProcessPayment] Contract lookup failed:', lookupError)
+      return { success: false, error: 'Contrato no encontrado para esta transaccion' }
     }
 
-    // Get contract
-    const contractResult = await getContract(contractId)
-    if (!contractResult.success) {
-      return { success: false, error: contractResult.error }
-    }
+    const contractId = contract.id
 
-    const contract = contractResult.data
-
-    // Verify contract is in correct status
-    if (contract.status !== 'PENDING_PAYMENT' && contract.status !== 'DRAFT') {
-      // If already processed, return success
-      if (contract.status === 'GENERATED' || contract.status === 'DOWNLOADED') {
-        return {
-          success: true,
-          data: { contractId, pdfGenerated: true },
-        }
-      }
+    // If already processed, return success
+    if (contract.status === 'GENERATED' || contract.status === 'DOWNLOADED' || contract.status === 'PAID') {
       return {
-        success: false,
-        error: `Contrato en estado ${contract.status}, no se puede procesar`,
+        success: true,
+        data: { contractId, pdfGenerated: true },
       }
     }
 
-    // Confirm payment with PayPhone
-    const confirmResponse = await confirmPayment({
-      id: payphoneTransactionId,
-      clientTxId: clientTransactionId,
-    })
+    // Check transaction status with PayPhone
+    const statusResponse = await checkTransactionStatus(payphoneTransactionId)
 
     // Verify payment was approved
-    if (!isPaymentApproved(confirmResponse.statusCode)) {
+    if (!isPaymentApproved(statusResponse.statusCode)) {
       return {
         success: false,
-        error: `Pago no aprobado. Estado: ${confirmResponse.status}`,
+        error: `Pago no aprobado. Estado: ${statusResponse.status || statusResponse.transactionStatus || 'desconocido'}`,
       }
     }
 
-    // Update contract with payment info
+    // Update contract with real PayPhone transaction ID
     await updateContractStatus(contractId, {
       status: 'PAID',
-      payment_id: confirmResponse.transactionId,
+      payment_id: statusResponse.transactionId,
       amount: PRECIO_CONTRATO_BASICO,
     })
 
     // Generate PDF (this also sends email)
     const pdfResult = await generateContractPdf(contractId)
     if (!pdfResult.success) {
-      // Payment was successful but PDF generation failed
-      // Contract is in PAID state, user can retry PDF generation
       return {
         success: false,
-        error: `Pago exitoso pero fallo la generación del PDF: ${pdfResult.error}`,
+        error: `Pago exitoso pero fallo la generacion del PDF: ${pdfResult.error}`,
       }
     }
 
@@ -204,11 +186,23 @@ export async function confirmAndProcessPayment(
       data: { contractId, pdfGenerated: true },
     }
   } catch (error) {
-    console.error('[confirmAndProcessPayment]', error)
+    console.error('[verifyAndProcessPayment]', error)
     return {
       success: false,
       error:
         error instanceof Error ? error.message : 'Error al procesar pago',
     }
   }
+}
+
+/**
+ * @deprecated Use verifyAndProcessPayment instead
+ * Kept for backward compatibility with old callback flow
+ */
+export async function confirmAndProcessPayment(
+  contractId: string,
+  clientTransactionId: string,
+  payphoneTransactionId: string
+): Promise<ActionResult<{ contractId: string; pdfGenerated: boolean }>> {
+  return verifyAndProcessPayment(payphoneTransactionId, clientTransactionId)
 }

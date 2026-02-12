@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server'
-import { preparePayment } from '@/lib/payphone'
+import { createPaymentLink, generateShortTransactionId } from '@/lib/payphone'
 
 function isAuthorized(request: NextRequest): boolean {
   const secret = request.nextUrl.searchParams.get('secret')
@@ -9,11 +9,11 @@ function isAuthorized(request: NextRequest): boolean {
 }
 
 /**
- * Test PayPhone Prepare endpoint directly
+ * Test PayPhone Links endpoint directly
  * Protected by DEV_SECRET query param (works in prod too)
  *
  * GET  /api/dev/payphone-test?secret=xxx  → shows config status
- * POST /api/dev/payphone-test?secret=xxx  → fires a test transaction
+ * POST /api/dev/payphone-test?secret=xxx  → fires a test payment link
  */
 export async function GET(request: NextRequest) {
   if (!isAuthorized(request)) {
@@ -22,10 +22,11 @@ export async function GET(request: NextRequest) {
 
   const token = process.env.PAYPHONE_TOKEN
   const storeId = process.env.PAYPHONE_STORE_ID
-  const apiUrl = process.env.PAYPHONE_API_URL || 'https://pay.payphone.app/api'
+  const apiUrl = process.env.PAYPHONE_API_URL || 'https://pay.payphonetodoesposible.com/api'
 
   return NextResponse.json({
     status: 'ready',
+    endpoint: '/Links (API type)',
     config: {
       tokenSet: !!token,
       tokenLength: token?.length ?? 0,
@@ -54,11 +55,9 @@ export async function POST(request: NextRequest) {
     const baseCents = Math.floor(totalCents / 1.15)
     const taxCents = totalCents - baseCents
 
-    const appUrl = process.env.NEXT_PUBLIC_APP_URL || 'http://localhost:3000'
-    const prefix = process.env.PAYPHONE_REGION_PREFIX || 'DEV-AOE-'
-    const clientTransactionId = `${prefix}test-${Date.now()}`
+    const clientTransactionId = generateShortTransactionId()
 
-    console.log('[PayPhone Test] Firing Prepare with:', {
+    console.log('[PayPhone Test] Firing Links with:', {
       totalCents,
       baseCents,
       taxCents,
@@ -67,7 +66,7 @@ export async function POST(request: NextRequest) {
       apiUrl: process.env.PAYPHONE_API_URL || 'https://pay.payphonetodoesposible.com/api',
     })
 
-    const result = await preparePayment({
+    const result = await createPaymentLink({
       amount: totalCents,
       amountWithoutTax: 0,
       amountWithTax: baseCents,
@@ -76,18 +75,15 @@ export async function POST(request: NextRequest) {
       tip: 0,
       clientTransactionId,
       currency: 'USD',
-      email,
-      responseUrl: `${appUrl}/contratos/pago/callback?contractId=dev-test`,
-      lang: 'es',
       reference: 'Test PayPhone - AOE',
+      oneTime: true,
+      expireIn: 1,
     })
 
     return NextResponse.json({
       success: true,
       clientTransactionId,
-      payWithCard: result.payWithCard,
-      paymentId: result.paymentId,
-      payWithPayPhone: result.payWithPayPhone ?? null,
+      paymentUrl: result.paymentUrl,
     })
   } catch (error) {
     console.error('[PayPhone Test]', error)
