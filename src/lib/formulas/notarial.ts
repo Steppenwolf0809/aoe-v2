@@ -53,9 +53,6 @@ interface CatalogoTarifasNotariales {
       regla_hasta_375: { factor: number }
       rangos: TarifaRangoRaw[]
     }
-    tabla6_emision_obligaciones: {
-      factor_cuantia: number
-    }
     tabla7_constitucion_sociedades: {
       rangos: TarifaRangoRaw[]
       escalas_excedente: TarifaExcedenteRaw[]
@@ -177,17 +174,14 @@ function normalizarCatalogo(rawCatalog: TariffCatalogRaw): CatalogoTarifasNotari
   const tabla02 = buscarTabla(rawCatalog, 'tabla_02')
   const tabla03 = buscarTabla(rawCatalog, 'tabla_03')
   const tabla05 = buscarTabla(rawCatalog, 'tabla_05')
-  const tabla06 = buscarTabla(rawCatalog, 'tabla_06')
   const tabla07 = buscarTabla(rawCatalog, 'tabla_07')
 
   const tabla01Excedente = tabla01.reglas.find((rule) => rule.tipo === 'excedente_unico')
   const tabla02Excedente = tabla02.reglas.find((rule) => rule.tipo === 'excedente_unico')
   const tabla03Excedente = tabla03.reglas.find((rule) => rule.tipo === 'excedente_unico')
-  const tabla05Porcentaje = tabla05.reglas.find((rule) => rule.tipo === 'porcentaje_monto')
-  const tabla06Porcentaje = tabla06.reglas.find((rule) => rule.tipo === 'porcentaje_monto')
   const tabla07Excedentes = tabla07.reglas.filter((rule) => rule.tipo === 'excedente_escalonado')
 
-  if (!tabla01Excedente || !tabla02Excedente || !tabla03Excedente || !tabla05Porcentaje || !tabla06Porcentaje) {
+  if (!tabla01Excedente || !tabla02Excedente || !tabla03Excedente) {
     throw new Error('[notarial] Catalogo de tarifas incompleto o con formato no soportado')
   }
 
@@ -211,12 +205,9 @@ function normalizarCatalogo(rawCatalog: TariffCatalogRaw): CatalogoTarifasNotari
       },
       tabla5_arrendamiento_inscripcion: {
         regla_hasta_375: {
-          factor: tabla05Porcentaje.factor_porcentaje_monto ?? 0,
+          factor: 0,
         },
         rangos: crearRangos(tabla05.reglas),
-      },
-      tabla6_emision_obligaciones: {
-        factor_cuantia: tabla06Porcentaje.factor_porcentaje_monto ?? 0,
       },
       tabla7_constitucion_sociedades: {
         rangos: crearRangos(tabla07.reglas),
@@ -245,7 +236,6 @@ export type TipoTramite =
   | 'TRANSFERENCIA_DOMINIO'
   | 'HIPOTECA'
   | 'PROMESA_COMPRAVENTA'
-  | 'EMISION_OBLIGACIONES'
   | 'ACTO_CUANTIA_INDETERMINADA'
   | 'CANCELACION_HIPOTECA'
   | 'DIVORCIO'
@@ -663,13 +653,6 @@ export function calcularTramiteNotarial(
       break
     }
 
-    case 'EMISION_OBLIGACIONES': {
-      const factor = CATALOGO.tablas.tabla6_emision_obligaciones.factor_cuantia
-      costoBase = cuantia * factor
-      detalles.push(`Tabla 6 - Emision de Obligaciones (${(factor * 100).toFixed(4)}%)`)
-      break
-    }
-
     case 'ACTO_CUANTIA_INDETERMINADA': {
       const actoId = opciones.actoIndeterminadoId || ACTOS_CUANTIA_INDETERMINADA[0]?.id
       const acto = ACTOS_CUANTIA_INDETERMINADA.find((a) => a.id === actoId)
@@ -799,7 +782,6 @@ export function getTramitesPorCategoria(): {
       { value: 'HIPOTECA', label: 'Hipoteca' },
       { value: 'PROMESA_COMPRAVENTA', label: 'Promesa de Compraventa' },
       { value: 'CONSTITUCION_CIA', label: 'Constitucion de Compania' },
-      { value: 'EMISION_OBLIGACIONES', label: 'Emision de Obligaciones' },
     ],
     sinCuantia: [
       { value: 'ACTO_CUANTIA_INDETERMINADA', label: 'Actos de Cuantia Indeterminada' },

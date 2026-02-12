@@ -83,14 +83,6 @@
       ]
     },
     {
-      "id": "tabla_06",
-      "nombre": "Emisión de Obligaciones",
-      "fuente": "R.O. 246 Pág 3",
-      "reglas": [
-        { "min": 0, "max": null, "factor_porcentaje_monto": 0.0001, "tipo": "porcentaje_monto" }
-      ]
-    },
-    {
       "id": "tabla_07",
       "nombre": "Constitución de Sociedades",
       "fuente": "R.O. 246 Pág 3",
