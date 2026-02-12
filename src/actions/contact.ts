@@ -1,13 +1,15 @@
 'use server'
 
 import { z } from 'zod'
-// import { Resend } from 'resend' 
-// TODO: Uncomment when Resend is configured
-// const resend = new Resend(process.env.RESEND_API_KEY)
+import { createClient } from '@/lib/supabase/server'
+import { notifyN8NLead } from '@/lib/n8n'
+import { Resend } from 'resend'
+
+const resend = new Resend(process.env.RESEND_API_KEY)
 
 const contactFormSchema = z.object({
   name: z.string().min(2, { message: 'El nombre debe tener al menos 2 caracteres' }),
-  email: z.string().email({ message: 'Por favor ingresa un email válido' }),
+  email: z.string().email({ message: 'Por favor ingresa un email valido' }),
   phone: z.string().optional(),
   serviceType: z.string().min(1, { message: 'Por favor selecciona un tipo de servicio' }),
   message: z.string().min(10, { message: 'El mensaje debe tener al menos 10 caracteres' }),
@@ -21,8 +23,17 @@ export type ContactState = {
   }
 }
 
-export async function submitContactForm(prevState: ContactState | undefined, formData: FormData): Promise<ContactState> {
-  // Validate form fields
+function isSchemaMismatchError(error: { message?: string | null; code?: string | null } | null): boolean {
+  if (!error) return false
+
+  const text = `${error.code || ''} ${error.message || ''}`.toLowerCase()
+  return text.includes('could not find') || text.includes('column') || text.includes('schema cache')
+}
+
+export async function submitContactForm(
+  _prevState: ContactState | undefined,
+  formData: FormData,
+): Promise<ContactState> {
   const validatedFields = contactFormSchema.safeParse({
     name: formData.get('name'),
     email: formData.get('email'),
@@ -31,7 +42,6 @@ export async function submitContactForm(prevState: ContactState | undefined, for
     message: formData.get('message'),
   })
 
-  // If form validation fails, return errors early.
   if (!validatedFields.success) {
     return {
       success: false,
@@ -43,35 +53,85 @@ export async function submitContactForm(prevState: ContactState | undefined, for
   const { name, email, phone, serviceType, message } = validatedFields.data
 
   try {
-    // 1. Store in Database (Supabase) if needed
-    // const supabase = createClient()
-    // await supabase.from('contacts').insert({ ... })
+    const supabase = await createClient()
 
-    // 2. Send Notification Email (Resend)
-    /*
-    await resend.emails.send({
-      from: process.env.EMAIL_FROM || 'Abogados Online Ecuador <noreply@abogadosonlineecuador.com>',
-      replyTo: email, // El usuario que escribe
-      to: process.env.EMAIL_REPLY_TO || 'info@abogadosonlineecuador.com',
-      subject: `Nuevo contacto: ${serviceType}`,
-      html: `
-        <h1>Nuevo mensaje de contacto</h1>
-        <p><strong>Nombre:</strong> ${name}</p>
-        <p><strong>Email:</strong> ${email}</p>
-        <p><strong>Teléfono:</strong> ${phone || 'N/A'}</p>
-        <p><strong>Servicio:</strong> ${serviceType}</p>
-        <p><strong>Mensaje:</strong></p>
-        <p>${message}</p>
-      `
+    // Primary insert for the current schema.
+    let { error: dbError } = await supabase.from('leads').insert({
+      email,
+      phone: phone || null,
+      source: 'contacto',
+      calculator_type: serviceType,
+      data: { name, serviceType, message },
     })
-    */
 
-    // Simulate delay
-    await new Promise((resolve) => setTimeout(resolve, 1000))
+    // Fallback for legacy schema (name + metadata).
+    if (dbError && isSchemaMismatchError(dbError)) {
+      const fallback = await supabase.from('leads').insert({
+        name,
+        email,
+        phone: phone || null,
+        source: 'contacto',
+        status: 'new',
+        metadata: { serviceType, message },
+      })
+      dbError = fallback.error
+    }
+
+    if (dbError) {
+      console.error('Supabase error saving contact lead:', dbError)
+    }
+
+    const n8nSuccess = await notifyN8NLead({
+      email,
+      name,
+      phone,
+      source: 'contacto',
+      interes: serviceType,
+      metadata: { message },
+    })
+
+    let emailSent = true
+    try {
+      await resend.emails.send({
+        from:
+          process.env.EMAIL_FROM ||
+          'Abogados Online Ecuador <noreply@abogadosonlineecuador.com>',
+        replyTo: email,
+        to: process.env.EMAIL_REPLY_TO || 'info@abogadosonlineecuador.com',
+        subject: `Nuevo contacto: ${serviceType}`,
+        html: `
+          <h2>Nuevo mensaje de contacto</h2>
+          <p><strong>Nombre:</strong> ${name}</p>
+          <p><strong>Email:</strong> ${email}</p>
+          <p><strong>Telefono:</strong> ${phone || 'N/A'}</p>
+          <p><strong>Servicio:</strong> ${serviceType}</p>
+          <p><strong>Mensaje:</strong></p>
+          <p>${message}</p>
+        `,
+      })
+    } catch (error) {
+      emailSent = false
+      console.error('Error sending contact notification email:', error)
+    }
+
+    const dbSaved = !dbError
+    if (!emailSent && !n8nSuccess) {
+      if (dbSaved) {
+        return {
+          success: false,
+          message:
+            'Recibimos tu mensaje, pero fallo la notificacion interna. Intenta nuevamente en unos minutos.',
+        }
+      }
+      return {
+        success: false,
+        message: 'No pudimos enviar tu mensaje en este momento. Intenta nuevamente en unos minutos.',
+      }
+    }
 
     return {
       success: true,
-      message: '¡Mensaje enviado con éxito! Nos pondremos en contacto contigo pronto.',
+      message: 'Mensaje enviado con exito. Nos pondremos en contacto contigo pronto.',
     }
   } catch (error) {
     console.error('Contact form error:', error)

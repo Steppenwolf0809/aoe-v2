@@ -52,10 +52,10 @@ function resolveLeadCaptureWebhookUrl(rawUrl: string): string {
  * Sends a lead notification to n8n (fire-and-forget).
  * Never throws, failures are logged but do not block the main flow.
  */
-export async function notifyN8NLead(data: LeadPayload): Promise<void> {
+export async function notifyN8NLead(data: LeadPayload): Promise<boolean> {
   if (!N8N_WEBHOOK_URL) {
     console.warn('[n8n] N8N_WEBHOOK_URL not configured, skipping notification')
-    return
+    return false
   }
 
   try {
@@ -88,8 +88,11 @@ export async function notifyN8NLead(data: LeadPayload): Promise<void> {
       console.error(
         `[n8n] Webhook returned ${response.status} at ${webhookUrl}${responseText ? `: ${responseText}` : ''}`,
       )
+      return false
     }
+    return true
   } catch (error) {
     console.error('[n8n] Webhook notification failed:', error)
+    return false
   }
 }
