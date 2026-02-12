@@ -8,6 +8,7 @@ import { Slider } from '@/components/ui/slider'
 import { calcularCotizacionVehicular } from '@/lib/formulas/vehicular'
 import { ResultadoVehicular } from '@/lib/formulas/vehicular'
 import { AnimatedCounter } from './animated-counter'
+import { CalculatorLeadCTA } from './calculator-lead-cta'
 
 export function VehicularCalculatorWidget() {
   const [valorVehiculo, setValorVehiculo] = useState(15000)
@@ -371,6 +372,15 @@ export function VehicularCalculatorWidget() {
           </Card>
         )
       })()}
+
+      {/* Lead Capture CTA */}
+      {resultado && (
+        <CalculatorLeadCTA
+          source="calc_vehicular"
+          calculatorLabel="Vehicular"
+          whatsappMessage="Hola, necesito ayuda con un trámite vehicular (compraventa de vehículo)."
+        />
+      )}
     </div>
   )
 }

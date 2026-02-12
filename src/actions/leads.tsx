@@ -6,6 +6,7 @@ import type { LeadCaptureInput, CalculatorSessionInput } from '@/lib/validations
 import { Resend } from 'resend'
 import { render } from '@react-email/render'
 import { WelcomeEmail } from '@/emails/welcome-email'
+import { notifyN8NLead } from '@/lib/n8n'
 
 const resend = new Resend(process.env.RESEND_API_KEY)
 
@@ -41,6 +42,15 @@ export async function captureLead(
       console.error('Supabase error capturing lead:', error)
       return { success: false as const, error: 'Error guardando datos' }
     }
+
+    // Notify n8n for automation workflows (fire-and-forget)
+    notifyN8NLead({
+      email: parsed.data.email,
+      name: parsed.data.name,
+      phone: parsed.data.phone,
+      source: parsed.data.source,
+      interes: parsed.data.source,
+    })
 
     if (options.sendWelcomeEmail ?? true) {
       // --- Envío del Email de Bienvenida ---

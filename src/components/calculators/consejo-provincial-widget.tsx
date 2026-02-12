@@ -10,6 +10,7 @@ import {
   calcularAlcabalaYConsejoProvincial,
 } from '@/lib/formulas/consejo-provincial'
 import { AnimatedCounter } from './animated-counter'
+import { CalculatorLeadCTA } from './calculator-lead-cta'
 
 export function ConsejoProvincialCalculatorWidget() {
   const [modoCalculo, setModoCalculo] = useState<'simple' | 'completo'>('completo')
@@ -320,6 +321,14 @@ export function ConsejoProvincialCalculatorWidget() {
           </p>
         </div>
       </Card>
+
+      {/* Lead Capture CTA */}
+      {(resultado || resultadoCompleto) && (
+        <CalculatorLeadCTA
+          source="calc_consejo_provincial"
+          calculatorLabel="Consejo Provincial"
+        />
+      )}
 
       {/* Nota legal */}
       <div className="flex items-start gap-2 text-xs text-[var(--text-secondary)] bg-bg-secondary p-3 rounded-lg">

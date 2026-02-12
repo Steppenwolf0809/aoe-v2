@@ -8,6 +8,7 @@ import { Slider } from '@/components/ui/slider'
 import { calcularArancelRegistro } from '@/lib/formulas/registro'
 import { ResultadoRegistro } from '@/lib/formulas/types'
 import { AnimatedCounter } from './animated-counter'
+import { CalculatorLeadCTA } from './calculator-lead-cta'
 
 export function RegistroCalculatorWidget() {
   const [valorContrato, setValorContrato] = useState(50000)
@@ -197,6 +198,14 @@ export function RegistroCalculatorWidget() {
           </div>
         </div>
       </Card>
+
+      {/* Lead Capture CTA */}
+      {resultado && (
+        <CalculatorLeadCTA
+          source="calc_registro"
+          calculatorLabel="Registro de la Propiedad"
+        />
+      )}
 
       {/* Nota legal */}
       <div className="flex items-start gap-2 text-xs text-[var(--text-secondary)] bg-bg-secondary p-3 rounded-lg">
