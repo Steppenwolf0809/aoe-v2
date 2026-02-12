@@ -67,7 +67,170 @@ interface CatalogoTarifasNotariales {
   tarifas_fijas_sbu: Record<string, number>
 }
 
-const CATALOGO = tariffCatalog as CatalogoTarifasNotariales
+interface ReglaTarifaRaw {
+  min: number
+  max: number | null
+  tipo: string
+  tarifa_sbu?: number
+  tarifa_base_sbu?: number
+  factor_excedente?: number
+  factor_porcentaje_monto?: number
+}
+
+interface TablaTarifaRaw {
+  id: string
+  reglas: ReglaTarifaRaw[]
+}
+
+interface TarifaFijaAnexoRaw {
+  concepto: string
+  porcentaje_sbu: number
+}
+
+interface TariffCatalogRaw {
+  configuracion: {
+    sbu_actual: number
+  }
+  tablas: TablaTarifaRaw[]
+  tarifas_fijas_anexo_2: TarifaFijaAnexoRaw[]
+}
+
+const DEFAULT_IVA = 0.15
+const DEFAULT_ACTOS_INDETERMINADOS: ActoIndeterminadoRaw[] = [
+  { id: 'poder_especial', concepto: 'Poder especial', valor: 0.12, tipo: 'porcentaje_sbu' },
+  { id: 'declaracion_jurada', concepto: 'Declaracion juramentada', valor: 0.05, tipo: 'porcentaje_sbu' },
+  { id: 'autorizacion_salida', concepto: 'Autorizacion salida del pais', valor: 0.05, tipo: 'porcentaje_sbu' },
+]
+
+const DEFAULT_TARIFAS_FIJAS_SBU: Record<string, number> = {
+  SALIDA_PAIS: 0.05,
+  RECONOCIMIENTO_FIRMA: 0.03,
+  DECLARACION_JURAMENTADA: 0.05,
+}
+
+function normalizarTexto(value: string) {
+  return value
+    .toUpperCase()
+    .normalize('NFD')
+    .replace(/[\u0300-\u036f]/g, '')
+}
+
+function crearExcedente(rule: ReglaTarifaRaw): TarifaExcedenteRaw {
+  const baseDesde = Math.floor(rule.min)
+
+  return {
+    desde: rule.min,
+    base_sbu: rule.tarifa_base_sbu ?? 0,
+    base_desde: baseDesde,
+    factor: rule.factor_excedente ?? 0,
+  }
+}
+
+function crearRangos(reglas: ReglaTarifaRaw[]): TarifaRangoRaw[] {
+  return reglas
+    .filter((rule) => rule.tipo === 'rango_simple')
+    .map((rule) => ({
+      desde: rule.min,
+      hasta: rule.max,
+      sbu: rule.tarifa_sbu ?? 0,
+    }))
+}
+
+function buscarTabla(raw: TariffCatalogRaw, id: string): TablaTarifaRaw {
+  const tabla = raw.tablas.find((item) => item.id === id)
+  if (!tabla) {
+    throw new Error(`[notarial] Tabla no encontrada en catalogo: ${id}`)
+  }
+  return tabla
+}
+
+function mapearTarifasFijas(rawTarifas: TarifaFijaAnexoRaw[]) {
+  const conceptMap: Record<string, string> = {
+    'CANCELACION DE HIPOTECAS': 'CANCELACION_HIPOTECA',
+    'DIVORCIO POR MUTUO CONSENTIMIENTO': 'DIVORCIO',
+    'UNION DE HECHO': 'UNION_HECHO',
+    'TERMINACION DE UNION DE HECHO': 'TERMINACION_UNION_HECHO',
+    'CAPITULACIONES MATRIMONIALES': 'CAPITULACIONES_MATRIMONIALES',
+    'POSESION EFECTIVA': 'POSESION_EFECTIVA',
+    'TESTAMENTO ABIERTO': 'TESTAMENTO_ABIERTO',
+    'TESTAMENTO CERRADO': 'TESTAMENTO_CERRADO',
+    'PODERES GENERALES (PERSONA NATURAL)': 'PODER_GENERAL_PN',
+    'PODERES GENERALES (PERSONA JURIDICA)': 'PODER_GENERAL_PJ',
+  }
+
+  const mapped = rawTarifas.reduce<Record<string, number>>((acc, tarifa) => {
+    const key = conceptMap[normalizarTexto(tarifa.concepto)]
+    if (key) {
+      acc[key] = tarifa.porcentaje_sbu
+    }
+    return acc
+  }, {})
+
+  return {
+    ...DEFAULT_TARIFAS_FIJAS_SBU,
+    ...mapped,
+  }
+}
+
+function normalizarCatalogo(rawCatalog: TariffCatalogRaw): CatalogoTarifasNotariales {
+  const tabla01 = buscarTabla(rawCatalog, 'tabla_01')
+  const tabla02 = buscarTabla(rawCatalog, 'tabla_02')
+  const tabla03 = buscarTabla(rawCatalog, 'tabla_03')
+  const tabla05 = buscarTabla(rawCatalog, 'tabla_05')
+  const tabla06 = buscarTabla(rawCatalog, 'tabla_06')
+  const tabla07 = buscarTabla(rawCatalog, 'tabla_07')
+
+  const tabla01Excedente = tabla01.reglas.find((rule) => rule.tipo === 'excedente_unico')
+  const tabla02Excedente = tabla02.reglas.find((rule) => rule.tipo === 'excedente_unico')
+  const tabla03Excedente = tabla03.reglas.find((rule) => rule.tipo === 'excedente_unico')
+  const tabla05Porcentaje = tabla05.reglas.find((rule) => rule.tipo === 'porcentaje_monto')
+  const tabla06Porcentaje = tabla06.reglas.find((rule) => rule.tipo === 'porcentaje_monto')
+  const tabla07Excedentes = tabla07.reglas.filter((rule) => rule.tipo === 'excedente_escalonado')
+
+  if (!tabla01Excedente || !tabla02Excedente || !tabla03Excedente || !tabla05Porcentaje || !tabla06Porcentaje) {
+    throw new Error('[notarial] Catalogo de tarifas incompleto o con formato no soportado')
+  }
+
+  return {
+    metadata: {
+      sbu: rawCatalog.configuracion.sbu_actual,
+      iva: DEFAULT_IVA,
+    },
+    tablas: {
+      tabla1_transferencia_dominio: {
+        rangos: crearRangos(tabla01.reglas),
+        excedente: crearExcedente(tabla01Excedente),
+      },
+      tabla2_promesa_compraventa: {
+        rangos: crearRangos(tabla02.reglas),
+        excedente: crearExcedente(tabla02Excedente),
+      },
+      tabla3_hipoteca: {
+        rangos: crearRangos(tabla03.reglas),
+        excedente: crearExcedente(tabla03Excedente),
+      },
+      tabla5_arrendamiento_inscripcion: {
+        regla_hasta_375: {
+          factor: tabla05Porcentaje.factor_porcentaje_monto ?? 0,
+        },
+        rangos: crearRangos(tabla05.reglas),
+      },
+      tabla6_emision_obligaciones: {
+        factor_cuantia: tabla06Porcentaje.factor_porcentaje_monto ?? 0,
+      },
+      tabla7_constitucion_sociedades: {
+        rangos: crearRangos(tabla07.reglas),
+        escalas_excedente: tabla07Excedentes.map(crearExcedente),
+      },
+      tabla_indeterminada: {
+        actos: DEFAULT_ACTOS_INDETERMINADOS,
+      },
+    },
+    tarifas_fijas_sbu: mapearTarifasFijas(rawCatalog.tarifas_fijas_anexo_2),
+  }
+}
+
+const CATALOGO = normalizarCatalogo(tariffCatalog as TariffCatalogRaw)
 
 export const SBU_2026 = CATALOGO.metadata.sbu
 export const IVA_RATE = CATALOGO.metadata.iva

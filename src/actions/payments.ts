@@ -101,9 +101,20 @@ export async function initiatePayment(
     }
   } catch (error) {
     console.error('[initiatePayment]', error)
+    const message =
+      error instanceof Error ? error.message : 'Error al iniciar pago'
+
+    if (process.env.NODE_ENV !== 'production' && /PayPhone credentials/i.test(message)) {
+      return {
+        success: false,
+        error:
+          `${message} En desarrollo puedes generar el PDF sin pago usando POST /api/dev/test-contract con { contractId }.`,
+      }
+    }
+
     return {
       success: false,
-      error: error instanceof Error ? error.message : 'Error al iniciar pago',
+      error: message,
     }
   }
 }

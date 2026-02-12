@@ -18,6 +18,7 @@ function validVehiculo() {
     motor: '2NR-FKE1234567',
     chasis: '9BR53ZEC2L1234567',
     avaluo: 15000,
+    valorContrato: 14500,
   }
 }
 
@@ -150,6 +151,22 @@ describe('vehiculoSchema', () => {
 
   it('accepts small positive avaluo', () => {
     const data = { ...validVehiculo(), avaluo: 0.01 }
+    expect(vehiculoSchema.safeParse(data).success).toBe(true)
+  })
+
+  // --- Valor del contrato ---
+  it('rejects valorContrato of 0', () => {
+    const data = { ...validVehiculo(), valorContrato: 0 }
+    expect(vehiculoSchema.safeParse(data).success).toBe(false)
+  })
+
+  it('rejects negative valorContrato', () => {
+    const data = { ...validVehiculo(), valorContrato: -100 }
+    expect(vehiculoSchema.safeParse(data).success).toBe(false)
+  })
+
+  it('accepts positive valorContrato', () => {
+    const data = { ...validVehiculo(), valorContrato: 1 }
     expect(vehiculoSchema.safeParse(data).success).toBe(true)
   })
 })

@@ -54,6 +54,10 @@ export function SummaryStep({
         <SummaryRow
           label="Avaluo"
           value={formatCurrency(data.vehiculo.avaluo)}
+        />
+        <SummaryRow
+          label="Valor del contrato"
+          value={formatCurrency(data.vehiculo.valorContrato)}
           highlight
         />
       </SummarySection>

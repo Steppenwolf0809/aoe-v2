@@ -9,6 +9,7 @@ export const vehiculoSchema = z.object({
   motor: z.string().min(3, 'Numero de motor requerido'),
   chasis: z.string().min(3, 'Numero de chasis requerido'),
   avaluo: z.number().positive('Debe ser mayor a 0'),
+  valorContrato: z.number().positive('Valor del contrato debe ser mayor a 0'),
 })
 
 export const personaSchema = z.object({

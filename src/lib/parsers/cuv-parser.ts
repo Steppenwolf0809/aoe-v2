@@ -79,6 +79,71 @@ function normalizePlaca(raw: string): string {
   return raw.toUpperCase()
 }
 
+function normalizeBrand(raw: string): string {
+  return raw
+    .trim()
+    .toUpperCase()
+    .replace(/\s+/g, ' ')
+}
+
+function isLikelyBrandCandidate(line: string): boolean {
+  const value = normalizeBrand(line)
+
+  if (!value || value.length < 2 || value.length > 40) return false
+  if (!/[A-Z]/.test(value)) return false
+  if (/\d/.test(value)) return false
+  if (value.endsWith(':')) return false
+  if (!/^[A-Z .&-]+$/.test(value)) return false
+  if (value === 'NO REGISTRADO') return false
+  if (VEHICLE_COLORS.includes(value)) return false
+  if (/^(VIN|MODELO|MARCA|PASAJEROS|SERVICIO|CARROCERIA|COLOR|PLACAS|CLASE|TIPO|CILINDRAJE|RANV)\b/.test(value)) return false
+  if (/CERTIFICADO|CUV-|AGENCIA|TRANSITO|REGISTRO|INFORMACION|DATOS DEL/i.test(value)) return false
+
+  return true
+}
+
+function extractBrandNearLabel(vehicleSection: string): string | null {
+  const lines = vehicleSection
+    .split('\n')
+    .map((l) => l.trim())
+    .filter(Boolean)
+
+  // Case 1: "Marca: TOYOTA"
+  for (const line of lines) {
+    const inlineMatch = line.match(/^\s*Marca\s*:\s*(.+)$/i)
+    if (inlineMatch && isLikelyBrandCandidate(inlineMatch[1])) {
+      return normalizeBrand(inlineMatch[1])
+    }
+  }
+
+  // Case 2: standalone "Marca:" with value in nearby lines due two-column extraction
+  const marcaIndexes: number[] = []
+  lines.forEach((line, idx) => {
+    if (/^\s*Marca\s*:?\s*$/i.test(line)) marcaIndexes.push(idx)
+  })
+
+  for (const idx of marcaIndexes) {
+    const candidateIndexes: number[] = []
+
+    // In ANT CUV two-column extraction, the brand may appear many lines above "Marca:"
+    for (let i = idx - 1; i >= Math.max(0, idx - 20); i--) {
+      candidateIndexes.push(i)
+    }
+    for (let i = idx + 1; i <= Math.min(lines.length - 1, idx + 6); i++) {
+      candidateIndexes.push(i)
+    }
+
+    for (const ci of candidateIndexes) {
+      if (ci < 0 || ci >= lines.length) continue
+      if (isLikelyBrandCandidate(lines[ci])) {
+        return normalizeBrand(lines[ci])
+      }
+    }
+  }
+
+  return null
+}
+
 // ---------------------------------------------------------------------------
 // Main parser
 // ---------------------------------------------------------------------------
@@ -130,6 +195,11 @@ export function parseCuvText(rawText: string): CuvData {
       marca = brand
       break
     }
+  }
+
+  // Fallback when the brand is not in our known list or appears scrambled around "Marca:"
+  if (!marca) {
+    marca = extractBrandNearLabel(vehicleSection)
   }
 
   // ── 4. MODELO ───────────────────────────────────────────────────────

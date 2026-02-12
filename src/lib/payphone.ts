@@ -7,21 +7,62 @@ import {
   payphoneConfirmResponseSchema,
 } from './validations/payment'
 
-const PAYPHONE_API_URL = 'https://pay.payphonetodoesposible.com/api'
+const PAYPHONE_API_URL =
+  process.env.PAYPHONE_API_URL || 'https://pay.payphonetodoesposible.com/api'
+
+function looksLikePlaceholder(value: string): boolean {
+  const normalized = value.trim().toLowerCase()
+  return (
+    normalized.includes('tu_') ||
+    normalized.includes('_aqui') ||
+    normalized.includes('your_') ||
+    normalized.includes('example') ||
+    normalized.includes('xxxx')
+  )
+}
+
+function normalizeAuthToken(rawToken: string): string {
+  const token = rawToken.trim()
+
+  if (/^bearer\s+/i.test(token)) return token
+  if (/^bearer_/i.test(token)) return `Bearer ${token.slice('Bearer_'.length)}`
+  return `Bearer ${token}`
+}
+
+function summarizeHtmlError(htmlOrText: string): string {
+  if (/<html/i.test(htmlOrText) || /<body/i.test(htmlOrText)) {
+    return 'PayPhone devolvio una pagina HTML de error (500). Verifique token, storeId y modo sandbox.'
+  }
+  return htmlOrText
+}
 
 /**
  * Get PayPhone credentials from env
  */
 function getPayPhoneConfig() {
-  const token = process.env.PAYPHONE_TOKEN
-  const storeId = process.env.PAYPHONE_STORE_ID
+  const rawToken = process.env.PAYPHONE_TOKEN
+  const rawStoreId = process.env.PAYPHONE_STORE_ID
 
-  if (!token || !storeId) {
+  if (!rawToken || !rawStoreId) {
     throw new Error(
       'PayPhone credentials not configured. Set PAYPHONE_TOKEN and PAYPHONE_STORE_ID in .env.local'
     )
   }
 
+  if (looksLikePlaceholder(rawToken) || looksLikePlaceholder(rawStoreId)) {
+    throw new Error(
+      'PayPhone credentials look like placeholders. Replace PAYPHONE_TOKEN and PAYPHONE_STORE_ID with real sandbox/production values.'
+    )
+  }
+
+  const storeId = Number(rawStoreId)
+  if (!Number.isInteger(storeId) || storeId <= 0) {
+    throw new Error(
+      'PAYPHONE_STORE_ID invalido. Debe ser un numero entero positivo.'
+    )
+  }
+
+  const token = normalizeAuthToken(rawToken)
   return { token, storeId }
 }
 
@@ -48,8 +89,9 @@ export async function preparePayment(
 
   if (!response.ok) {
     const errorText = await response.text()
+    const summarizedError = summarizeHtmlError(errorText)
     throw new Error(
-      `PayPhone Prepare failed: ${response.status} ${errorText}`
+      `PayPhone Prepare failed: ${response.status} ${summarizedError}`
     )
   }
 
@@ -77,8 +119,9 @@ export async function confirmPayment(
 
   if (!response.ok) {
     const errorText = await response.text()
+    const summarizedError = summarizeHtmlError(errorText)
     throw new Error(
-      `PayPhone Confirm failed: ${response.status} ${errorText}`
+      `PayPhone Confirm failed: ${response.status} ${summarizedError}`
     )
   }
 

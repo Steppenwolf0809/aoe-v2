@@ -22,7 +22,7 @@ export default function ContratoVehicularPage() {
           </h1>
           <p className="text-lg text-text-secondary">
             Completa los datos y paga solo $9.99 para generar tu contrato
-            notarial
+            vehicular listo para su legalización en cualquier notaría
           </p>
           <div className="flex items-center justify-center gap-4 text-sm text-text-muted">
             <span className="flex items-center gap-1">

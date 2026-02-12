@@ -807,6 +807,7 @@ Lee el brain.md y el plan definitivo.
 Lee el brain.md.
 
 Implementa el blog:
+En el blog también implementa un artículo sobre cómo hacer un poder si estás en el exterior (en España o Estados Unidos), para que sea efectivo en Ecuador. 
 
 1. src/app/(marketing)/blog/page.tsx — Listing con ISR
    - Grid de post cards
@@ -834,7 +835,8 @@ Implementa el blog:
 8. src/db/seed.ts — Agrega 3-5 posts de ejemplo sobre temas legales ecuatorianos (contenido real útil para SEO)
 ```
 
-**Entregable:** Blog funcional con ISR, SEO completo, y contenido inicial.
+**Entregable:** Blog funcional con ISR, SEO completo, y contenido inicial. 
+Otra idea para el blog sería poner una sección donde digamos que hacemos, gestionamos poderes telemáticos de una notaría. 
 
 ---
 

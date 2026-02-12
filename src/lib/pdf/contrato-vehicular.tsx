@@ -134,7 +134,10 @@ function formatDate(): { ciudad: string; dia: string; mes: string; anio: string 
 export function ContratoVehicularPdf({ contrato }: ContratoVehicularPdfProps) {
   const fecha = formatDate()
   const { vendedor, comprador, vehiculo } = contrato
-  const precio = vehiculo.avaluo
+  const precio =
+    typeof vehiculo.valorContrato === 'number' && vehiculo.valorContrato > 0
+      ? vehiculo.valorContrato
+      : vehiculo.avaluo
 
   return (
     <Document>
@@ -154,11 +157,11 @@ export function ContratoVehicularPdf({ contrato }: ContratoVehicularPdfProps) {
         </Text>
 
         <Text style={styles.paragraph}>
-          1. <Text style={styles.bold}>{vendedor.nombres}</Text>, portador de cédula {vendedor.cedula}, domiciliado en {vendedor.direccion}, quien en adelante se denominará <Text style={styles.bold}>"EL VENDEDOR"</Text>; y,
+          1. <Text style={styles.bold}>{vendedor.nombres}</Text>, portador de cédula {vendedor.cedula}, domiciliado en {vendedor.direccion}, quien en adelante se denominará <Text style={styles.bold}>&quot;EL VENDEDOR&quot;</Text>; y,
         </Text>
 
         <Text style={styles.paragraph}>
-          2. <Text style={styles.bold}>{comprador.nombres}</Text>, portador de cédula {comprador.cedula}, domiciliado en {comprador.direccion}, quien en adelante se denominará <Text style={styles.bold}>"EL COMPRADOR"</Text>.
+          2. <Text style={styles.bold}>{comprador.nombres}</Text>, portador de cédula {comprador.cedula}, domiciliado en {comprador.direccion}, quien en adelante se denominará <Text style={styles.bold}>&quot;EL COMPRADOR&quot;</Text>.
         </Text>
 
         <Text style={styles.paragraph}>

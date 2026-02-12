@@ -99,6 +99,15 @@ export function VehicleDataForm({ onCuvParsed }: VehicleDataFormProps) {
           {...register('vehiculo.avaluo', { valueAsNumber: true })}
         />
         <Input
+          id="vehiculo.valorContrato"
+          label="Valor del contrato ($)"
+          type="number"
+          placeholder="14500"
+          error={ve?.valorContrato?.message}
+          hint="Precio pactado entre comprador y vendedor"
+          {...register('vehiculo.valorContrato', { valueAsNumber: true })}
+        />
+        <Input
           id="vehiculo.motor"
           label="Numero de motor"
           placeholder="Ej: 2NR-FKE1234567"

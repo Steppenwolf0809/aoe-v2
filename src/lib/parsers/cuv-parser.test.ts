@@ -235,6 +235,20 @@ describe('parseCuvText', () => {
       const result = parseCuvText(text)
       expect(result.marca).toBe('KIA')
     })
+
+    it('detects unknown brand near standalone "Marca:" label', () => {
+      const text = SAMPLE_CUV_TEXT.replace('CHEVROLET', 'JETOUR')
+      const result = parseCuvText(text)
+      expect(result.marca).toBe('JETOUR')
+    })
+
+    it('detects brand from inline label "Marca: <value>"', () => {
+      const text = SAMPLE_CUV_TEXT
+        .replace('CHEVROLET\n', '')
+        .replace('Marca:', 'Marca: TESLA')
+      const result = parseCuvText(text)
+      expect(result.marca).toBe('TESLA')
+    })
   })
 
   describe('different colors', () => {

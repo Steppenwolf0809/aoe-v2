@@ -1,20 +1,13 @@
+import type { BlogPostSummary } from '@/types/blog'
 import { PostCard } from './post-card'
 
-interface Post {
-  slug: string
-  title: string
-  excerpt: string
-  category?: string
-  date: string
-}
-
 interface PostGridProps {
-  posts: Post[]
+  posts: BlogPostSummary[]
 }
 
 export function PostGrid({ posts }: PostGridProps) {
   return (
-    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+    <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-6">
       {posts.map((post) => (
         <PostCard key={post.slug} {...post} />
       ))}

@@ -43,6 +43,7 @@ export function WizardForm() {
         motor: '',
         chasis: '',
         avaluo: 0,
+        valorContrato: 0,
       },
       comprador: {
         cedula: '',

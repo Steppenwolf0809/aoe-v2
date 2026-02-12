@@ -71,16 +71,21 @@ export function CuvUpload({ onCuvParsed }: CuvUploadProps) {
 
       const formData = new FormData()
       formData.append('cuv', file)
+      try {
+        const result = await parseCuvPdf(formData)
 
-      const result = await parseCuvPdf(formData)
-
-      if (result.success) {
-        setParsedData(result.data)
-        autoFillForm(result.data)
-        onCuvParsed?.(result.data)
-        setStatus('success')
-      } else {
-        setError(result.error)
+        if (result.success) {
+          setParsedData(result.data)
+          autoFillForm(result.data)
+          onCuvParsed?.(result.data)
+          setStatus('success')
+        } else {
+          setError(result.error)
+          setStatus('error')
+        }
+      } catch (uploadError) {
+        console.error('[CuvUpload] parseCuvPdf failed', uploadError)
+        setError('No se pudo procesar el archivo. Intente nuevamente.')
         setStatus('error')
       }
     },

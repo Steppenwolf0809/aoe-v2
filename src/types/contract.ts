@@ -8,6 +8,7 @@ export interface ContractData {
     motor: string
     chasis: string
     avaluo: number
+    valorContrato: number
   }
   comprador: {
     cedula: string

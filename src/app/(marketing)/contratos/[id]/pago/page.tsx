@@ -17,6 +17,20 @@ interface PageProps {
   searchParams: Promise<{ error?: string }>
 }
 
+interface ContractVehicleData {
+  vehiculo?: {
+    placa?: string
+    marca?: string
+    modelo?: string
+    anio?: number
+    avaluo?: number
+    valorContrato?: number
+  }
+  comprador?: {
+    nombres?: string
+  }
+}
+
 export default async function PagoPage({ params, searchParams }: PageProps) {
   const { id: contractId } = await params
   const { error: paymentError } = await searchParams
@@ -38,7 +52,7 @@ export default async function PagoPage({ params, searchParams }: PageProps) {
     redirect(`/auth/claim-contract?contractId=${contractId}`)
   }
 
-  const vehicleData = contract.data as any
+  const vehicleData = contract.data as ContractVehicleData
   const vehiculo = vehicleData?.vehiculo
   const comprador = vehicleData?.comprador
 
@@ -93,6 +107,12 @@ export default async function PagoPage({ params, searchParams }: PageProps) {
                   <span className="text-text-muted">Avalúo:</span>
                   <span className="text-text-primary font-medium">
                     {formatCurrency(vehiculo?.avaluo || 0)}
+                  </span>
+                </div>
+                <div className="flex justify-between">
+                  <span className="text-text-muted">Valor del contrato:</span>
+                  <span className="text-text-primary font-medium">
+                    {formatCurrency(vehiculo?.valorContrato || vehiculo?.avaluo || 0)}
                   </span>
                 </div>
                 <div className="flex justify-between">
