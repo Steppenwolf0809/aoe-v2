@@ -8,7 +8,7 @@ import {
 } from './validations/payment'
 
 const PAYPHONE_API_URL =
-  process.env.PAYPHONE_API_URL || 'https://pay.payphone.app/api'
+  process.env.PAYPHONE_API_URL || 'https://pay.payphonetodoesposible.com/api'
 
 function looksLikePlaceholder(value: string): boolean {
   const normalized = value.trim().toLowerCase()

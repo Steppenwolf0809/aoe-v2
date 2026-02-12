@@ -18,7 +18,7 @@ import { SBU_2026, IVA_RATE } from './types'
 // ============================================
 export const PORCENTAJE_FIRMA = 0.03 // 3% SBU por reconocimiento de firma
 export const TASA_TRANSFERENCIA_VEHICULAR = 0.01 // 1% del valor del vehículo
-export const PRECIO_CONTRATO_BASICO = 9.99
+export const PRECIO_CONTRATO_BASICO = 11.99 // IVA incluido, neto ~$9.74
 export const PRECIO_CONTRATO_REVISION = 35.0
 export const PRECIO_CONTRATO_CONSULTA = 60.0
 

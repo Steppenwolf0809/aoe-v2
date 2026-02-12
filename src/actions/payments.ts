@@ -68,19 +68,25 @@ export async function initiatePayment(
     }
 
     // Prepare payment with PayPhone
-    const amount = PRECIO_CONTRATO_BASICO // $9.99
-    const amountInCents = Math.round(amount * 100)
+    // Precio incluye IVA 15% → descomponemos base + impuesto
+    // Regla PayPhone: amount = amountWithoutTax + amountWithTax + tax + service + tip
+    const totalCents = Math.round(PRECIO_CONTRATO_BASICO * 100) // $11.99 → 1199
+    const baseCents = Math.floor(totalCents / 1.15) // base imponible
+    const taxCents = totalCents - baseCents // IVA
 
     const paymentResponse = await preparePayment({
-      amount: amountInCents,
-      amountWithoutTax: amountInCents,
+      amount: totalCents,
+      amountWithoutTax: 0,
+      amountWithTax: baseCents,
+      tax: taxCents,
+      service: 0,
+      tip: 0,
       clientTransactionId,
       currency: 'USD',
       email,
       responseUrl: `${appUrl}/contratos/pago/callback?contractId=${contractId}`,
       lang: 'es',
-      tip: 0,
-      tax: 0,
+      reference: 'Contrato Vehicular - AOE',
     })
 
     // Store clientTransactionId in contract metadata for later verification

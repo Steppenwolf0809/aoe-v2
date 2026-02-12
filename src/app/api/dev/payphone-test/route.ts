@@ -47,30 +47,39 @@ export async function POST(request: NextRequest) {
 
   try {
     const body = await request.json().catch(() => ({}))
-    const amount = body.amount ?? 100 // default $1.00
+    const totalCents = body.amount ?? 100 // default $1.00 IVA incluido
     const email = body.email ?? 'dev-test@aoe.ec'
+
+    // Descomponer IVA 15%: amount = amountWithTax + tax
+    const baseCents = Math.floor(totalCents / 1.15)
+    const taxCents = totalCents - baseCents
 
     const appUrl = process.env.NEXT_PUBLIC_APP_URL || 'http://localhost:3000'
     const prefix = process.env.PAYPHONE_REGION_PREFIX || 'DEV-AOE-'
     const clientTransactionId = `${prefix}test-${Date.now()}`
 
     console.log('[PayPhone Test] Firing Prepare with:', {
-      amount,
+      totalCents,
+      baseCents,
+      taxCents,
       email,
       clientTransactionId,
-      apiUrl: process.env.PAYPHONE_API_URL || 'https://pay.payphone.app/api',
+      apiUrl: process.env.PAYPHONE_API_URL || 'https://pay.payphonetodoesposible.com/api',
     })
 
     const result = await preparePayment({
-      amount,
-      amountWithoutTax: amount,
+      amount: totalCents,
+      amountWithoutTax: 0,
+      amountWithTax: baseCents,
+      tax: taxCents,
+      service: 0,
+      tip: 0,
       clientTransactionId,
       currency: 'USD',
       email,
       responseUrl: `${appUrl}/contratos/pago/callback?contractId=dev-test`,
       lang: 'es',
-      tip: 0,
-      tax: 0,
+      reference: 'Test PayPhone - AOE',
     })
 
     return NextResponse.json({

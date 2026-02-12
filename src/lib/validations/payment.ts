@@ -1,19 +1,23 @@
 import { z } from 'zod'
 
 // PayPhone Prepare Payment Request
+// Regla: amount = amountWithoutTax + amountWithTax + tax + service + tip
 export const payphonePrepareRequestSchema = z.object({
-  amount: z.number().positive(), // Amount in cents
-  amountWithoutTax: z.number().positive(),
+  amount: z.number().positive(), // Total en centavos
+  amountWithoutTax: z.number().nonnegative().default(0), // Monto sin impuesto
+  amountWithTax: z.number().nonnegative().default(0), // Monto gravado (base imponible)
+  tax: z.number().nonnegative().default(0), // IVA calculado
+  service: z.number().nonnegative().default(0), // Cargo por servicio
+  tip: z.number().nonnegative().default(0), // Propina
   clientTransactionId: z.string().min(1),
   currency: z.literal('USD'),
   email: z.string().email().optional(),
   phone: z.string().optional(),
-  service: z.string().optional(),
-  tip: z.number().default(0),
-  tax: z.number().default(0),
   documentId: z.string().optional(),
   lang: z.enum(['es', 'en']).default('es'),
   responseUrl: z.string().url(),
+  reference: z.string().optional(),
+  storeId: z.string().optional(), // Se inyecta desde env si no viene
 })
 
 export type PayPhonePrepareRequest = z.infer<typeof payphonePrepareRequestSchema>
