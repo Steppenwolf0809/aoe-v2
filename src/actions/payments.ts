@@ -77,7 +77,7 @@ export async function initiatePayment(
       clientTransactionId,
       currency: 'USD',
       email,
-      responseUrl: `${appUrl}/contratos/pago/callback?id=${contractId}&clientTransactionId=${clientTransactionId}`,
+      responseUrl: `${appUrl}/contratos/pago/callback?contractId=${contractId}`,
       lang: 'es',
       tip: 0,
       tax: 0,

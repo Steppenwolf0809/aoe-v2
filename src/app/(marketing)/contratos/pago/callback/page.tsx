@@ -9,6 +9,7 @@ import { XCircle } from 'lucide-react'
 
 interface PaymentCallbackPageProps {
   searchParams: Promise<{
+    contractId?: string
     id?: string
     clientTransactionId?: string
     transactionId?: string
@@ -43,10 +44,10 @@ export default async function PaymentCallbackPage({
   searchParams,
 }: PaymentCallbackPageProps) {
   const params = await searchParams
-  const contractId = params.id
+  const contractId = params.contractId
   const clientTransactionId = params.clientTransactionId
   const transactionId =
-    params.transactionId || params.transaction_id || params.payphone_id
+    params.id || params.transactionId || params.transaction_id || params.payphone_id
 
   if (!contractId || !clientTransactionId || !transactionId) {
     return <ErrorState message="Parametros de pago invalidos." />

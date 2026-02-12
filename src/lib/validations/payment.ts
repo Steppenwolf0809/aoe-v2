@@ -20,9 +20,9 @@ export type PayPhonePrepareRequest = z.infer<typeof payphonePrepareRequestSchema
 
 // PayPhone Prepare Payment Response
 export const payphonePrepareResponseSchema = z.object({
+  paymentId: z.string(),
   payWithCard: z.string().url(),
-  clientTransactionId: z.string(),
-  transactionId: z.string(),
+  payWithPayPhone: z.string().url().optional(),
 })
 
 export type PayPhonePrepareResponse = z.infer<typeof payphonePrepareResponseSchema>
@@ -37,13 +37,13 @@ export type PayPhoneConfirmRequest = z.infer<typeof payphoneConfirmRequestSchema
 
 // PayPhone Confirm Payment Response
 export const payphoneConfirmResponseSchema = z.object({
-  transactionId: z.string(),
-  clientTransactionId: z.string(),
+  transactionId: z.coerce.string(),
+  clientTransactionId: z.string().optional(),
   statusCode: z.number(), // 3 = approved, 2 = pending, 1 = cancelled
-  status: z.string(),
-  transactionStatus: z.string(),
-  amount: z.number(),
-  currency: z.string(),
+  status: z.string().optional(),
+  transactionStatus: z.string().optional(),
+  amount: z.number().optional(),
+  currency: z.string().optional(),
   authorizationCode: z.string().optional(),
   bin: z.string().optional(),
   lastDigits: z.string().optional(),
