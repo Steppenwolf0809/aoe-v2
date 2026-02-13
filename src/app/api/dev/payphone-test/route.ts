@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server'
-import { createPaymentLink, generateShortTransactionId } from '@/lib/payphone'
+import { createPaymentButton, generateShortTransactionId } from '@/lib/payphone'
 
 // PayPhone WAF blocks Vercel US IPs → run from São Paulo
 export const preferredRegion = 'gru1'
@@ -352,7 +352,7 @@ export async function POST(request: NextRequest) {
     // ========================================
     // NORMAL MODE — use library function
     // ========================================
-    const result = await createPaymentLink({
+    const result = await createPaymentButton({
       amount: totalCents,
       amountWithoutTax: 0,
       amountWithTax: Math.floor(totalCents / 1.15),
@@ -362,8 +362,7 @@ export async function POST(request: NextRequest) {
       clientTransactionId,
       currency: 'USD',
       reference: 'Test PayPhone - AOE',
-      oneTime: true,
-      expireIn: 1,
+      responseUrl: `${(process.env.NEXT_PUBLIC_APP_URL || 'https://abogadosonlineecuador.com').replace(/\/+$/, '')}/contratos/pago/callback`,
     })
 
     return NextResponse.json({

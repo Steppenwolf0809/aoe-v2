@@ -1,7 +1,7 @@
 import { redirect } from 'next/navigation'
 import { Card, CardContent } from '@/components/ui/card'
 import { createAdminClient } from '@/lib/supabase/admin'
-import { checkTransactionStatus } from '@/lib/payphone'
+import { confirmPayment } from '@/lib/payphone'
 import { isPaymentApproved } from '@/lib/validations/payment'
 import { PRECIO_CONTRATO_BASICO } from '@/lib/formulas/vehicular'
 import { generateContractPdfAdmin } from '@/actions/pdf'
@@ -74,8 +74,11 @@ export default async function PaymentCallbackPage({
   let errorMessage: string | null = null
 
   try {
-    // Check transaction status with PayPhone
-    const statusResponse = await checkTransactionStatus(transactionId)
+    // Confirm payment with PayPhone Button V2 API (must be done within 5 min)
+    const statusResponse = await confirmPayment({
+      id: transactionId,
+      clientTxId: clientTransactionId,
+    })
 
     if (!isPaymentApproved(statusResponse.statusCode)) {
       errorMessage = `Pago no aprobado. Estado: ${statusResponse.status || statusResponse.transactionStatus || 'desconocido'}`

@@ -1,5 +1,5 @@
 {
-  "name": "PayPhone Proxy (Links + Sale)",
+  "name": "PayPhone Proxy (Prepare + Confirm + Sale)",
   "nodes": [
     {
       "parameters": {
@@ -36,7 +36,7 @@
     {
       "parameters": {
         "method": "POST",
-        "url": "https://pay.payphonetodoesposible.com/api/Links",
+        "url": "https://pay.payphonetodoesposible.com/api/button/Prepare",
         "authentication": "none",
         "sendBody": true,
         "contentType": "json",
@@ -52,11 +52,8 @@
             { "name": "clientTransactionId", "value": "={{$json.body.clientTransactionId}}" },
             { "name": "storeId", "value": "={{$json.body.storeId}}" },
             { "name": "reference", "value": "={{$json.body.reference}}" },
-            { "name": "oneTime", "value": "={{$json.body.oneTime}}" },
-            { "name": "expireIn", "value": "={{$json.body.expireIn}}" },
-            { "name": "additionalData", "value": "={{$json.body.additionalData}}" },
             { "name": "responseUrl", "value": "={{$json.body.responseUrl}}" },
-            { "name": "isAmountEditable", "value": "={{$json.body.isAmountEditable}}" }
+            { "name": "additionalData", "value": "={{$json.body.additionalData}}" }
           ]
         },
         "options": {
@@ -78,22 +75,22 @@
           ]
         }
       },
-      "id": "http-links",
-      "name": "HTTP Request: Links",
+      "id": "http-prepare",
+      "name": "HTTP Request: Prepare",
       "type": "n8n-nodes-base.httpRequest",
       "typeVersion": 3,
       "position": [860, 200]
     },
     {
       "parameters": {
-        "respondWith": "text",
+        "respondWith": "json",
         "responseBody": "={{$json.body}}",
         "options": {
           "responseCode": "={{$json.statusCode}}"
         }
       },
-      "id": "respond-links",
-      "name": "Respond: Links",
+      "id": "respond-prepare",
+      "name": "Respond: Prepare",
       "type": "n8n-nodes-base.respondToWebhook",
       "typeVersion": 1,
       "position": [1080, 200]
@@ -114,6 +111,104 @@
     },
     {
       "parameters": {
+        "httpMethod": "POST",
+        "path": "payphone-confirm",
+        "responseMode": "responseNode",
+        "options": {}
+      },
+      "id": "webhook-confirm",
+      "name": "Webhook: payphone-confirm",
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 1,
+      "position": [460, 480],
+      "webhookId": "payphone-confirm"
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "string": [
+            {
+              "value1": "={{$json.query.secret}}",
+              "operation": "equals",
+              "value2": "={{$env.PAYPHONE_PROXY_SECRET}}"
+            }
+          ]
+        }
+      },
+      "id": "if-confirm-secret",
+      "name": "IF: secret (confirm)",
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2,
+      "position": [640, 480]
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "https://pay.payphonetodoesposible.com/api/button/V2/Confirm",
+        "authentication": "none",
+        "sendBody": true,
+        "contentType": "json",
+        "bodyParameters": {
+          "parameters": [
+            { "name": "id", "value": "={{$json.body.id}}" },
+            { "name": "clientTxId", "value": "={{$json.body.clientTxId}}" }
+          ]
+        },
+        "options": {
+          "followRedirect": false,
+          "response": {
+            "response": {
+              "fullResponse": true
+            }
+          }
+        },
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "Authorization",
+              "value": "={{'Bearer ' + $env.PAYPHONE_TOKEN}}"
+            },
+            { "name": "Content-Type", "value": "application/json" },
+            { "name": "Accept", "value": "application/json" }
+          ]
+        }
+      },
+      "id": "http-confirm",
+      "name": "HTTP Request: Confirm",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 3,
+      "position": [860, 440]
+    },
+    {
+      "parameters": {
+        "respondWith": "json",
+        "responseBody": "={{$json.body}}",
+        "options": {
+          "responseCode": "={{$json.statusCode}}"
+        }
+      },
+      "id": "respond-confirm",
+      "name": "Respond: Confirm",
+      "type": "n8n-nodes-base.respondToWebhook",
+      "typeVersion": 1,
+      "position": [1080, 440]
+    },
+    {
+      "parameters": {
+        "respondWith": "json",
+        "responseBody": "={{ { error: 'forbidden' } }}",
+        "options": {
+          "responseCode": 403
+        }
+      },
+      "id": "respond-confirm-forbidden",
+      "name": "Respond: 403 (confirm)",
+      "type": "n8n-nodes-base.respondToWebhook",
+      "typeVersion": 1,
+      "position": [860, 540]
+    },
+    {
+      "parameters": {
         "httpMethod": "GET",
         "path": "payphone-sale",
         "responseMode": "responseNode",
@@ -123,7 +218,7 @@
       "name": "Webhook: payphone-sale",
       "type": "n8n-nodes-base.webhook",
       "typeVersion": 1,
-      "position": [460, 480],
+      "position": [460, 720],
       "webhookId": "payphone-sale"
     },
     {
@@ -142,7 +237,7 @@
       "name": "IF: secret (sale)",
       "type": "n8n-nodes-base.if",
       "typeVersion": 2,
-      "position": [640, 480]
+      "position": [640, 720]
     },
     {
       "parameters": {
@@ -170,7 +265,7 @@
       "name": "HTTP Request: Sale",
       "type": "n8n-nodes-base.httpRequest",
       "typeVersion": 3,
-      "position": [860, 440]
+      "position": [860, 680]
     },
     {
       "parameters": {
@@ -184,7 +279,7 @@
       "name": "Respond: Sale",
       "type": "n8n-nodes-base.respondToWebhook",
       "typeVersion": 1,
-      "position": [1080, 440]
+      "position": [1080, 680]
     },
     {
       "parameters": {
@@ -198,7 +293,7 @@
       "name": "Respond: 403 (sale)",
       "type": "n8n-nodes-base.respondToWebhook",
       "typeVersion": 1,
-      "position": [860, 540]
+      "position": [860, 780]
     }
   ],
   "connections": {
@@ -212,17 +307,41 @@
     "IF: secret (links)": {
       "main": [
         [
-          { "node": "HTTP Request: Links", "type": "main", "index": 0 }
+          { "node": "HTTP Request: Prepare", "type": "main", "index": 0 }
         ],
         [
           { "node": "Respond: 403 (links)", "type": "main", "index": 0 }
         ]
       ]
     },
-    "HTTP Request: Links": {
+    "HTTP Request: Prepare": {
       "main": [
         [
-          { "node": "Respond: Links", "type": "main", "index": 0 }
+          { "node": "Respond: Prepare", "type": "main", "index": 0 }
+        ]
+      ]
+    },
+    "Webhook: payphone-confirm": {
+      "main": [
+        [
+          { "node": "IF: secret (confirm)", "type": "main", "index": 0 }
+        ]
+      ]
+    },
+    "IF: secret (confirm)": {
+      "main": [
+        [
+          { "node": "HTTP Request: Confirm", "type": "main", "index": 0 }
+        ],
+        [
+          { "node": "Respond: 403 (confirm)", "type": "main", "index": 0 }
+        ]
+      ]
+    },
+    "HTTP Request: Confirm": {
+      "main": [
+        [
+          { "node": "Respond: Confirm", "type": "main", "index": 0 }
         ]
       ]
     },

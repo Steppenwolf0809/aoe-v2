@@ -1,10 +1,10 @@
 import { z } from 'zod'
 
 // ============================================
-// PayPhone Links API (Tipo de app: API)
+// PayPhone Button/Prepare API (redirect flow)
 // ============================================
 
-// Links Request
+// Prepare Request
 // Regla: amount = amountWithoutTax + amountWithTax + tax + service + tip
 export const payphoneLinkRequestSchema = z.object({
   amount: z.number().positive(), // Total en centavos
@@ -13,13 +13,11 @@ export const payphoneLinkRequestSchema = z.object({
   tax: z.number().nonnegative().default(0),
   service: z.number().nonnegative().default(0),
   tip: z.number().nonnegative().default(0),
-  clientTransactionId: z.string().min(1).max(15), // Max 15 chars para Links
+  clientTransactionId: z.string().min(1),
   currency: z.literal('USD'),
   reference: z.string().max(100).optional(),
-  oneTime: z.boolean().default(true), // Link de un solo uso
-  expireIn: z.number().optional(), // Horas hasta que expire
   additionalData: z.string().max(250).optional(), // Datos extra (contractId)
-  responseUrl: z.string().url().optional(), // URL de retorno después del pago
+  responseUrl: z.string().url(), // Required — PayPhone redirects here after payment
   storeId: z.string().optional(), // Se inyecta desde env
 })
 

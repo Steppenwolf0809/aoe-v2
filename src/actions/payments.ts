@@ -2,23 +2,20 @@
 
 import { createClient } from '@/lib/supabase/server'
 import {
-  createPaymentLink,
-  checkTransactionStatus,
+  createPaymentButton,
   generateShortTransactionId,
 } from '@/lib/payphone'
-import { getContract, updateContractStatus } from './contracts'
-import { generateContractPdf } from './pdf'
 import { PRECIO_CONTRATO_BASICO } from '@/lib/formulas/vehicular'
-import { isPaymentApproved } from '@/lib/validations/payment'
 
 type ActionResult<T> =
   | { success: true; data: T }
   | { success: false; error: string }
 
 /**
- * Initiate payment with PayPhone Links API
- * Returns URL for user to complete payment
- * Works for both authenticated and anonymous contracts
+ * Initiate payment with PayPhone Button/Prepare API (redirect flow).
+ * Returns URL for user to complete payment.
+ * After payment, PayPhone redirects to responseUrl with ?id=XX&clientTransactionId=XX
+ * The callback page must call Confirm within 5 minutes or the payment is reversed.
  */
 export async function initiatePayment(
   contractIdOrFormData: string | FormData
@@ -70,7 +67,7 @@ export async function initiatePayment(
 
     // PayPhone appends ?id=TX&clientTransactionId=AOExx to responseUrl after payment
     const appUrl = (process.env.NEXT_PUBLIC_APP_URL || 'https://abogadosonlineecuador.com').replace(/\/+$/, '')
-    const paymentResponse = await createPaymentLink({
+    const paymentResponse = await createPaymentButton({
       amount: totalCents,
       amountWithoutTax: 0,
       amountWithTax: baseCents,
@@ -81,8 +78,6 @@ export async function initiatePayment(
       currency: 'USD',
       reference: 'Contrato Vehicular - AOE',
       responseUrl: `${appUrl}/contratos/pago/callback`,
-      oneTime: true,
-      expireIn: 24, // Link expira en 24 horas
       additionalData: contractId, // Guardamos el contractId para el callback
     })
 
@@ -126,92 +121,16 @@ export async function initiatePayment(
 }
 
 /**
- * Verify payment and process contract (generate PDF + send email)
- * Called from the payment callback page after PayPhone redirects back
- *
- * PayPhone redirects to: /contratos/pago/callback?id=PAYPHONE_TX_ID&clientTransactionId=AOExxx
- * We look up the contract by the clientTransactionId stored in payment_id
- */
-export async function verifyAndProcessPayment(
-  payphoneTransactionId: string,
-  clientTransactionId: string
-): Promise<ActionResult<{ contractId: string; pdfGenerated: boolean }>> {
-  try {
-    // Look up contract by clientTransactionId
-    const { createAdminClient } = await import('@/lib/supabase/admin')
-    const adminSupabase = createAdminClient()
-
-    const { data: contract, error: lookupError } = await adminSupabase
-      .from('contracts')
-      .select('*')
-      .eq('payment_id', clientTransactionId)
-      .eq('status', 'PENDING_PAYMENT')
-      .single()
-
-    if (lookupError || !contract) {
-      console.error('[verifyAndProcessPayment] Contract lookup failed:', lookupError)
-      return { success: false, error: 'Contrato no encontrado para esta transaccion' }
-    }
-
-    const contractId = contract.id
-
-    // If already processed, return success
-    if (contract.status === 'GENERATED' || contract.status === 'DOWNLOADED' || contract.status === 'PAID') {
-      return {
-        success: true,
-        data: { contractId, pdfGenerated: true },
-      }
-    }
-
-    // Check transaction status with PayPhone
-    const statusResponse = await checkTransactionStatus(payphoneTransactionId)
-
-    // Verify payment was approved
-    if (!isPaymentApproved(statusResponse.statusCode)) {
-      return {
-        success: false,
-        error: `Pago no aprobado. Estado: ${statusResponse.status || statusResponse.transactionStatus || 'desconocido'}`,
-      }
-    }
-
-    // Update contract with real PayPhone transaction ID
-    await updateContractStatus(contractId, {
-      status: 'PAID',
-      payment_id: statusResponse.transactionId,
-      amount: PRECIO_CONTRATO_BASICO,
-    })
-
-    // Generate PDF (this also sends email)
-    const pdfResult = await generateContractPdf(contractId)
-    if (!pdfResult.success) {
-      return {
-        success: false,
-        error: `Pago exitoso pero fallo la generacion del PDF: ${pdfResult.error}`,
-      }
-    }
-
-    return {
-      success: true,
-      data: { contractId, pdfGenerated: true },
-    }
-  } catch (error) {
-    console.error('[verifyAndProcessPayment]', error)
-    return {
-      success: false,
-      error:
-        error instanceof Error ? error.message : 'Error al procesar pago',
-    }
-  }
-}
-
-/**
- * @deprecated Use verifyAndProcessPayment instead
- * Kept for backward compatibility with old callback flow
+ * @deprecated Legacy function kept for backward compat with dashboard payment page.
+ * The main callback page now handles confirm + PDF generation directly.
  */
 export async function confirmAndProcessPayment(
-  contractId: string,
-  clientTransactionId: string,
-  payphoneTransactionId: string
+  _contractId: string,
+  _clientTransactionId: string,
+  _payphoneTransactionId: string
 ): Promise<ActionResult<{ contractId: string; pdfGenerated: boolean }>> {
-  return verifyAndProcessPayment(payphoneTransactionId, clientTransactionId)
+  return {
+    success: false,
+    error: 'Este flujo de pago ya no esta disponible. Use el flujo de callback.',
+  }
 }

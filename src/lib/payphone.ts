@@ -35,10 +35,14 @@ function applyIdTemplate(url: string, id: string): string {
     .replace(/\{transactionId\}/g, id)
 }
 
-function resolveLinksUrl(): string {
+/**
+ * Resolve the Button Prepare URL.
+ * PAYPHONE_LINKS_URL env var is reused for backward compat with n8n proxy.
+ */
+function resolvePrepareUrl(): string {
   if (PAYPHONE_LINKS_URL) return PAYPHONE_LINKS_URL.trim()
   const baseUrl = getPayPhoneBaseUrl()
-  return `${baseUrl}/Links`
+  return `${baseUrl}/button/Prepare`
 }
 
 function resolveSaleUrl(transactionId: string): string {
@@ -128,7 +132,7 @@ function getPayPhoneConfig() {
 }
 
 /**
- * Generate a short client transaction ID (max 15 chars for PayPhone Links)
+ * Generate a short client transaction ID (max 15 chars for PayPhone)
  * Format: AOE + base36 timestamp = ~11 chars
  */
 export function generateShortTransactionId(): string {
@@ -136,15 +140,17 @@ export function generateShortTransactionId(): string {
 }
 
 /**
- * Create payment link with PayPhone Links API
- * Returns URL for user to complete payment
+ * Create payment via PayPhone Button/Prepare API (redirect flow).
+ * Unlike the Links API, the Button API supports responseUrl for browser redirect
+ * and requires a Confirm step within 5 minutes after payment.
+ * Returns URL for user to complete payment.
  */
-export async function createPaymentLink(
+export async function createPaymentButton(
   request: PayPhoneLinkRequest
 ): Promise<PayPhoneLinkResponse> {
   const { token, storeId } = getPayPhoneConfig()
 
-  const endpointUrl = resolveLinksUrl()
+  const endpointUrl = resolvePrepareUrl()
   const body = {
     ...request,
     storeId,
@@ -165,14 +171,13 @@ export async function createPaymentLink(
 
   if (!response.ok) {
     const errorText = await response.text()
-    console.error('[PayPhone Links] Status:', response.status)
-    console.error('[PayPhone Links] Response:', errorText.slice(0, 500))
-    console.error('[PayPhone Links] Token length:', token.length, 'last5:', token.slice(-5))
-    console.error('[PayPhone Links] StoreId:', storeId, 'length:', storeId.length)
-    console.error('[PayPhone Links] Using proxy:', !!PAYPHONE_PROXY_URL, 'url:', endpointUrl)
-    console.error('[PayPhone Links] Request:', JSON.stringify(body))
+    console.error('[PayPhone Prepare] Status:', response.status)
+    console.error('[PayPhone Prepare] Response:', errorText.slice(0, 500))
+    console.error('[PayPhone Prepare] Token length:', token.length, 'last5:', token.slice(-5))
+    console.error('[PayPhone Prepare] StoreId:', storeId, 'length:', storeId.length)
+    console.error('[PayPhone Prepare] Using proxy:', !!PAYPHONE_PROXY_URL, 'url:', endpointUrl)
+    console.error('[PayPhone Prepare] Request:', JSON.stringify(body))
 
-    // Try to parse structured error from n8n proxy
     let errorMsg = errorText
     try {
       const errorJson = JSON.parse(errorText)
@@ -182,18 +187,19 @@ export async function createPaymentLink(
         if (errorJson.rawBody) errorMsg += ` | ${errorJson.rawBody.slice(0, 200)}`
       }
     } catch {
-      // Not JSON — use raw text with HTML summarizer
       errorMsg = summarizeHtmlError(errorText)
     }
 
-    throw new Error(`PayPhone Links failed: ${response.status} ${errorMsg}`)
+    throw new Error(`PayPhone Prepare failed: ${response.status} ${errorMsg}`)
   }
 
-  // Links API may return a plain URL string or a JSON object
+  // Button Prepare may return JSON with paymentUrl or a plain URL string
   const contentType = response.headers.get('content-type') || ''
   if (contentType.includes('application/json')) {
     const data = await response.json()
-    return payphoneLinkResponseSchema.parse(data)
+    // Handle n8n proxy wrapper
+    const prepareData = data.body && typeof data.body === 'object' ? data.body : data
+    return payphoneLinkResponseSchema.parse(prepareData)
   }
 
   // Plain text response = direct URL
