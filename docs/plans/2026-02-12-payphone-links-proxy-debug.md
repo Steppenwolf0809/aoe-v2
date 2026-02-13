@@ -78,19 +78,45 @@ We imported/created two production webhooks in n8n:
 We also implemented an HMAC-like guard via query param `?secret=...` and env var:
 - `PAYPHONE_PROXY_SECRET` on Railway/n8n
 
-## Current Status (Blocking Issue)
-Vercel `multiTest` now shows calls to n8n succeed with HTTP 200, but the body is empty:
-- `status: 200`
-- `body: ""`
+## RESOLVED - Root Causes Found & Fixed
 
-This means:
-- Vercel -> n8n is working.
-- But n8n is responding without the PayPhone link string.
+### Root Cause 1: `$env` blocked on Railway
+Railway's n8n sets `N8N_BLOCK_ENV_ACCESS_IN_NODE`, so `$env.PAYPHONE_PROXY_SECRET` and
+`$env.PAYPHONE_TOKEN` caused `ExpressionError: access to env vars denied` on every execution.
+The workflow crashed at the IF node before ever reaching PayPhone.
 
-Most likely causes inside n8n:
-- The `HTTP Request` node is not returning the expected fields (`body`, `statusCode`) to the `Respond to Webhook` node.
-- `Response Format` is not set to `Text/String` for the Links request (PayPhone returns a plain string URL).
-- Expressions in `Respond to Webhook` nodes are incorrect (n8n expressions must be `={{ ... }}`, not `{{ ... }}`).
+**Fix**: Replaced IF nodes with Code nodes that hardcode the proxy secret. PayPhone token
+is forwarded from Vercel via the Authorization header (not stored in n8n).
+
+### Root Cause 2: `r.body` vs `r.data`
+n8n HTTP Request v3 with `fullResponse: true` + `responseFormat: "text"` puts the response
+body in `$json.data`, NOT `$json.body`. The Format Response code node read `r.body` (undefined).
+
+**Fix**: Changed to `r.data || r.body || ''`.
+
+### Root Cause 3: PayPhone returns JSON, not plain text
+PayPhone Links API returns `{"paymentUrl":"https://ppls.me/..."}` as JSON (content-type: application/json).
+With `responseFormat: "text"`, n8n stores the raw JSON string in `.data`.
+
+**Fix**: Added JSON.parse fallback in Format Response to extract `paymentUrl` from parsed JSON.
+
+### Key Finding: Railway egress is NOT blocked by PayPhone
+Unlike Vercel and Cloudflare Workers, Railway's IPs are accepted by PayPhone's WAF.
+PayPhone returned HTTP 200 with valid payment links via Railway proxy.
+
+## Final Architecture
+```
+Vercel (blocked by PayPhone WAF)
+  → n8n on Railway (not blocked)
+    → PayPhone API
+    ← returns paymentUrl
+  ← JSON { success, statusCode, paymentUrl, proxySource }
+```
+
+Env vars on Vercel:
+- `PAYPHONE_LINKS_URL` = `https://n8n-production-8de1.up.railway.app/webhook/payphone-links?secret=...`
+- `PAYPHONE_SALE_URL` = `https://n8n-production-8de1.up.railway.app/webhook/payphone-sale?secret=...&id={id}`
+- `PAYPHONE_PROXY_URL` = (empty/removed)
 
 ## How To Debug n8n Quickly (Recommended Next Steps)
 1. In n8n, open the workflow and ensure it is **Active** (Production URL only works when active).

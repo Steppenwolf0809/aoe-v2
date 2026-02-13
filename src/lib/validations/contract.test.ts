@@ -3,6 +3,8 @@ import {
   vehiculoSchema,
   personaSchema,
   contratoVehicularSchema,
+  requiresConyuge,
+  countFirmas,
 } from './contract'
 
 // ============================================
@@ -29,6 +31,32 @@ function validPersona() {
     direccion: 'Av. Amazonas N24-123, Quito',
     telefono: '0991234567',
     email: 'juan@email.com',
+    estadoCivil: 'soltero' as const,
+    comparecencia: 'propios_derechos' as const,
+  }
+}
+
+function validPersonaCasada() {
+  return {
+    ...validPersona(),
+    estadoCivil: 'casado' as const,
+    conyuge: {
+      nombres: 'Maria Elena Garcia',
+      cedula: '1798765432',
+    },
+  }
+}
+
+function validPersonaApoderado() {
+  return {
+    ...validPersona(),
+    comparecencia: 'apoderado' as const,
+    apoderado: {
+      nombres: 'Pedro Apoderado Lopez',
+      cedula: '1711111111',
+      notariaPoder: 'Notaria Decima Octava de Quito',
+      fechaPoder: '15 de enero de 2026',
+    },
   }
 }
 
@@ -175,7 +203,7 @@ describe('vehiculoSchema', () => {
 // personaSchema
 // ============================================
 describe('personaSchema', () => {
-  it('accepts valid persona data', () => {
+  it('accepts valid persona data (soltero)', () => {
     const result = personaSchema.safeParse(validPersona())
     expect(result.success).toBe(true)
   })
@@ -252,6 +280,130 @@ describe('personaSchema', () => {
 
   it('accepts valid email', () => {
     const data = { ...validPersona(), email: 'maria@empresa.com.ec' }
+    expect(personaSchema.safeParse(data).success).toBe(true)
+  })
+
+  // --- Estado civil ---
+  it('rejects missing estadoCivil', () => {
+    const { estadoCivil, ...rest } = validPersona()
+    expect(personaSchema.safeParse(rest).success).toBe(false)
+  })
+
+  it('rejects invalid estadoCivil value', () => {
+    const data = { ...validPersona(), estadoCivil: 'separado' }
+    expect(personaSchema.safeParse(data).success).toBe(false)
+  })
+
+  it.each(['soltero', 'casado', 'divorciado', 'viudo', 'union_de_hecho'] as const)(
+    'accepts estadoCivil "%s"',
+    (ec) => {
+      const data = ec === 'casado' || ec === 'union_de_hecho'
+        ? { ...validPersona(), estadoCivil: ec, conyuge: { nombres: 'Conyuge Test', cedula: '1799999999' } }
+        : { ...validPersona(), estadoCivil: ec }
+      expect(personaSchema.safeParse(data).success).toBe(true)
+    },
+  )
+
+  // --- Comparecencia ---
+  it('rejects missing comparecencia', () => {
+    const { comparecencia, ...rest } = validPersona()
+    expect(personaSchema.safeParse(rest).success).toBe(false)
+  })
+
+  it('accepts comparecencia "propios_derechos"', () => {
+    const data = { ...validPersona(), comparecencia: 'propios_derechos' }
+    expect(personaSchema.safeParse(data).success).toBe(true)
+  })
+
+  it('accepts comparecencia "apoderado" with apoderado data', () => {
+    const result = personaSchema.safeParse(validPersonaApoderado())
+    expect(result.success).toBe(true)
+  })
+
+  // --- Conyuge conditional ---
+  it('requires conyuge data when casado', () => {
+    const data = { ...validPersona(), estadoCivil: 'casado' as const }
+    const result = personaSchema.safeParse(data)
+    expect(result.success).toBe(false)
+  })
+
+  it('requires conyuge data when union_de_hecho', () => {
+    const data = { ...validPersona(), estadoCivil: 'union_de_hecho' as const }
+    const result = personaSchema.safeParse(data)
+    expect(result.success).toBe(false)
+  })
+
+  it('accepts casado with valid conyuge data', () => {
+    const result = personaSchema.safeParse(validPersonaCasada())
+    expect(result.success).toBe(true)
+  })
+
+  it('rejects casado with conyuge cedula too short', () => {
+    const data = {
+      ...validPersonaCasada(),
+      conyuge: { nombres: 'Maria Garcia', cedula: '12345' },
+    }
+    expect(personaSchema.safeParse(data).success).toBe(false)
+  })
+
+  it('rejects casado with conyuge nombres too short', () => {
+    const data = {
+      ...validPersonaCasada(),
+      conyuge: { nombres: 'AB', cedula: '1798765432' },
+    }
+    expect(personaSchema.safeParse(data).success).toBe(false)
+  })
+
+  it('does not require conyuge when soltero', () => {
+    const data = validPersona() // soltero, no conyuge
+    expect(personaSchema.safeParse(data).success).toBe(true)
+  })
+
+  it('does not require conyuge when divorciado', () => {
+    const data = { ...validPersona(), estadoCivil: 'divorciado' as const }
+    expect(personaSchema.safeParse(data).success).toBe(true)
+  })
+
+  it('does not require conyuge when viudo', () => {
+    const data = { ...validPersona(), estadoCivil: 'viudo' as const }
+    expect(personaSchema.safeParse(data).success).toBe(true)
+  })
+
+  // --- Apoderado conditional ---
+  it('requires apoderado data when comparecencia is apoderado', () => {
+    const data = { ...validPersona(), comparecencia: 'apoderado' as const }
+    const result = personaSchema.safeParse(data)
+    expect(result.success).toBe(false)
+  })
+
+  it('rejects apoderado with missing notariaPoder', () => {
+    const data = {
+      ...validPersonaApoderado(),
+      apoderado: {
+        nombres: 'Pedro Lopez',
+        cedula: '1711111111',
+        notariaPoder: 'AB', // too short
+        fechaPoder: '15 de enero de 2026',
+      },
+    }
+    expect(personaSchema.safeParse(data).success).toBe(false)
+  })
+
+  it('rejects apoderado with missing fechaPoder', () => {
+    const data = {
+      ...validPersonaApoderado(),
+      apoderado: {
+        nombres: 'Pedro Lopez',
+        cedula: '1711111111',
+        notariaPoder: 'Notaria Decima Octava de Quito',
+        fechaPoder: '15', // too short
+      },
+    }
+    expect(personaSchema.safeParse(data).success).toBe(false)
+  })
+
+  it('does not require apoderado when propios_derechos', () => {
+    const data = validPersona() // propios_derechos, no apoderado
     expect(personaSchema.safeParse(data).success).toBe(true)
   })
 })
@@ -331,5 +483,93 @@ describe('contratoVehicularSchema', () => {
 
   it('rejects null', () => {
     expect(contratoVehicularSchema.safeParse(null).success).toBe(false)
+  })
+
+  it('accepts contract with both parties casado', () => {
+    const data = {
+      vehiculo: validVehiculo(),
+      comprador: validPersonaCasada(),
+      vendedor: validPersonaCasada(),
+    }
+    expect(contratoVehicularSchema.safeParse(data).success).toBe(true)
+  })
+
+  it('accepts contract with vendedor as apoderado', () => {
+    const data = {
+      vehiculo: validVehiculo(),
+      comprador: validPersona(),
+      vendedor: validPersonaApoderado(),
+    }
+    expect(contratoVehicularSchema.safeParse(data).success).toBe(true)
+  })
+})
+
+// ============================================
+// requiresConyuge helper
+// ============================================
+describe('requiresConyuge', () => {
+  it('returns true for casado', () => {
+    expect(requiresConyuge('casado')).toBe(true)
+  })
+
+  it('returns true for union_de_hecho', () => {
+    expect(requiresConyuge('union_de_hecho')).toBe(true)
+  })
+
+  it('returns false for soltero', () => {
+    expect(requiresConyuge('soltero')).toBe(false)
+  })
+
+  it('returns false for divorciado', () => {
+    expect(requiresConyuge('divorciado')).toBe(false)
+  })
+
+  it('returns false for viudo', () => {
+    expect(requiresConyuge('viudo')).toBe(false)
+  })
+
+  it('returns false for undefined', () => {
+    expect(requiresConyuge(undefined)).toBe(false)
+  })
+})
+
+// ============================================
+// countFirmas helper
+// ============================================
+describe('countFirmas', () => {
+  it('returns 3 for both solteros (2 comparecientes + 1 matricula)', () => {
+    const data = {
+      vehiculo: validVehiculo(),
+      comprador: validPersona(),
+      vendedor: validPersona(),
+    } as any
+    expect(countFirmas(data)).toBe(3)
+  })
+
+  it('returns 4 when one party is casado (3 comparecientes + 1 matricula)', () => {
+    const data = {
+      vehiculo: validVehiculo(),
+      comprador: validPersonaCasada(),
+      vendedor: validPersona(),
+    } as any
+    expect(countFirmas(data)).toBe(4)
+  })
+
+  it('returns 5 when both parties are casado (4 comparecientes + 1 matricula)', () => {
+    const data = {
+      vehiculo: validVehiculo(),
+      comprador: validPersonaCasada(),
+      vendedor: validPersonaCasada(),
+    } as any
+    expect(countFirmas(data)).toBe(5)
+  })
+
+  it('returns 3 when apoderado (does not add extra firma)', () => {
+    const data = {
+      vehiculo: validVehiculo(),
+      comprador: validPersonaApoderado(),
+      vendedor: validPersona(),
+    } as any
+    expect(countFirmas(data)).toBe(3)
   })
 })

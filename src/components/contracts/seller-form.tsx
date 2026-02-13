@@ -4,6 +4,7 @@ import { useFormContext } from 'react-hook-form'
 import { UserMinus, FileText } from 'lucide-react'
 import { Input } from '@/components/ui/input'
 import type { ContratoVehicular } from '@/lib/validations/contract'
+import { LegalFields } from './legal-fields'
 
 export function SellerForm() {
   const {
@@ -81,6 +82,8 @@ export function SellerForm() {
           {...register('vendedor.email')}
         />
       </div>
+
+      <LegalFields prefix="vendedor" />
     </div>
   )
 }

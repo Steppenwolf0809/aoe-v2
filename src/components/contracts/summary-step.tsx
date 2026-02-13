@@ -3,6 +3,12 @@
 import { Car, UserCheck, UserMinus, Receipt, AlertTriangle } from 'lucide-react'
 import { cn, formatCurrency } from '@/lib/utils'
 import type { ContratoVehicular } from '@/lib/validations/contract'
+import {
+  ESTADOS_CIVILES_LABELS,
+  requiresConyuge,
+  countFirmas,
+  type EstadoCivil,
+} from '@/lib/validations/contract'
 import type { CuvData } from '@/lib/parsers/cuv-parser'
 import {
   calcularCotizacionVehicular,
@@ -22,9 +28,10 @@ export function SummaryStep({
   onAcceptedTermsChange,
   cuvWarnings,
 }: SummaryStepProps) {
+  const numFirmas = countFirmas(data)
   const cotizacion = calcularCotizacionVehicular({
     valorVehiculo: data.vehiculo.avaluo,
-    numFirmas: 2,
+    numFirmas,
   })
 
   return (
@@ -67,11 +74,7 @@ export function SummaryStep({
         icon={<UserCheck className="w-4 h-4 text-accent-success" />}
         title="Comprador"
       >
-        <SummaryRow label="Cedula" value={data.comprador.cedula} />
-        <SummaryRow label="Nombres" value={data.comprador.nombres} />
-        <SummaryRow label="Direccion" value={data.comprador.direccion} />
-        <SummaryRow label="Telefono" value={data.comprador.telefono} />
-        <SummaryRow label="Email" value={data.comprador.email} />
+        <PersonaSummary persona={data.comprador} />
       </SummarySection>
 
       {/* Seller summary */}
@@ -79,11 +82,7 @@ export function SummaryStep({
         icon={<UserMinus className="w-4 h-4 text-accent-warning" />}
         title="Vendedor"
       >
-        <SummaryRow label="Cedula" value={data.vendedor.cedula} />
-        <SummaryRow label="Nombres" value={data.vendedor.nombres} />
-        <SummaryRow label="Direccion" value={data.vendedor.direccion} />
-        <SummaryRow label="Telefono" value={data.vendedor.telefono} />
-        <SummaryRow label="Email" value={data.vendedor.email} />
+        <PersonaSummary persona={data.vendedor} />
       </SummarySection>
 
       {/* Cost breakdown */}
@@ -96,7 +95,7 @@ export function SummaryStep({
           value={formatCurrency(PRECIO_CONTRATO_BASICO)}
         />
         <SummaryRow
-          label={`Notaria (${cotizacion.numFirmas} firmas + IVA)`}
+          label={`Notaria (${numFirmas} certificaciones + IVA)`}
           value={formatCurrency(cotizacion.totalNotarial)}
         />
         <SummaryRow
@@ -111,8 +110,8 @@ export function SummaryStep({
           />
         </div>
         <p className="text-xs text-text-muted mt-1">
-          * El pago se procesara cuando decida generar el PDF del contrato.
-          Por ahora se guarda como borrador.
+          * {numFirmas} certificaciones = {numFirmas - 1} compareciente{numFirmas - 1 > 1 ? 's' : ''} + 1 matricula.
+          El pago se procesara cuando decida generar el PDF del contrato.
         </p>
       </SummarySection>
 
@@ -188,6 +187,71 @@ export function SummaryStep({
     </div>
   )
 }
+
+/* ----------------------------------------------------------------
+   PersonaSummary — Displays all persona data including legal fields
+   ---------------------------------------------------------------- */
+
+function PersonaSummary({
+  persona,
+}: {
+  persona: ContratoVehicular['comprador']
+}) {
+  const estadoCivilLabel =
+    ESTADOS_CIVILES_LABELS[persona.estadoCivil as EstadoCivil] ||
+    persona.estadoCivil
+  const comparecenciaLabel =
+    persona.comparecencia === 'apoderado'
+      ? 'Mediante apoderado'
+      : 'Por sus propios derechos'
+
+  const showConyuge = requiresConyuge(persona.estadoCivil)
+  const showApoderado = persona.comparecencia === 'apoderado'
+
+  return (
+    <>
+      <SummaryRow label="Cedula" value={persona.cedula} />
+      <SummaryRow label="Nombres" value={persona.nombres} />
+      <SummaryRow label="Direccion" value={persona.direccion} />
+      <SummaryRow label="Telefono" value={persona.telefono} />
+      <SummaryRow label="Email" value={persona.email} />
+      <SummaryRow label="Estado civil" value={estadoCivilLabel} />
+      <SummaryRow label="Comparecencia" value={comparecenciaLabel} />
+
+      {showConyuge && persona.conyuge && (
+        <div className="border-t border-[var(--glass-border)]/50 pt-1.5 mt-1.5">
+          <SummaryRow label="Conyuge" value={persona.conyuge.nombres} />
+          <SummaryRow
+            label="Cedula conyuge"
+            value={persona.conyuge.cedula}
+          />
+        </div>
+      )}
+
+      {showApoderado && persona.apoderado && (
+        <div className="border-t border-[var(--glass-border)]/50 pt-1.5 mt-1.5">
+          <SummaryRow label="Apoderado" value={persona.apoderado.nombres} />
+          <SummaryRow
+            label="Cedula apoderado"
+            value={persona.apoderado.cedula}
+          />
+          <SummaryRow
+            label="Notaria del poder"
+            value={persona.apoderado.notariaPoder}
+          />
+          <SummaryRow
+            label="Fecha del poder"
+            value={persona.apoderado.fechaPoder}
+          />
+        </div>
+      )}
+    </>
+  )
+}
+
+/* ----------------------------------------------------------------
+   SummarySection & SummaryRow — Unchanged helper components
+   ---------------------------------------------------------------- */
 
 function SummarySection({
   icon,

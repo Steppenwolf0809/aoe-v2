@@ -4,6 +4,7 @@ import { useFormContext } from 'react-hook-form'
 import { UserCheck } from 'lucide-react'
 import { Input } from '@/components/ui/input'
 import type { ContratoVehicular } from '@/lib/validations/contract'
+import { LegalFields } from './legal-fields'
 
 export function BuyerForm() {
   const {
@@ -72,6 +73,8 @@ export function BuyerForm() {
           {...register('comprador.email')}
         />
       </div>
+
+      <LegalFields prefix="comprador" />
     </div>
   )
 }
