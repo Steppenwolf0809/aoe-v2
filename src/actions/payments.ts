@@ -68,8 +68,8 @@ export async function initiatePayment(
     const baseCents = Math.floor(totalCents / 1.15) // base imponible
     const taxCents = totalCents - baseCents // IVA
 
-    // NOTE: responseUrl is configured in PayPhone dashboard (app type "Web"),
-    // not in the API request body. PayPhone appends ?id=TX&clientTransactionId=AOExx
+    // PayPhone appends ?id=TX&clientTransactionId=AOExx to responseUrl after payment
+    const appUrl = (process.env.NEXT_PUBLIC_APP_URL || 'https://abogadosonlineecuador.com').replace(/\/+$/, '')
     const paymentResponse = await createPaymentLink({
       amount: totalCents,
       amountWithoutTax: 0,
@@ -80,6 +80,7 @@ export async function initiatePayment(
       clientTransactionId,
       currency: 'USD',
       reference: 'Contrato Vehicular - AOE',
+      responseUrl: `${appUrl}/contratos/pago/callback`,
       oneTime: true,
       expireIn: 24, // Link expira en 24 horas
       additionalData: contractId, // Guardamos el contractId para el callback
