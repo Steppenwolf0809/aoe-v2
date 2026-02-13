@@ -3,7 +3,7 @@ import { notFound, redirect } from 'next/navigation'
 import { createClient } from '@/lib/supabase/server'
 import { Card, CardContent } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
-import { ArrowRight, CheckCircle2 } from 'lucide-react'
+import { ArrowRight, CheckCircle2, Mail } from 'lucide-react'
 import { formatCurrency } from '@/lib/utils'
 import { PRECIO_CONTRATO_BASICO } from '@/lib/formulas/vehicular'
 import { initiatePayment } from '@/actions/payments'
@@ -31,6 +31,11 @@ interface ContractVehicleData {
   }
   comprador?: {
     nombres?: string
+    email?: string
+  }
+  partes?: {
+    comprador?: { email?: string }
+    vendedor?: { email?: string }
   }
 }
 
@@ -50,14 +55,26 @@ export default async function PagoPage({ params, searchParams }: PageProps) {
     notFound()
   }
 
-  // If already paid, redirect to claim page
-  if (contract.status === 'PAID' || contract.status === 'GENERATED') {
-    redirect(`/auth/claim-contract?contractId=${contractId}`)
+  // If already paid and has download token, redirect to success page
+  if (contract.status === 'GENERATED' || contract.status === 'DOWNLOADED') {
+    if (contract.download_token) {
+      redirect(`/contratos/pago/exito?token=${contract.download_token}`)
+    }
+  }
+
+  // If paid but PDF not yet generated, redirect to success (will show pending state)
+  if (contract.status === 'PAID') {
+    redirect(`/contratos/pago/exito?contractId=${contractId}&pending=true`)
   }
 
   const vehicleData = contract.data as ContractVehicleData
   const vehiculo = vehicleData?.vehiculo
   const comprador = vehicleData?.comprador
+  const defaultEmail =
+    vehicleData?.partes?.comprador?.email ||
+    comprador?.email ||
+    contract.email ||
+    ''
 
   async function handleInitiatePayment(formData: FormData) {
     'use server'
@@ -170,9 +187,30 @@ export default async function PagoPage({ params, searchParams }: PageProps) {
           </Card>
         )}
 
-        {/* Payment button */}
-        <form action={handleInitiatePayment}>
+        {/* Payment form with email + button */}
+        <form action={handleInitiatePayment} className="space-y-4">
           <input type="hidden" name="contractId" value={contractId} />
+
+          <Card className="bg-[var(--glass-bg)] border-[var(--glass-border)]">
+            <CardContent className="p-6 space-y-3">
+              <div className="flex items-center gap-2 text-text-primary font-medium">
+                <Mail className="w-5 h-5 text-accent-primary" />
+                <span>¿Dónde enviamos tu contrato?</span>
+              </div>
+              <input
+                type="email"
+                name="deliveryEmail"
+                defaultValue={defaultEmail}
+                required
+                placeholder="tu@email.com"
+                className="w-full rounded-lg border border-[var(--glass-border)] bg-bg-secondary px-4 py-3 text-text-primary placeholder:text-text-muted focus:outline-none focus:ring-2 focus:ring-accent-primary/50 focus:border-accent-primary"
+              />
+              <p className="text-xs text-text-muted">
+                Recibirás un enlace para descargar tu contrato en este correo
+              </p>
+            </CardContent>
+          </Card>
+
           <Button
             type="submit"
             variant="primary"

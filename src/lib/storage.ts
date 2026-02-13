@@ -39,7 +39,7 @@ export async function uploadContractPdf(
 }
 
 /**
- * Generate signed URL for contract download (24h expiry)
+ * Generate signed URL for contract download (7 day expiry)
  * @param contractId - Contract ID
  * @returns Signed URL
  */
@@ -51,7 +51,7 @@ export async function getContractSignedUrl(
 
   const { data, error } = await supabase.storage
     .from(CONTRACTS_BUCKET)
-    .createSignedUrl(filePath, 60 * 60 * 24) // 24 hours
+    .createSignedUrl(filePath, 60 * 60 * 24 * 7) // 7 days
 
   if (error) {
     throw new Error(`Failed to generate signed URL: ${error.message}`)

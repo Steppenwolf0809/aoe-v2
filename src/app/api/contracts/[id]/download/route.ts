@@ -1,11 +1,15 @@
 import { NextRequest, NextResponse } from 'next/server'
-import { createClient } from '@/lib/supabase/server'
+import { createAdminClient } from '@/lib/supabase/admin'
 import { getContractSignedUrl } from '@/lib/storage'
 
 interface RouteContext {
   params: Promise<{ id: string }>
 }
 
+/**
+ * Token-based contract PDF download — no authentication required.
+ * The download token IS the authorization.
+ */
 export async function GET(request: NextRequest, context: RouteContext) {
   try {
     const { id } = await context.params
@@ -19,12 +23,13 @@ export async function GET(request: NextRequest, context: RouteContext) {
       )
     }
 
-    const supabase = await createClient()
+    // Use admin client — token is the authorization, not user session
+    const supabase = createAdminClient()
 
     // Get contract and validate token
     const { data: contract, error } = await supabase
       .from('contracts')
-      .select('*')
+      .select('id, status, download_token, download_token_expires_at')
       .eq('id', id)
       .eq('download_token', token)
       .single()

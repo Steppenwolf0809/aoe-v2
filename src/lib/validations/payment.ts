@@ -19,6 +19,7 @@ export const payphoneLinkRequestSchema = z.object({
   oneTime: z.boolean().default(true), // Link de un solo uso
   expireIn: z.number().optional(), // Horas hasta que expire
   additionalData: z.string().max(250).optional(), // Datos extra (contractId)
+  responseUrl: z.string().url().optional(), // URL de retorno después del pago
   storeId: z.string().optional(), // Se inyecta desde env
 })
 

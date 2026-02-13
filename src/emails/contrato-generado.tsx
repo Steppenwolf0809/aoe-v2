@@ -70,8 +70,7 @@ export const ContratoGeneradoEmail = ({
             <Text style={stepText}>
               <strong>1. Descarga tu contrato</strong>
               <br />
-              Encontrarás el PDF adjunto en este email o usa el botón de abajo
-              para descargarlo.
+              Usa el botón de abajo para descargar tu contrato en PDF.
             </Text>
 
             <Text style={stepText}>
@@ -81,16 +80,16 @@ export const ContratoGeneradoEmail = ({
             </Text>
 
             <Text style={stepText}>
-              <strong>3. Firma el contrato</strong>
+              <strong>3. Reconocimiento de firmas</strong>
               <br />
-              Coordina la legalización de firmas en la notaría de tu
-              preferencia con ambas partes.
+              Acudan a la notaría de su preferencia con ambas partes para el
+              reconocimiento de firmas ante notario.
             </Text>
 
             <Text style={stepText}>
               <strong>4. Realiza la transferencia</strong>
               <br />
-              Con el contrato legalizado, procede a tramitar la transferencia
+              Con el contrato notarizado, procede a tramitar la transferencia
               en la ANT.
             </Text>
           </Section>
@@ -101,7 +100,7 @@ export const ContratoGeneradoEmail = ({
               Descargar Contrato PDF
             </Button>
             <Text style={downloadNote}>
-              El link de descarga es válido por 24 horas
+              El link de descarga es válido por 7 días
             </Text>
           </Section>
 

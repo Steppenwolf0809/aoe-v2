@@ -55,6 +55,7 @@
             { "name": "oneTime", "value": "={{$json.body.oneTime}}" },
             { "name": "expireIn", "value": "={{$json.body.expireIn}}" },
             { "name": "additionalData", "value": "={{$json.body.additionalData}}" },
+            { "name": "responseUrl", "value": "={{$json.body.responseUrl}}" },
             { "name": "isAmountEditable", "value": "={{$json.body.isAmountEditable}}" }
           ]
         },

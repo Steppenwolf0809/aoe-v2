@@ -1,11 +1,12 @@
-import Link from 'next/link'
 import { redirect } from 'next/navigation'
 import { Card, CardContent } from '@/components/ui/card'
 import { createAdminClient } from '@/lib/supabase/admin'
 import { checkTransactionStatus } from '@/lib/payphone'
 import { isPaymentApproved } from '@/lib/validations/payment'
 import { PRECIO_CONTRATO_BASICO } from '@/lib/formulas/vehicular'
+import { generateContractPdfAdmin } from '@/actions/pdf'
 import { XCircle } from 'lucide-react'
+import Link from 'next/link'
 
 // PayPhone WAF blocks Vercel US IPs → run from São Paulo
 export const preferredRegion = 'gru1'
@@ -44,6 +45,19 @@ function ErrorState({ message }: { message: string }) {
   )
 }
 
+/**
+ * Verify payment with PayPhone, generate PDF, send email, redirect to success.
+ * No authentication required — the payment token is the authorization.
+ */
+async function processPaymentAndGeneratePdf(contractId: string): Promise<string> {
+  const pdfResult = await generateContractPdfAdmin(contractId)
+  if (pdfResult.success) {
+    return `/contratos/pago/exito?token=${pdfResult.data.downloadToken}`
+  }
+  // Payment OK but PDF failed — still show success with pending
+  return `/contratos/pago/exito?contractId=${contractId}&pending=true`
+}
+
 export default async function PaymentCallbackPage({
   searchParams,
 }: PaymentCallbackPageProps) {
@@ -71,7 +85,7 @@ export default async function PaymentCallbackPage({
       // Look up contract by clientTransactionId stored in payment_id
       const { data: contract, error: fetchError } = await adminSupabase
         .from('contracts')
-        .select('id, user_id, status')
+        .select('id, status, download_token')
         .eq('payment_id', clientTransactionId)
         .single()
 
@@ -81,7 +95,7 @@ export default async function PaymentCallbackPage({
         if (legacyContractId) {
           const { data: legacyContract, error: legacyError } = await adminSupabase
             .from('contracts')
-            .select('id, user_id, status')
+            .select('id, status')
             .eq('id', legacyContractId)
             .single()
 
@@ -95,39 +109,34 @@ export default async function PaymentCallbackPage({
               })
               .eq('id', legacyContractId)
 
-            redirectPath = legacyContract.user_id
-              ? `/dashboard/contratos/${legacyContractId}`
-              : `/auth/claim-contract?contractId=${legacyContractId}`
+            redirectPath = await processPaymentAndGeneratePdf(legacyContractId)
           } else {
             errorMessage = 'Contrato no encontrado.'
           }
         } else {
           errorMessage = 'Contrato no encontrado para esta transaccion.'
         }
+      } else if (contract.status === 'GENERATED' || contract.status === 'DOWNLOADED') {
+        // Already processed — redirect to success
+        redirectPath = `/contratos/pago/exito?token=${contract.download_token}`
+      } else if (contract.status === 'PAID') {
+        // Already PAID but PDF not generated — try now
+        redirectPath = await processPaymentAndGeneratePdf(contract.id)
       } else {
-        // Already processed?
-        if (contract.status === 'PAID' || contract.status === 'GENERATED' || contract.status === 'DOWNLOADED') {
-          redirectPath = contract.user_id
-            ? `/dashboard/contratos/${contract.id}`
-            : `/auth/claim-contract?contractId=${contract.id}`
-        } else {
-          // Update contract with real PayPhone transaction ID
-          const { error: updateError } = await adminSupabase
-            .from('contracts')
-            .update({
-              status: 'PAID',
-              payment_id: statusResponse.transactionId,
-              amount: PRECIO_CONTRATO_BASICO,
-            })
-            .eq('id', contract.id)
+        // Update contract to PAID with real PayPhone transaction ID
+        const { error: updateError } = await adminSupabase
+          .from('contracts')
+          .update({
+            status: 'PAID',
+            payment_id: statusResponse.transactionId,
+            amount: PRECIO_CONTRATO_BASICO,
+          })
+          .eq('id', contract.id)
 
-          if (updateError) {
-            errorMessage = updateError.message
-          } else {
-            redirectPath = contract.user_id
-              ? `/dashboard/contratos/${contract.id}`
-              : `/auth/claim-contract?contractId=${contract.id}`
-          }
+        if (updateError) {
+          errorMessage = updateError.message
+        } else {
+          redirectPath = await processPaymentAndGeneratePdf(contract.id)
         }
       }
     }

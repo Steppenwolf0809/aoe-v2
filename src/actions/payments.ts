@@ -27,7 +27,12 @@ export async function initiatePayment(
     const contractId =
       typeof contractIdOrFormData === 'string'
         ? contractIdOrFormData
-        : contractIdOrFormData.get('contractId')
+        : (contractIdOrFormData.get('contractId') as string | null)
+
+    const deliveryEmail =
+      typeof contractIdOrFormData === 'string'
+        ? undefined
+        : (contractIdOrFormData.get('deliveryEmail') as string | null)
 
     if (typeof contractId !== 'string' || !contractId) {
       return { success: false, error: 'ID de contrato invalido' }
@@ -63,6 +68,8 @@ export async function initiatePayment(
     const baseCents = Math.floor(totalCents / 1.15) // base imponible
     const taxCents = totalCents - baseCents // IVA
 
+    // NOTE: responseUrl is configured in PayPhone dashboard (app type "Web"),
+    // not in the API request body. PayPhone appends ?id=TX&clientTransactionId=AOExx
     const paymentResponse = await createPaymentLink({
       amount: totalCents,
       amountWithoutTax: 0,
@@ -78,7 +85,7 @@ export async function initiatePayment(
       additionalData: contractId, // Guardamos el contractId para el callback
     })
 
-    // Store clientTransactionId in contract for callback lookup
+    // Store clientTransactionId + delivery email in contract for callback lookup
     const { createAdminClient } = await import('@/lib/supabase/admin')
     const adminSupabase = createAdminClient()
     await adminSupabase
@@ -86,6 +93,7 @@ export async function initiatePayment(
       .update({
         status: 'PENDING_PAYMENT',
         payment_id: clientTransactionId, // Temporal: se sobreescribe con el ID real de PayPhone al confirmar
+        ...(deliveryEmail ? { delivery_email: deliveryEmail } : {}),
       })
       .eq('id', contractId)
 
