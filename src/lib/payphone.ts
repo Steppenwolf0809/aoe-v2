@@ -49,12 +49,13 @@ function resolveSaleUrl(transactionId: string): string {
   if (PAYPHONE_SALE_URL) {
     const raw = PAYPHONE_SALE_URL.trim()
     const templated = applyIdTemplate(raw, transactionId)
-    // If user provided a base URL without a placeholder, append /{id}.
-    if (templated === raw) return `${raw.replace(/\/+$/, '')}/${transactionId}`
+    // If user provided a base URL without a placeholder, append /clientTx/{id}.
+    if (templated === raw) return `${raw.replace(/\/+$/, '')}/clientTx/${transactionId}`
     return templated
   }
   const baseUrl = getPayPhoneBaseUrl()
-  return `${baseUrl}/Sale/${transactionId}`
+  // AOE uses clientTransactionId for lookups because we save it BEFORE redirecting!
+  return `${baseUrl}/Sale/clientTx/${transactionId}`
 }
 
 function resolveConfirmUrl(): string {
