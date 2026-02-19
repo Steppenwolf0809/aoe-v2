@@ -3,10 +3,10 @@ import { notFound, redirect } from 'next/navigation'
 import { createClient } from '@/lib/supabase/server'
 import { Card, CardContent } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
-import { ArrowRight, CheckCircle2, Mail } from 'lucide-react'
+import { CheckCircle2 } from 'lucide-react'
 import { formatCurrency } from '@/lib/utils'
 import { PRECIO_CONTRATO_BASICO } from '@/lib/formulas/vehicular'
-import { initiatePayment } from '@/actions/payments'
+import { PaymentForm } from '@/components/contracts/payment-form'
 
 // PayPhone WAF blocks Vercel US IPs → run from São Paulo
 export const preferredRegion = 'gru1'
@@ -76,18 +76,7 @@ export default async function PagoPage({ params, searchParams }: PageProps) {
     contract.email ||
     ''
 
-  async function handleInitiatePayment(formData: FormData) {
-    'use server'
 
-    const result = await initiatePayment(formData)
-    if (!result.success) {
-      redirect(
-        `/contratos/${contractId}/pago?error=${encodeURIComponent(result.error)}`
-      )
-    }
-
-    redirect(result.data.paymentUrl)
-  }
 
   return (
     <div className="min-h-screen bg-bg-primary py-12 px-4">
@@ -179,47 +168,12 @@ export default async function PagoPage({ params, searchParams }: PageProps) {
           </CardContent>
         </Card>
 
-        {paymentError && (
-          <Card className="bg-red-500/10 border-red-500/30">
-            <CardContent className="p-4">
-              <p className="text-sm text-red-500">{paymentError}</p>
-            </CardContent>
-          </Card>
-        )}
-
-        {/* Payment form with email + button */}
-        <form action={handleInitiatePayment} className="space-y-4">
-          <input type="hidden" name="contractId" value={contractId} />
-
-          <Card className="bg-[var(--glass-bg)] border-[var(--glass-border)]">
-            <CardContent className="p-6 space-y-3">
-              <div className="flex items-center gap-2 text-text-primary font-medium">
-                <Mail className="w-5 h-5 text-accent-primary" />
-                <span>¿Dónde enviamos tu contrato?</span>
-              </div>
-              <input
-                type="email"
-                name="deliveryEmail"
-                defaultValue={defaultEmail}
-                required
-                placeholder="tu@email.com"
-                className="w-full rounded-lg border border-[var(--glass-border)] bg-bg-secondary px-4 py-3 text-text-primary placeholder:text-text-muted focus:outline-none focus:ring-2 focus:ring-accent-primary/50 focus:border-accent-primary"
-              />
-              <p className="text-xs text-text-muted">
-                Recibirás un enlace para descargar tu contrato en este correo
-              </p>
-            </CardContent>
-          </Card>
-
-          <Button
-            type="submit"
-            variant="primary"
-            className="w-full h-12 text-base"
-          >
-            Pagar {formatCurrency(PRECIO_CONTRATO_BASICO)} con PayPhone
-            <ArrowRight className="w-5 h-5 ml-2" />
-          </Button>
-        </form>
+        {/* Payment form with email + button (Polling enabled) */}
+        <PaymentForm
+          contractId={contractId}
+          defaultEmail={defaultEmail}
+          initialError={paymentError}
+        />
 
         {/* Security badges */}
         <div className="text-center space-y-2 pt-4">
