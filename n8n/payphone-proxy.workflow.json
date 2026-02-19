@@ -331,7 +331,7 @@
     },
     {
       "parameters": {
-        "url": "={{'https://pay.payphonetodoesposible.com/api/Sale/clientTx/' + $json.query.id}}",
+        "url": "={{'https://pay.payphonetodoesposible.com/api/Sale/client/' + $json.query.id}}",
         "authentication": "none",
         "options": {
           "followRedirect": false,
