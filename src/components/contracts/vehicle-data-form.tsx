@@ -95,7 +95,7 @@ export function VehicleDataForm({ onCuvParsed }: VehicleDataFormProps) {
           type="number"
           placeholder="15000"
           error={ve?.avaluo?.message}
-          hint="Valor comercial estimado del vehiculo"
+          hint="Encuentra este valor en la especie de la matrícula"
           {...register('vehiculo.avaluo', { valueAsNumber: true })}
         />
         <Input
