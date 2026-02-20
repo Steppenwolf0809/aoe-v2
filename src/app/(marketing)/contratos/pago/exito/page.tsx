@@ -160,11 +160,11 @@ export default async function PaymentSuccessPage({
             {/* Download button */}
             {isPdfReady && downloadToken && !tokenExpired ? (
               <a
-                href={`/api/contracts/${contract.id}/download?token=${downloadToken}`}
+                href={`/api/contracts/${contract.id}/download-docx?token=${downloadToken}`}
                 className="flex items-center justify-center gap-3 w-full rounded-lg bg-accent-primary hover:bg-accent-primary/90 text-white font-semibold py-4 px-6 transition-colors text-lg"
               >
                 <Download className="w-6 h-6" />
-                Descargar Contrato PDF
+                Descargar Contrato Word (.docx)
               </a>
             ) : pending ? (
               <div className="flex items-center justify-center gap-3 w-full rounded-lg bg-yellow-500/10 border border-yellow-500/30 text-yellow-600 font-medium py-4 px-6">
@@ -218,6 +218,15 @@ export default async function PaymentSuccessPage({
               <li className="flex gap-3">
                 <span className="flex-shrink-0 w-6 h-6 rounded-full bg-accent-primary/10 text-accent-primary font-bold flex items-center justify-center text-xs">
                   1
+                </span>
+                <span className="text-text-secondary">
+                  <strong className="text-text-primary">Abre el documento Word</strong> y
+                  completa cualquier dato adicional
+                </span>
+              </li>
+              <li className="flex gap-3">
+                <span className="flex-shrink-0 w-6 h-6 rounded-full bg-accent-primary/10 text-accent-primary font-bold flex items-center justify-center text-xs">
+                  2
                 </span>
                 <span className="text-text-secondary">
                   <strong className="text-text-primary">Descarga e imprime</strong> el

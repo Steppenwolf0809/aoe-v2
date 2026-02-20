@@ -183,7 +183,7 @@ export function LegalFields({ prefix }: LegalFieldsProps) {
                       <span className="text-xs text-text-secondary group-hover:text-text-primary transition-colors">
                         <span className="font-medium text-text-primary">¿Comparecerá el cónyuge en el contrato?</span>
                         <br />
-                        Si el cónyuge no comparece, el comprador adquiere el vehículo a título personal. Puedes agregar los datos del cónyuge manualmente en el documento Word editable.
+                        Si el cónyuge no comparece pero existe sociedad conyugal, el vehículo igual se adquiere para la sociedad. Puedes agregar los datos del cónyuge manualmente en el documento Word.
                       </span>
                     </label>
                   )}
