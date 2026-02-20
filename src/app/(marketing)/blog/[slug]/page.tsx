@@ -130,7 +130,7 @@ export default async function BlogPostPage({ params }: BlogPostPageProps) {
       <div className="grid grid-cols-1 xl:grid-cols-[minmax(0,1fr)_280px] gap-10 items-start">
         <article className="rounded-2xl border border-[var(--glass-border)] bg-white p-6 sm:p-8">
           <div
-            className="text-[var(--text-secondary)] leading-7 space-y-4 [&_h2]:mt-8 [&_h2]:mb-3 [&_h2]:text-2xl [&_h2]:font-semibold [&_h2]:text-text-primary [&_h3]:mt-6 [&_h3]:mb-2 [&_h3]:text-xl [&_h3]:font-semibold [&_h3]:text-text-primary [&_p]:mb-4 [&_ul]:mb-4 [&_ul]:list-disc [&_ul]:pl-5 [&_ol]:mb-4 [&_ol]:list-decimal [&_ol]:pl-5 [&_li]:mb-2 [&_a]:text-[var(--accent-primary)] [&_a]:underline [&_strong]:text-text-primary"
+            className="blog-content text-[var(--text-secondary)] leading-7 [&_h2]:mt-8 [&_h2]:mb-3 [&_h2]:text-2xl [&_h2]:font-semibold [&_h2]:text-text-primary [&_h3]:mt-6 [&_h3]:mb-2 [&_h3]:text-xl [&_h3]:font-semibold [&_h3]:text-text-primary [&_ul]:list-disc [&_ol]:list-decimal"
             dangerouslySetInnerHTML={{ __html: contentHtml }}
           />
         </article>

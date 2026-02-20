@@ -299,3 +299,120 @@ body {
     transition-duration: 0.01ms !important;
   }
 }
+
+/* ================================================================
+   Blog — Prose content styles
+   ================================================================ */
+.blog-content {
+  text-align: justify;
+  hyphens: auto;
+  -webkit-hyphens: auto;
+  word-break: break-word;
+  overflow-wrap: break-word;
+}
+
+.blog-content p {
+  line-height: 1.85;
+  margin-bottom: 1rem;
+}
+
+.blog-content h2,
+.blog-content h3 {
+  scroll-margin-top: 6rem;
+}
+
+.blog-content img {
+  display: block;
+  max-width: 100%;
+  height: auto;
+  border-radius: 0.5rem;
+  clear: both;
+  margin: 1.5rem 0;
+}
+
+.blog-content blockquote {
+  border-left: 4px solid var(--accent-primary);
+  padding-left: 1rem;
+  font-style: italic;
+  color: var(--text-muted);
+  margin: 1.5rem 0;
+}
+
+.blog-content hr {
+  border: none;
+  border-top: 1px solid var(--glass-border);
+  margin: 2rem 0;
+}
+
+.blog-content pre {
+  background: var(--bg-tertiary);
+  border-radius: 0.5rem;
+  padding: 1rem;
+  overflow-x: auto;
+  margin: 1rem 0;
+}
+
+.blog-content code {
+  background: var(--bg-tertiary);
+  border-radius: 0.25rem;
+  padding: 0.125rem 0.375rem;
+  font-size: 0.875em;
+  font-family: monospace;
+}
+
+.blog-content pre code {
+  background: transparent;
+  padding: 0;
+  border-radius: 0;
+}
+
+.blog-content table {
+  width: 100%;
+  border-collapse: collapse;
+  margin: 1.5rem 0;
+}
+
+.blog-content th,
+.blog-content td {
+  border: 1px solid var(--glass-border);
+  padding: 0.5rem 1rem;
+  text-align: left;
+}
+
+.blog-content th {
+  background: var(--bg-secondary);
+  font-weight: 600;
+  color: var(--text-primary);
+}
+
+.blog-content ul,
+.blog-content ol {
+  padding-left: 1.5rem;
+  margin-bottom: 1rem;
+}
+
+.blog-content li {
+  margin-bottom: 0.5rem;
+  line-height: 1.75;
+}
+
+.blog-content li>ul,
+.blog-content li>ol {
+  margin-top: 0.5rem;
+  margin-bottom: 0;
+}
+
+.blog-content strong {
+  color: var(--text-primary);
+  font-weight: 600;
+}
+
+.blog-content a {
+  color: var(--accent-primary);
+  text-decoration: underline;
+  text-underline-offset: 2px;
+}
+
+.blog-content a:hover {
+  color: var(--accent-primary-hover);
+}
