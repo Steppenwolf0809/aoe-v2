@@ -4,6 +4,7 @@ import {
   type PayPhoneConfirmRequest,
   type PayPhoneConfirmResponse,
   payphoneLinkResponseSchema,
+  payphoneConfirmRequestSchema,
   payphoneConfirmResponseSchema,
 } from './validations/payment'
 
@@ -37,33 +38,47 @@ function applyIdTemplate(url: string, id: string): string {
 
 /**
  * Resolve the Button Prepare URL.
- * PAYPHONE_LINKS_URL env var is reused for backward compat with n8n proxy.
+ * PAYPHONE_LINKS_URL → n8n webhook for Prepare (secret via query param).
+ * PAYPHONE_PROXY_URL → Cloudflare Worker (secret via header).
+ * Otherwise → direct to PayPhone API.
  */
 function resolvePrepareUrl(): string {
-  if (PAYPHONE_LINKS_URL) return PAYPHONE_LINKS_URL.trim()
+  if (PAYPHONE_LINKS_URL) return appendN8nSecret(PAYPHONE_LINKS_URL.trim())
   const baseUrl = getPayPhoneBaseUrl()
   return `${baseUrl}/button/Prepare`
 }
 
+/**
+ * Resolve the Sale/client/{id} URL for checking transaction status.
+ * PAYPHONE_SALE_URL → n8n webhook (id passed as query param ?id=XX&secret=XX).
+ */
 function resolveSaleUrl(transactionId: string): string {
   if (PAYPHONE_SALE_URL) {
     const raw = PAYPHONE_SALE_URL.trim()
     const templated = applyIdTemplate(raw, transactionId)
-    // If user provided a base URL without a placeholder, append /client/{id}.
-    if (templated === raw) return `${raw.replace(/\/+$/, '')}/client/${transactionId}`
-    return templated
+    if (templated === raw) {
+      // n8n webhook: pass id as query param (n8n reads $json.query.id)
+      const baseWithSecret = appendN8nSecret(raw.replace(/\/+$/, ''))
+      const separator = baseWithSecret.includes('?') ? '&' : '?'
+      return `${baseWithSecret}${separator}id=${encodeURIComponent(transactionId)}`
+    }
+    return appendN8nSecret(templated)
   }
   const baseUrl = getPayPhoneBaseUrl()
-  // AOE uses clientTransactionId for lookups because we save it BEFORE redirecting!
   return `${baseUrl}/Sale/client/${transactionId}`
 }
 
 function resolveConfirmUrl(): string {
-  if (PAYPHONE_CONFIRM_URL) return PAYPHONE_CONFIRM_URL.trim()
+  if (PAYPHONE_CONFIRM_URL) return appendN8nSecret(PAYPHONE_CONFIRM_URL.trim())
   const baseUrl = getPayPhoneBaseUrl()
   return `${baseUrl}/button/V2/Confirm`
 }
 
+/**
+ * Returns extra headers for Cloudflare Worker proxy.
+ * Only used when PAYPHONE_PROXY_URL is set (generic proxy mode).
+ * For n8n per-endpoint URLs, the secret is added as a query param instead.
+ */
 function getProxyHeaders(): Record<string, string> {
   if (!PAYPHONE_PROXY_URL) return {}
   if (!PAYPHONE_PROXY_SECRET) {
@@ -72,6 +87,17 @@ function getProxyHeaders(): Record<string, string> {
     )
   }
   return { 'X-Proxy-Secret': PAYPHONE_PROXY_SECRET }
+}
+
+/**
+ * Append ?secret=XXX to a URL for n8n webhook authentication.
+ * n8n validates the secret via query param, not header.
+ */
+function appendN8nSecret(url: string): string {
+  const secret = process.env.PAYPHONE_PROXY_SECRET || process.env.N8N_PAYPHONE_SECRET
+  if (!secret) return url
+  const separator = url.includes('?') ? '&' : '?'
+  return `${url}${separator}secret=${encodeURIComponent(secret)}`
 }
 
 function looksLikePlaceholder(value: string): boolean {
@@ -265,6 +291,9 @@ export async function confirmPayment(
   const { token } = getPayPhoneConfig()
   const url = resolveConfirmUrl()
 
+  // Ensure id is sent as integer per PayPhone docs
+  const parsedRequest = payphoneConfirmRequestSchema.parse(request)
+
   const response = await fetch(url, {
     method: 'POST',
     headers: {
@@ -275,11 +304,12 @@ export async function confirmPayment(
       ...getProxyHeaders(),
     },
     redirect: 'manual',
-    body: JSON.stringify(request),
+    body: JSON.stringify(parsedRequest),
   })
 
   if (!response.ok) {
     const errorText = await response.text()
+    console.error('[PayPhone Confirm] Status:', response.status, 'Body:', errorText.slice(0, 500))
     const summarizedError = summarizeHtmlError(errorText)
     throw new Error(
       `PayPhone Confirm failed: ${response.status} ${summarizedError}`

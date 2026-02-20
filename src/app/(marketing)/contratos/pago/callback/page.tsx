@@ -15,6 +15,7 @@ interface PaymentCallbackPageProps {
   searchParams: Promise<{
     id?: string
     clientTransactionId?: string
+    cancelled?: string
     // Legacy params (backward compat)
     contractId?: string
     transactionId?: string
@@ -62,12 +63,22 @@ export default async function PaymentCallbackPage({
   searchParams,
 }: PaymentCallbackPageProps) {
   const params = await searchParams
+
+  // Log all received params for debugging
+  console.log('[PayPhone Callback] Received params:', JSON.stringify(params))
+
+  // Handle cancellation redirect
+  if (params.cancelled === 'true') {
+    return <ErrorState message="El pago fue cancelado. Puedes intentar nuevamente." />
+  }
+
   const clientTransactionId = params.clientTransactionId
   const transactionId =
     params.id || params.transactionId || params.transaction_id || params.payphone_id
 
   if (!clientTransactionId || !transactionId) {
-    return <ErrorState message="Parametros de pago invalidos." />
+    console.error('[PayPhone Callback] Missing params. id:', params.id, 'clientTransactionId:', params.clientTransactionId)
+    return <ErrorState message="Parametros de pago invalidos. Verifica que PayPhone haya redirigido correctamente." />
   }
 
   let redirectPath: string | null = null
@@ -75,10 +86,12 @@ export default async function PaymentCallbackPage({
 
   try {
     // Confirm payment with PayPhone Button V2 API (must be done within 5 min)
+    console.log('[PayPhone Callback] Confirming payment. id:', transactionId, 'clientTxId:', clientTransactionId)
     const statusResponse = await confirmPayment({
       id: transactionId,
       clientTxId: clientTransactionId,
     })
+    console.log('[PayPhone Callback] Confirm response:', JSON.stringify({ statusCode: statusResponse.statusCode, status: statusResponse.status, transactionId: statusResponse.transactionId }))
 
     if (!isPaymentApproved(statusResponse.statusCode)) {
       errorMessage = `Pago no aprobado. Estado: ${statusResponse.status || statusResponse.transactionStatus || 'desconocido'}`
@@ -144,6 +157,7 @@ export default async function PaymentCallbackPage({
       }
     }
   } catch (error) {
+    console.error('[PayPhone Callback] Error:', error)
     errorMessage =
       error instanceof Error ? error.message : 'Error al procesar el pago.'
   }

@@ -78,7 +78,8 @@ export async function initiatePayment(
       currency: 'USD',
       reference: 'Contrato Vehicular - AOE',
       responseUrl: `${appUrl}/contratos/pago/callback`,
-      additionalData: contractId, // Guardamos el contractId para el callback
+      cancellationUrl: `${appUrl}/contratos/pago/callback?cancelled=true`,
+      optionalParameter: contractId, // Guardamos el contractId como fallback
     })
 
     // Store clientTransactionId + delivery email in contract for callback lookup

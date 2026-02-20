@@ -16,8 +16,9 @@ export const payphoneLinkRequestSchema = z.object({
   clientTransactionId: z.string().min(1),
   currency: z.literal('USD'),
   reference: z.string().max(100).optional(),
-  additionalData: z.string().max(250).optional(), // Datos extra (contractId)
+  optionalParameter: z.string().max(250).optional(), // Datos extra (contractId)
   responseUrl: z.string().url(), // Required — PayPhone redirects here after payment
+  cancellationUrl: z.string().url().optional(), // URL para cuando el usuario cancela el pago
   storeId: z.string().optional(), // Se inyecta desde env
 })
 
@@ -34,13 +35,18 @@ export type PayPhoneLinkResponse = z.infer<typeof payphoneLinkResponseSchema>
 // PayPhone Confirm / Status Check
 // ============================================
 
-// Confirm Request (para /button/V2/Confirm - backward compat)
+// Confirm Request (para /button/V2/Confirm)
+// PayPhone docs: id is integer, clientTxId is string
 export const payphoneConfirmRequestSchema = z.object({
-  id: z.string().min(1),
+  id: z.coerce.number().int(), // PayPhone expects integer — coerces string→number
   clientTxId: z.string().min(1),
 })
 
-export type PayPhoneConfirmRequest = z.infer<typeof payphoneConfirmRequestSchema>
+// Input type allows string|number for id (from URL query params)
+export type PayPhoneConfirmRequest = {
+  id: string | number
+  clientTxId: string
+}
 
 // Confirm/Status Response (shared between Confirm and GET /Sale/{id})
 export const payphoneConfirmResponseSchema = z.object({
