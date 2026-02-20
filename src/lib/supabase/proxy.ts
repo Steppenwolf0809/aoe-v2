@@ -37,6 +37,7 @@ export async function updateSession(request: NextRequest) {
   const isPublicContractRoute =
     pathname === '/contratos/vehicular' ||
     pathname === '/contratos/pago/callback' ||
+    pathname === '/contratos/pago/exito' ||
     /^\/contratos\/[^/]+\/pago$/.test(pathname)
 
   if (
