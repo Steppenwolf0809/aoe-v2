@@ -51,7 +51,12 @@ function ErrorState({ message }: { message: string }) {
  * No authentication required — the payment token is the authorization.
  */
 async function processPaymentAndGeneratePdf(contractId: string): Promise<string> {
+  console.log('[PayPhone Callback] Generating PDF for contract:', contractId)
   const pdfResult = await generateContractPdfAdmin(contractId)
+  console.log('[PayPhone Callback] PDF result:', JSON.stringify({
+    success: pdfResult.success,
+    ...(pdfResult.success ? { downloadToken: pdfResult.data.downloadToken } : { error: pdfResult.error }),
+  }))
   if (pdfResult.success) {
     return `/contratos/pago/exito?token=${pdfResult.data.downloadToken}`
   }
@@ -99,11 +104,14 @@ export default async function PaymentCallbackPage({
       const adminSupabase = createAdminClient()
 
       // Look up contract by clientTransactionId stored in payment_id
+      console.log('[PayPhone Callback] Looking up contract with payment_id:', clientTransactionId)
       const { data: contract, error: fetchError } = await adminSupabase
         .from('contracts')
         .select('id, status, download_token')
         .eq('payment_id', clientTransactionId)
         .single()
+
+      console.log('[PayPhone Callback] Contract lookup result:', JSON.stringify({ contract, fetchError: fetchError?.message }))
 
       if (fetchError || !contract) {
         // Fallback: try legacy contractId param

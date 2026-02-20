@@ -175,7 +175,7 @@ export async function generateContractPdfAdmin(
     expiresAt.setDate(expiresAt.getDate() + 7)
 
     // Update contract with PDF info (using admin client)
-    await adminSupabase
+    const { error: updateError } = await adminSupabase
       .from('contracts')
       .update({
         status: 'GENERATED',
@@ -185,6 +185,25 @@ export async function generateContractPdfAdmin(
         download_token_expires_at: expiresAt.toISOString(),
       })
       .eq('id', contractId)
+
+    if (updateError) {
+      console.error('[generateContractPdfAdmin] Update error:', updateError)
+      return { success: false, error: `Error actualizando contrato: ${updateError.message}` }
+    }
+
+    // Verify the token was saved correctly
+    const { data: verifyContract } = await adminSupabase
+      .from('contracts')
+      .select('download_token, status')
+      .eq('id', contractId)
+      .single()
+    console.log('[generateContractPdfAdmin] Verified contract after update:', JSON.stringify({
+      contractId,
+      savedToken: verifyContract?.download_token,
+      expectedToken: downloadToken,
+      status: verifyContract?.status,
+      tokensMatch: verifyContract?.download_token === downloadToken,
+    }))
 
     // Send email with download link (no PDF attachment to save bandwidth)
     const deliveryEmail = contract.delivery_email || contract.email
