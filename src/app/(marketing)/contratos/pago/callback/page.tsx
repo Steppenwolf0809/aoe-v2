@@ -104,14 +104,17 @@ export default async function PaymentCallbackPage({
       const adminSupabase = createAdminClient()
 
       // Look up contract by clientTransactionId stored in payment_id
+      // Use .limit(1) instead of .single() to handle edge cases with duplicate payment_ids
       console.log('[PayPhone Callback] Looking up contract with payment_id:', clientTransactionId)
-      const { data: contract, error: fetchError } = await adminSupabase
+      const { data: contracts, error: fetchError } = await adminSupabase
         .from('contracts')
         .select('id, status, download_token')
         .eq('payment_id', clientTransactionId)
-        .single()
+        .order('created_at', { ascending: false })
+        .limit(1)
 
-      console.log('[PayPhone Callback] Contract lookup result:', JSON.stringify({ contract, fetchError: fetchError?.message }))
+      const contract = contracts?.[0] ?? null
+      console.log('[PayPhone Callback] Contract lookup result:', JSON.stringify({ contract, fetchError: fetchError?.message, totalFound: contracts?.length ?? 0 }))
 
       if (fetchError || !contract) {
         // Fallback: try legacy contractId param

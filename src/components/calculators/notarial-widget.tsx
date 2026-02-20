@@ -63,6 +63,7 @@ export function NotarialCalculatorWidget() {
       actoIndeterminadoId?: string
       cantidadActoIndeterminado?: number
       numeroOtorgantes?: number
+      numeroFirmas?: number
     } = {
       itemsAdicionales,
     }
