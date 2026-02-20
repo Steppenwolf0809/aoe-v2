@@ -290,7 +290,7 @@ export function CuvUpload({ onCuvParsed }: CuvUploadProps) {
       </motion.div>
 
       {/* ANT Link — always visible */}
-      <p className="text-xs text-text-muted text-center">
+      <p className="text-xs text-text-muted text-center mt-3">
         ¿No tienes tu CUV?{' '}
         <a
           href="https://www.ant.gob.ec/index.php/ant/servicios-ant/consultas/certificado-unico-vehicular"
@@ -299,7 +299,7 @@ export function CuvUpload({ onCuvParsed }: CuvUploadProps) {
           className="text-accent-primary hover:underline font-medium"
           onClick={(e) => e.stopPropagation()}
         >
-          Descárgalo gratis en la ANT →
+          Descárgalo en la ANT →
         </a>
       </p>
 
