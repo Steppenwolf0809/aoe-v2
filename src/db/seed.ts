@@ -124,158 +124,79 @@ const blogPosts: SeedBlogPost[] = [
   },
   {
     slug: 'cuanto-cuesta-escriturar-casa-quito-2026-guia',
-    title: 'Cuánto cuesta escriturar una casa en Quito en 2026: guía de costos reales',
+    title: 'Cuánto cuesta escriturar una casa en Quito en 2026: Guía con datos y tarifas reales',
     excerpt:
-      'Resumen claro de impuestos, aranceles y gastos notariales para calcular el costo real de escriturar en Quito.',
+      'Descubre el costo real y detallado de impuestos, aranceles de notaría y registro de la propiedad actualizados para 2026 en Quito.',
     coverImage:
       'https://images.unsplash.com/photo-1486406146926-c627a92ad1ab?auto=format&fit=crop&w=1600&q=80',
     category: 'Inmuebles',
     tags: ['escritura', 'quito', 'registro de la propiedad', 'impuestos municipales'],
-    seoTitle: 'Costo de escriturar en Quito 2026: guía completa',
+    seoTitle: 'Costo real de escriturar casa en Quito 2026: Guía Notarial',
     seoDescription:
-      'Calcula cuánto cuesta escriturar una casa en Quito en 2026 con desglose de notaría, impuestos y registro de la propiedad.',
+      'Calcula cuánto cuesta realmente escriturar una vivienda en Quito. Tarifas notariales 2026, Registro de la Propiedad e impuestos de Alcabala.',
     publishedAt: '2026-02-06T10:00:00.000Z',
     content: `
-      <p>Ayer una clienta me preguntó: "¿Por qué en la calculadora de internet me salía $800 y en la notaría me cobraron $1,450?" La respuesta es simple: la mayoría de calculadoras online solo suman el impuesto municipal y el arancel notarial, pero omiten certificados, derechos registrales, alcabalas y otros rubros "invisibles" que pueden sumar 40-60% del costo total.</p>
+      <p>Muchos compradores llegan a nosotros con una idea muy equivocada sobre lo que pagarán de gastos de cierre. Calculadoras genéricas o información desactualizada de años anteriores les hace creer que los gastos son mínimos. Hoy te explicamos el <strong>costo real con tarifas vigentes para 2026</strong> en Quito, considerando el Salario Básico Unificado (SBU) actual de $482.</p>
 
       <h2>Desglose de costos para escriturar una casa de $120,000 en Quito</h2>
-      <p>Usemos un ejemplo real: compraventa de casa en Cumbayá, precio $120,000, sin hipoteca.</p>
+      <p>Hagamos el ejercicio transparente con un ejemplo frecuente: la compraventa de una casa o departamento en Quito por un precio de $120,000 (sin hipoteca bancaria).</p>
 
-      <h3>1. Impuesto Municipal de Alcabala (comprador paga)</h3>
-      <p>Base: 1% sobre el exceso del avalúo que supere la fracción básica desgravada ($28,240 en 2026).</p>
-      <p><strong>Cálculo:</strong><br/>
-      ($120,000 - $28,240) × 1% = $917.60</p>
-      <p>⚠️ Si la casa es de interés social (menor a $70,000), la alcabala es 0%. Si es vivienda única y primera compra, hay descuentos del 50% en Quito.</p>
-
-      <h3>2. Arancel Notarial (usualmente se divide 50/50)</h3>
-      <p>Según Tabla del Consejo de la Judicatura 2026:</p>
+      <h3>1. Arancel Notarial (basado en tasas 2026)</h3>
+      <p>El costo de la notaría en Ecuador se fija por el Consejo de la Judicatura en base a factores del Salario Básico Unificado (SBU). No es un monto arbitrario.</p>
       <ul>
-        <li>Hasta $10,000: $53.00</li>
-        <li>De $10,001 a $25,000: $82.00</li>
-        <li>De $25,001 a $50,000: $117.00</li>
-        <li>De $50,001 a $100,000: $164.00</li>
-        <li>De $100,001 a $200,000: $217.00</li>
+        <li>Para inmuebles de $90,001 a $150,000: El factor es 1.35 SBU.</li>
+        <li>Cálculo: 1.35 × $482 = <strong>$650.70</strong></li>
+        <li>A esto se suma el IVA (15%): $97.60</li>
+        <li>Total Notaría (honorario base): <strong>$748.30</strong></li>
       </ul>
-      <p>Para $120,000: <strong>$217.00</strong></p>
-      <p>Más: $35 por cada copia certificada (necesitas mínimo 3 copias) = $105</p>
-      <p><strong>Total notaría: $322.00</strong></p>
+      <p>Adicionalmente pagarás alrededor de $60-$100 en copias certificadas, ya que se requieren para el municipio y para inscribir en el Registro de la Propiedad.</p>
 
-      <h3>3. Derechos del Registro de la Propiedad</h3>
-      <p>Tarifa 2026: 0.10% del valor de la escritura</p>
-      <p>$120,000 × 0.10% = <strong>$120.00</strong></p>
+      <h3>2. Derechos del Registro de la Propiedad de Quito</h3>
+      <p>El arancel registral también funciona por tablas. Para 2026, los valores que superan los $40,000 tienen una fórmula de base más excedente.</p>
+      <p>Cálculo para $120,000: Se aplica la tarifa base de $100 más el 0.5% del excedente de $10,000. Sin embargo, existe un <strong>límite legal máximo de $500</strong>. En este caso, el cálculo matemático superaría el límite, por lo que el arancel registral final topado será exactamente de <strong>$500.00</strong>.</p>
 
-      <h3>4. Certificados previos (obligatorios)</h3>
+      <h3>3. Impuesto Municipal de Alcabala y Plusvalía</h3>
+      <p>En el Distrito Metropolitano de Quito, el principal impuesto al comprador es la Alcabala, que corresponde al <strong>1% de la base imponible</strong> (el mayor valor entre tu precio de compra y el avalúo catastral).</p>
+      <p>Cálculo: $120,000 × 1% = <strong>$1,200.00</strong></p>
+      <p><em>*Nota: Si es tu primera y única propiedad y calificas, existen algunas deducciones municipales u ordenanzas que podrían aplicar, pero debes proyectar el 1% para estar seguro.</em></p>
+      <p>Por otro lado, la <strong>Plusvalía</strong> la paga el <em>vendedor</em> y es el 10% sobre la utilidad generada, menos descuentos por el tiempo que tuvo la propiedad. Es decir, tú (el comprador) no pagas la plusvalía, pero debes asegurarte de que el vendedor la cancele para que te liberen los certificados.</p>
+
+      <h3>4. Gastos Administrativos, Trámites y Certificados</h3>
+      <p>Antes de sentarte en la notaría, es obligatorio tener certificados vigentes:</p>
       <ul>
-        <li>Certificado de gravámenes del Registro: $5.00</li>
-        <li>Certificado de no adeudar impuestos municipales: $3.00</li>
-        <li>Certificado de valoración catastral: $3.00</li>
-        <li>Certificado de administración (si es conjunto): $25-50</li>
-        <li>Certificado de no adeudar servicios básicos: Gratis (presenta planilla al día)</li>
+        <li>Certificado de Gravámenes: $5.00</li>
+        <li>Certificados de no adeudar al Municipio (predial) y obras: ~$10-15</li>
+        <li>Certificados de expensas (si es en conjunto residencial) y movilidad: Varios.</li>
       </ul>
-      <p><strong>Subtotal certificados: $36-61</strong></p>
+      <p>Estimado conservador para imprevistos y certificados: <strong>$60.00</strong>.</p>
 
-      <h3>5. Otros gastos operativos</h3>
-      <ul>
-        <li>Honorarios de abogado para revisión: $150-300</li>
-        <li>Levantamiento de planos (si no tiene actualizado): $80-150</li>
-        <li>Copias simples, carpetas, transporte: $20-40</li>
-      </ul>
-
-      <h2>💰 Costo total estimado</h2>
+      <h2>💰 El Presupuesto Total y Real: ¿Cuánto es?</h2>
       <table>
-        <tr><th>Rubro</th><th>Monto</th></tr>
-        <tr><td>Alcabala municipal</td><td>$917.60</td></tr>
-        <tr><td>Arancel notarial + copias</td><td>$322.00</td></tr>
-        <tr><td>Derechos registrales</td><td>$120.00</td></tr>
-        <tr><td>Certificados</td><td>$50.00</td></tr>
-        <tr><td>Honorarios abogado</td><td>$200.00</td></tr>
-        <tr><td>Varios</td><td>$30.00</td></tr>
-        <tr><td><strong>TOTAL</strong></td><td><strong>$1,639.60</strong></td></tr>
+        <tr><th>Rubro</th><th>Monto Estimado</th></tr>
+        <tr><td>Notaría (Tarifa + IVA + Copias)</td><td>$848.30</td></tr>
+        <tr><td>Registro de la Propiedad</td><td>$500.00</td></tr>
+        <tr><td>Alcabala (Municipio)</td><td>$1,200.00</td></tr>
+        <tr><td>Certificados y varios</td><td>$60.00</td></tr>
+        <tr><td><strong>Subtotal de Gastos y Tasas</strong></td><td><strong>$2,608.30</strong></td></tr>
       </table>
-      <p>Es decir, aproximadamente <strong>1.37% del valor de la casa</strong>.</p>
+      <p>Es decir, para una casa de $120,000 vas a requerir apróximadamente <strong>2.1% a 2.3% del valor comercial en fondos líquidos</strong> solo para pagarle al Estado, a la Notaría y al Registro.</p>
 
-      <h2>Variables que cambian el costo dramáticamente</h2>
-
-      <h3>Si vas a pedir hipoteca (suma 30-40% más)</h3>
+      <h2>¿Qué pasa si necesitas financiamiento con un Banco (Hipoteca)?</h2>
+      <p><strong>Cuidado:</strong> Si tu compra es con crédito BIESS o con una institución financiera privada, el costo sube. Tendrás que pagar:</p>
       <ul>
-        <li>Constitución de hipoteca: arancel adicional de $164-217</li>
-        <li>Prohibición de enajenar: $82</li>
-        <li>Póliza de seguros (1 año anticipado): $300-600</li>
-        <li>Avalúo bancario: $150-250</li>
+        <li>Doble arancel notarial (por el contrato de compraventa y por el contrato de mutuo hipotecario).</li>
+        <li>Arancel de inscripción de prohibición de enajenar e hipoteca en el Registro de la Propiedad (aprox. $160-$200 adicionales).</li>
+        <li>Avalúo bancario profesional ($150-$300).</li>
       </ul>
-      <p><strong>Costo total con hipoteca: $2,335 - $2,800</strong></p>
+      <p>Proyecta en ese caso alrededor del <strong>3% al 3.5%</strong> para el cierre total.</p>
 
-      <h3>Si el vendedor NO tiene escrituras al día</h3>
-      <ul>
-        <li>Declaratoria de prescripción adquisitiva: $1,500-3,000</li>
-        <li>Partición de herencia previa: $800-2,500</li>
-        <li>Levantamiento de hipotecas canceladas: $200-400</li>
-      </ul>
-
-      <h3>Si es compra a través de fideicomiso o promotor</h3>
-      <ul>
-        <li>Comisión fiduciaria: 0.5-1% del valor</li>
-        <li>Escritura de bien futuro: arancel adicional $164</li>
-      </ul>
-
-      <h2>Casos especiales en Quito</h2>
-
-      <h3>Vivienda de interés social (VIS)</h3>
-      <p>Si la casa vale menos de $70,000 y es tu única vivienda:</p>
-      <ul>
-        <li>❌ No pagas alcabala</li>
-        <li>✅ Arancel notarial normal ($164-217)</li>
-        <li>✅ Descuento 50% en derechos registrales = $60</li>
-      </ul>
-      <p><strong>Ahorro: $900-1,000</strong></p>
-
-      <h3>Herencia o donación (no es compraventa)</h3>
-      <ul>
-        <li>No hay alcabala</li>
-        <li>Pero se paga impuesto a donaciones: 0% (padres a hijos), 5% (hermanos), 10% (terceros)</li>
-        <li>Para casa de $120,000 donada a hermano: $6,000 de impuesto</li>
-      </ul>
-
-      <h3>Compra a un adulto mayor (exoneración IESS)</h3>
-      <p>Si el vendedor es adulto mayor de 65+ años con ingresos menores a $15,000/año, puede estar exento de alcabala. Requiere certificado del IESS.</p>
-
-      <h2>Errores que te cuestan dinero extra</h2>
-
-      <h3>1. No verificar linderos antes de escriturar</h3>
-      <p>Si hay inconsistencia entre el catastro municipal y la escritura madre, el Registro puede observar. Solución: levantamiento topográfico previo ($150). Si lo haces después, pierdes tiempo y pagas doble arancel.</p>
-
-      <h3>2. Escriturar por un valor menor al real (subfacturación)</h3>
-      <p>Muchos vendedores proponen "escriturar por $80,000 para pagar menos alcabala, el resto en efectivo". Consecuencias:</p>
-      <ul>
-        <li>Multa tributaria del SRI: 5% del valor omitido + intereses</li>
-        <li>Si vendes después, pagas plusvalía sobre $80,000 aunque hayas pagado $120,000</li>
-        <li>Si hay problemas con el vendedor, solo puedes reclamar los $80,000 que constan en escritura</li>
-      </ul>
-
-      <h3>3. No revisar impuestos prediales atrasados</h3>
-      <p>Si el vendedor debe impuestos prediales de 3 años, esa deuda queda como carga del inmueble. El Municipio puede cobrarte a ti como nuevo propietario. Solución: exige certificado de "no adeudar impuestos" actualizado (máximo 15 días de antigüedad).</p>
-
-      <h2>Cómo estimar TU costo específico en 3 pasos</h2>
-
-      <h3>Paso 1: Obtén el valor catastral actualizado</h3>
-      <p>Ingresa a <em>quitoinforma.gob.ec → Catastros</em> con el código catastral. El valor catastral puede diferir del precio de venta, usa el mayor de los dos para calcular alcabala.</p>
-
-      <h3>Paso 2: Usa la fórmula</h3>
-      <p><strong>Costo mínimo = (Valor - $28,240) × 1% + $217 + Valor × 0.10% + $250</strong></p>
-      <p>Esto te da el piso sin sorpresas. Si hay hipoteca, suma 40%.</p>
-
-      <h3>Paso 3: Solicita pre-cálculo notarial</h3>
-      <p>Casi todas las notarías de Quito ofrecen cálculo gratuito si les envías:</p>
-      <ul>
-        <li>Copia de cédulas de comprador y vendedor</li>
-        <li>Certificado de gravámenes</li>
-        <li>Promesa de compraventa o intención de compra</li>
-      </ul>
-      <p>Te responden en 24 horas con el monto exacto.</p>
-
-      <h2>Recomendación final</h2>
-      <p>No firmes promesa de compraventa sin saber el costo total de escrituración. Muchos compradores presupuestan solo el 10% del valor de la casa para gastos de cierre, pero en Quito el promedio real es 1.5-2.5% del valor (sin hipoteca) y 2.5-3.5% (con hipoteca).</p>
-      <p>Si necesitas cálculo personalizado para tu caso, envíanos los datos del inmueble y te respondemos con desglose detallado en 24 horas.</p>
+      <h2>Tres consejos clave de nuestros abogados</h2>
+      <ol>
+        <li><strong>Cuidado con los falsos avalúos:</strong> Nunca intentes declarar que estás comprando la casa en $80,000 si estás pagando $120,000 para "ahorrar alcabalas". Esto es defraudación fiscal, te traerá problemas con la UAFE, y el día de mañana cuando decidas vender perderás miles de dólares por la plusvalía inflada.</li>
+        <li><strong>Verifica deudas antes de firmar promesa:</strong> Los impuestos prediales o multas de obras del vendedor NO prescriben automáticamente y recaen sobre el bien.</li>
+        <li><strong>Hazte acompañar de un equipo legal:</strong> Firmar una compra de una casa sin revisión legal es jugar a la ruleta. Alguien debe armar la minuta comprobando estado civil, vigencia catastral, poderes (si aplica) y gestionar todos los oficios.</li>
+      </ol>
+      <p>¿Quieres que nos encarguemos de TODO el proceso de tu escritura para que no pierdas días enteros en el Municipio y Notaría? En **Abogados Online Ecuador** manejamos tu cierre inmobiliario desde la revisión de documentos iniciales hasta la entrega de la matriz inscrita por un honorario fijo y sin sorpresas. Puedes utilizar hoy mismo nuestra <strong>calculadora interactiva</strong> en el sitio para cotizar sobre tu monto exacto.</p>
     `,
   },
   {
