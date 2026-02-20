@@ -26,7 +26,7 @@ export type PayPhoneLinkRequest = z.infer<typeof payphoneLinkRequestSchema>
 
 // Prepare Response - PayPhone devuelve payWithCard, payWithPayPhone y paymentId
 export const payphoneLinkResponseSchema = z.object({
-  paymentId: z.number().optional(),
+  paymentId: z.union([z.string(), z.number()]).optional(),
   payWithCard: z.string().optional(),
   payWithPayPhone: z.string().optional(),
   paymentUrl: z.string().optional(), // Legacy/alias — computed below
