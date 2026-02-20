@@ -104,6 +104,7 @@ const DEFAULT_TARIFAS_FIJAS_SBU: Record<string, number> = {
   SALIDA_PAIS: 0.05,
   RECONOCIMIENTO_FIRMA: 0.03,
   DECLARACION_JURAMENTADA: 0.05,
+  DECLARACION_JURAMENTADA_PJ: 0.12,
 }
 
 function normalizarTexto(value: string) {
@@ -255,6 +256,7 @@ export type TipoTramite =
   | 'CONSTITUCION_CIA'
   | 'RECONOCIMIENTO_FIRMA'
   | 'DECLARACION_JURAMENTADA'
+  | 'DECLARACION_JURAMENTADA_PJ'
   | 'CONTRATO_ARRIENDO_ESCRITURA'
   | 'INSCRIPCION_ARRENDAMIENTO'
 
@@ -278,6 +280,7 @@ export interface ItemAdicional {
   tipo:
   | 'copia_certificada'
   | 'declaracion_juramentada'
+  | 'declaracion_juramentada_pj'
   | 'poder'
   | 'poder_especial'
   | 'cancelacion_hipoteca'
@@ -365,10 +368,11 @@ const DESCRIPCIONES_TARIFAS: Record<string, string> = {
   TESTAMENTO_ABIERTO: '120% SBU - Testamento Abierto',
   TESTAMENTO_CERRADO: '100% SBU - Testamento Cerrado',
   POSESION_EFECTIVA: '40% SBU - Posesion Efectiva',
-  PODER_GENERAL_PN: '12% SBU - Poder General Persona Natural',
-  PODER_GENERAL_PJ: '50% SBU - Poder General Persona Juridica',
+  PODER_GENERAL_PN: '12% SBU - Poder General/Especial/Procuración Persona Natural',
+  PODER_GENERAL_PJ: '50% SBU - Poder General/Especial/Procuración Persona Jurídica',
   RECONOCIMIENTO_FIRMA: '3% SBU - Reconocimiento de Firma',
-  DECLARACION_JURAMENTADA: '5% SBU - Declaracion Juramentada',
+  DECLARACION_JURAMENTADA: '5% SBU - Declaracion Juramentada (Persona Natural)',
+  DECLARACION_JURAMENTADA_PJ: '12% SBU - Declaracion Juramentada (Persona Juridica)',
 }
 
 const TARIFAS_FIJAS: Record<string, TarifaFija> = Object.fromEntries(
@@ -377,7 +381,7 @@ const TARIFAS_FIJAS: Record<string, TarifaFija> = Object.fromEntries(
     {
       porcentajeSBU,
       descripcion: DESCRIPCIONES_TARIFAS[key] ?? `${(porcentajeSBU * 100).toFixed(2)}% SBU`,
-      porcentajeAdicional: key === 'PODER_GENERAL_PN' ? 0.03 : undefined,
+      porcentajeAdicional: (key === 'PODER_GENERAL_PN' || key === 'DECLARACION_JURAMENTADA' || key === 'DECLARACION_JURAMENTADA_PJ') ? 0.03 : undefined,
     },
   ])
 )
@@ -402,11 +406,18 @@ export const TARIFAS_ITEMS_ADICIONALES: Record<
     descripcion: 'Copia certificada de la escritura',
   },
   declaracion_juramentada: {
-    nombre: 'Declaracion Juramentada',
+    nombre: 'Declaración Juramentada (Persona Natural)',
     valorUnitario: SBU_2026 * 0.05,
-    unidad: 'declaracion',
-    descripcion: 'Declaracion juramentada',
+    unidad: 'otorgante',
+    descripcion: '5% primer otorgante, 3% adicionales',
     porcentajeSBU: 0.05,
+  },
+  declaracion_juramentada_pj: {
+    nombre: 'Declaración Juramentada (Persona Jurídica)',
+    valorUnitario: SBU_2026 * 0.12,
+    unidad: 'otorgante',
+    descripcion: '12% primer otorgante, 3% adicionales',
+    porcentajeSBU: 0.12,
   },
   poder: {
     nombre: 'Poder General/Especial/Procuracion',
@@ -510,8 +521,9 @@ export function calcularItemsAdicionales(
     const tarifa = TARIFAS_ITEMS_ADICIONALES[item.tipo]
     const valorUnitario = tarifa.valorUnitario
 
-    if ((item.tipo === 'poder' || item.tipo === 'poder_especial') && item.cantidad > 1) {
-      const primerOtorgante = SBU_2026 * 0.12
+    const tiposConAdicional: ItemAdicional['tipo'][] = ['poder', 'poder_especial', 'declaracion_juramentada', 'declaracion_juramentada_pj']
+    if (tiposConAdicional.includes(item.tipo) && item.cantidad > 1) {
+      const primerOtorgante = tarifa.valorUnitario
       const adicionales = (item.cantidad - 1) * (SBU_2026 * 0.03)
       const subtotal = primerOtorgante + adicionales
       return {
@@ -696,6 +708,25 @@ export function calcularTramiteNotarial(
       break
     }
 
+    case 'DECLARACION_JURAMENTADA':
+    case 'DECLARACION_JURAMENTADA_PJ': {
+      const numOtorgantes = opciones.numeroOtorgantes || 1
+      const tarifaDJ = TARIFAS_FIJAS[tramite]
+      if (tarifaDJ) {
+        const primerOtorgante = SBU_2026 * tarifaDJ.porcentajeSBU
+        const adicionales =
+          numOtorgantes > 1
+            ? (numOtorgantes - 1) * (SBU_2026 * 0.03)
+            : 0
+        costoBase = primerOtorgante + adicionales
+        detalles.push(tarifaDJ.descripcion)
+        if (numOtorgantes > 1) {
+          detalles.push(`Otorgantes adicionales: ${numOtorgantes - 1} x 3% SBU`)
+        }
+      }
+      break
+    }
+
     case 'RECONOCIMIENTO_FIRMA': {
       const numFirmas = opciones.numeroFirmas || 1
       const tarifaFirma = TARIFAS_FIJAS[tramite]
@@ -727,8 +758,13 @@ export function calcularTramiteNotarial(
   }
 
   if (opciones.esTerceraEdad && esActoUnilateral(tramite)) {
-    descuento = costoBase * 0.5
-    razonDescuento = 'Adulto Mayor (-50%)'
+    if (esActoExoneradoTerceraEdad(tramite)) {
+      descuento = costoBase
+      razonDescuento = 'Adulto Mayor - Exoneración Total (100%)'
+    } else {
+      descuento = costoBase * 0.5
+      razonDescuento = 'Adulto Mayor (-50%)'
+    }
   }
 
   const subtotal = Math.max(0, Math.round((costoBase - descuento) * 100) / 100)
@@ -777,6 +813,16 @@ function esActoUnilateral(tramite: TipoTramite): boolean {
   return actosUnilaterales.includes(tramite)
 }
 
+/** Actos donde el adulto mayor tiene exoneración total ($0) en vez de 50% */
+function esActoExoneradoTerceraEdad(tramite: TipoTramite): boolean {
+  const actosExonerados: TipoTramite[] = [
+    'TESTAMENTO_ABIERTO',
+    'TESTAMENTO_CERRADO',
+    'DECLARACION_JURAMENTADA',
+  ]
+  return actosExonerados.includes(tramite)
+}
+
 export function getTramitesPorCategoria(): {
   conCuantia: { value: TipoTramite; label: string }[]
   sinCuantia: { value: TipoTramite; label: string }[]
@@ -791,8 +837,8 @@ export function getTramitesPorCategoria(): {
     ],
     sinCuantia: [
 
-      { value: 'PODER_GENERAL_PN', label: 'Poder General - Persona Natural' },
-      { value: 'PODER_GENERAL_PJ', label: 'Poder General - Persona Juridica' },
+      { value: 'PODER_GENERAL_PN', label: 'Poder General / Especial / Procuración - Persona Natural' },
+      { value: 'PODER_GENERAL_PJ', label: 'Poder General / Especial / Procuración - Persona Jurídica' },
       { value: 'CAPITULACIONES_MATRIMONIALES', label: 'Capitulaciones Matrimoniales' },
       { value: 'TESTAMENTO_ABIERTO', label: 'Testamento Abierto' },
       { value: 'TESTAMENTO_CERRADO', label: 'Testamento Cerrado' },
@@ -803,7 +849,8 @@ export function getTramitesPorCategoria(): {
       { value: 'CANCELACION_HIPOTECA', label: 'Cancelacion de Hipoteca' },
       { value: 'SALIDA_PAIS', label: 'Autorizacion Salida del Pais (por menor)' },
       { value: 'RECONOCIMIENTO_FIRMA', label: 'Reconocimiento de Firma' },
-      { value: 'DECLARACION_JURAMENTADA', label: 'Declaracion Juramentada' },
+      { value: 'DECLARACION_JURAMENTADA', label: 'Declaración Juramentada - Persona Natural' },
+      { value: 'DECLARACION_JURAMENTADA_PJ', label: 'Declaración Juramentada - Persona Jurídica' },
     ],
     arrendamientos: [
       { value: 'CONTRATO_ARRIENDO_ESCRITURA', label: 'Contrato de Arrendamiento por Escritura' },
@@ -819,8 +866,9 @@ export function crearItemAdicional(
 ): ItemAdicional {
   const tarifa = TARIFAS_ITEMS_ADICIONALES[tipo]
 
-  if ((tipo === 'poder' || tipo === 'poder_especial') && cantidad > 1) {
-    const primerOtorgante = SBU_2026 * 0.12
+  const tiposConAdicional: ItemAdicional['tipo'][] = ['poder', 'poder_especial', 'declaracion_juramentada', 'declaracion_juramentada_pj']
+  if (tiposConAdicional.includes(tipo) && cantidad > 1) {
+    const primerOtorgante = tarifa.valorUnitario
     const adicionales = (cantidad - 1) * (SBU_2026 * 0.03)
     const subtotal = primerOtorgante + adicionales
     return {

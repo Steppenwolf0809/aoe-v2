@@ -19,6 +19,7 @@ import { CalculatorLeadCTA } from './calculator-lead-cta'
 const ICONOS_ITEMS: Record<string, React.ReactNode> = {
   copia_certificada: <Copy className="w-4 h-4" />,
   declaracion_juramentada: <FileText className="w-4 h-4" />,
+  declaracion_juramentada_pj: <FileText className="w-4 h-4" />,
   poder: <PenTool className="w-4 h-4" />,
   cancelacion_hipoteca: <Trash2 className="w-4 h-4" />,
   reconocimiento_firma: <Stamp className="w-4 h-4" />,
@@ -40,6 +41,7 @@ export function NotarialCalculatorWidget() {
   const [esViviendaSocial, setEsViviendaSocial] = useState(false)
   const [esTerceraEdad, setEsTerceraEdad] = useState(false)
   const [numeroOtorgantes, setNumeroOtorgantes] = useState(1)
+  const [numeroFirmas, setNumeroFirmas] = useState(1)
 
   // Items adicionales
   const [itemsAdicionales, setItemsAdicionales] = useState<ItemAdicional[]>([])
@@ -69,8 +71,12 @@ export function NotarialCalculatorWidget() {
       opciones.cantidadMenores = cantidadMenores
     }
 
-    if (tipoServicio === 'PODER_GENERAL_PN') {
+    if (tipoServicio === 'PODER_GENERAL_PN' || tipoServicio === 'DECLARACION_JURAMENTADA' || tipoServicio === 'DECLARACION_JURAMENTADA_PJ') {
       opciones.numeroOtorgantes = numeroOtorgantes
+    }
+
+    if (tipoServicio === 'RECONOCIMIENTO_FIRMA') {
+      opciones.numeroFirmas = numeroFirmas
     }
 
     if (tipoServicio === 'TRANSFERENCIA_DOMINIO') {
@@ -107,14 +113,13 @@ export function NotarialCalculatorWidget() {
 
   // Función para calcular subtotal en tiempo real
   const calcularSubtotalItem = (tipo: ItemAdicional['tipo'], cantidad: number): number => {
-    if (tipo === 'poder') {
-      if (cantidad === 1) {
-        return SBU_2026 * 0.12
-      } else {
-        const primerOtorgante = SBU_2026 * 0.12
-        const adicionales = (cantidad - 1) * (SBU_2026 * 0.03)
-        return primerOtorgante + adicionales
-      }
+    const tiposConAdicional: ItemAdicional['tipo'][] = ['poder', 'declaracion_juramentada', 'declaracion_juramentada_pj']
+    if (tiposConAdicional.includes(tipo)) {
+      const tarifa = TARIFAS_ITEMS_ADICIONALES[tipo]
+      const primerOtorgante = tarifa.valorUnitario
+      if (cantidad === 1) return primerOtorgante
+      const adicionales = (cantidad - 1) * (SBU_2026 * 0.03)
+      return primerOtorgante + adicionales
     } else if (tipo === 'copia_certificada') {
       return 1.79 * cantidad
     } else if (tipo === 'reconocimiento_firma') {
@@ -133,16 +138,17 @@ export function NotarialCalculatorWidget() {
     let subtotal = 0
     let descripcion = tarifa.nombre
 
-    if (nuevoItemTipo === 'poder') {
-      // Poder: 12% primer otorgante, 3% adicionales
+    const tiposConAdicional: ItemAdicional['tipo'][] = ['poder', 'declaracion_juramentada', 'declaracion_juramentada_pj']
+    if (tiposConAdicional.includes(nuevoItemTipo)) {
+      const tarifaItem = TARIFAS_ITEMS_ADICIONALES[nuevoItemTipo]
+      const primerOtorgante = tarifaItem.valorUnitario
       if (nuevoItemCantidad === 1) {
-        subtotal = SBU_2026 * 0.12
-        descripcion = 'Poder General/Especial/Procuración (1 otorgante)'
+        subtotal = primerOtorgante
+        descripcion = `${tarifaItem.nombre} (1 otorgante)`
       } else {
-        const primerOtorgante = SBU_2026 * 0.12
         const adicionales = (nuevoItemCantidad - 1) * (SBU_2026 * 0.03)
         subtotal = primerOtorgante + adicionales
-        descripcion = `Poder General/Especial/Procuración (${nuevoItemCantidad} otorgantes)`
+        descripcion = `${tarifaItem.nombre} (${nuevoItemCantidad} otorgantes)`
       }
     } else if (nuevoItemTipo === 'copia_certificada') {
       subtotal = 1.79 * nuevoItemCantidad
@@ -190,6 +196,7 @@ export function NotarialCalculatorWidget() {
     'CANCELACION_HIPOTECA',
     'RECONOCIMIENTO_FIRMA',
     'DECLARACION_JURAMENTADA',
+    'DECLARACION_JURAMENTADA_PJ',
     'SALIDA_PAIS',
   ].includes(tipoServicio)
 
@@ -200,6 +207,8 @@ export function NotarialCalculatorWidget() {
   const esCuantiaIndeterminada = tipoServicio === 'ACTO_CUANTIA_INDETERMINADA'
   const esTransferencia = tipoServicio === 'TRANSFERENCIA_DOMINIO'
   const esPoderGeneral = tipoServicio === 'PODER_GENERAL_PN'
+  const esReconocimientoFirma = tipoServicio === 'RECONOCIMIENTO_FIRMA'
+  const esDeclaracionJuramentada = tipoServicio === 'DECLARACION_JURAMENTADA' || tipoServicio === 'DECLARACION_JURAMENTADA_PJ'
 
   // UX: Canon mensual suele ser un monto pequeno; el slider general (step=1000) termina "saltando" a 0.
   const cuantiaInputStep = esArrendamiento ? 1 : 100
@@ -363,8 +372,8 @@ export function NotarialCalculatorWidget() {
         </div>
       )}
 
-      {/* Número de Otorgantes para Poder General */}
-      {esPoderGeneral && (
+      {/* Número de Otorgantes para Poder General / Declaración Juramentada */}
+      {(esPoderGeneral || esDeclaracionJuramentada) && (
         <div className="space-y-3">
           <label className="text-sm font-medium text-text-primary">Número de Otorgantes</label>
           <div className="flex items-center gap-4">
@@ -387,6 +396,34 @@ export function NotarialCalculatorWidget() {
           </div>
           <p className="text-xs text-[var(--text-secondary)]">
             El costo aumenta en un 3% del SBU por cada otorgante adicional.
+          </p>
+        </div>
+      )}
+
+      {/* Número de Firmas para Reconocimiento de Firma */}
+      {esReconocimientoFirma && (
+        <div className="space-y-3">
+          <label className="text-sm font-medium text-text-primary">Número de Firmas</label>
+          <div className="flex items-center gap-4">
+            <input
+              type="number"
+              value={numeroFirmas}
+              onChange={(e) => setNumeroFirmas(Math.max(1, Number(e.target.value)))}
+              min={1}
+              max={20}
+              className="w-24 px-3 py-2 bg-bg-secondary border border-[var(--glass-border)] rounded-lg text-text-primary text-center"
+            />
+            <Slider
+              value={[numeroFirmas]}
+              onValueChange={(value) => setNumeroFirmas(value[0])}
+              min={1}
+              max={10}
+              step={1}
+              className="flex-1"
+            />
+          </div>
+          <p className="text-xs text-[var(--text-secondary)]">
+            Cada firma cuesta 3% del SBU = ${(SBU_2026 * 0.03).toFixed(2)}
           </p>
         </div>
       )}
@@ -422,7 +459,9 @@ export function NotarialCalculatorWidget() {
                 className="w-5 h-5 rounded border-[var(--glass-border)] bg-white text-[var(--accent-primary)] focus:ring-[var(--accent-primary)]"
               />
               <span className="text-sm text-text-secondary group-hover:text-text-primary transition-colors">
-                Adulto Mayor (acto unilateral) - Descuento 50%
+                {['TESTAMENTO_ABIERTO', 'TESTAMENTO_CERRADO', 'DECLARACION_JURAMENTADA'].includes(tipoServicio)
+                  ? 'Adulto Mayor - Exoneración Total (100%)'
+                  : 'Adulto Mayor (acto unilateral) - Descuento 50%'}
               </span>
             </label>
           )}
@@ -493,8 +532,9 @@ export function NotarialCalculatorWidget() {
                 <option value="copia_certificada">Copia Certificada - $1.79/foja</option>
               </optgroup>
 
-              <optgroup label="Declaraciones">
-                <option value="declaracion_juramentada">Declaración Juramentada - ${(SBU_2026 * 0.05).toFixed(2)}</option>
+              <optgroup label="Declaraciones (base + 3% por otorgante adicional)">
+                <option value="declaracion_juramentada">DJ Persona Natural - ${(SBU_2026 * 0.05).toFixed(2)}</option>
+                <option value="declaracion_juramentada_pj">DJ Persona Jurídica - ${(SBU_2026 * 0.12).toFixed(2)}</option>
               </optgroup>
 
               <optgroup label="Poderes (12% base + 3% por otorgante adicional)">
@@ -549,7 +589,7 @@ export function NotarialCalculatorWidget() {
               <span className="text-sm text-[var(--text-secondary)]">
                 {nuevoItemTipo === 'copia_certificada' ? 'fojas' :
                   nuevoItemTipo === 'reconocimiento_firma' || nuevoItemTipo === 'autenticacion_firma' ? 'firmas' :
-                    nuevoItemTipo === 'poder' ? 'otorgantes' : 'unidades'}
+                    nuevoItemTipo === 'poder' || nuevoItemTipo === 'declaracion_juramentada' || nuevoItemTipo === 'declaracion_juramentada_pj' ? 'otorgantes' : 'unidades'}
               </span>
             </div>
 

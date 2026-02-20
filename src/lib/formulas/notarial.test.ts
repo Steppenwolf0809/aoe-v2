@@ -222,14 +222,76 @@ describe('Tramites con cantidad variable', () => {
 })
 
 // ============================================
+// DECLARACION JURAMENTADA CON OTORGANTES
+// ============================================
+describe('Declaracion juramentada', () => {
+  it('persona natural: 5% SBU base', () => {
+    const r = calcularTramiteNotarial('DECLARACION_JURAMENTADA', 0)
+    expect(r.subtotal).toBeCloseTo(SBU_2026 * 0.05, 2)
+  })
+
+  it('persona natural con 3 otorgantes: 5% + 2x3% SBU', () => {
+    const r = calcularTramiteNotarial('DECLARACION_JURAMENTADA', 0, {
+      numeroOtorgantes: 3,
+    })
+    const esperado = SBU_2026 * 0.05 + 2 * (SBU_2026 * 0.03)
+    expect(r.subtotal).toBeCloseTo(esperado, 2)
+  })
+
+  it('persona juridica: 12% SBU base', () => {
+    const r = calcularTramiteNotarial('DECLARACION_JURAMENTADA_PJ', 0)
+    expect(r.subtotal).toBeCloseTo(SBU_2026 * 0.12, 2)
+  })
+
+  it('persona juridica con 2 otorgantes: 12% + 1x3% SBU', () => {
+    const r = calcularTramiteNotarial('DECLARACION_JURAMENTADA_PJ', 0, {
+      numeroOtorgantes: 2,
+    })
+    const esperado = SBU_2026 * 0.12 + 1 * (SBU_2026 * 0.03)
+    expect(r.subtotal).toBeCloseTo(esperado, 2)
+  })
+})
+
+// ============================================
 // DESCUENTO TERCERA EDAD
 // ============================================
 describe('Descuento tercera edad', () => {
-  it('aplica 50% en actos unilaterales (testamento)', () => {
+  it('exoneracion total en testamento abierto (adulto mayor)', () => {
     const r = calcularTramiteNotarial('TESTAMENTO_ABIERTO', 0, {
       esTerceraEdad: true,
     })
     const base = SBU_2026 * 1.2
+    expect(r.descuento).toBeCloseTo(base, 2)
+    expect(r.subtotal).toBe(0)
+    expect(r.iva).toBe(0)
+    expect(r.total).toBe(0)
+  })
+
+  it('exoneracion total en testamento cerrado (adulto mayor)', () => {
+    const r = calcularTramiteNotarial('TESTAMENTO_CERRADO', 0, {
+      esTerceraEdad: true,
+    })
+    const base = SBU_2026 * 1.0
+    expect(r.descuento).toBeCloseTo(base, 2)
+    expect(r.subtotal).toBe(0)
+    expect(r.total).toBe(0)
+  })
+
+  it('exoneracion total en declaracion juramentada (adulto mayor)', () => {
+    const r = calcularTramiteNotarial('DECLARACION_JURAMENTADA', 0, {
+      esTerceraEdad: true,
+    })
+    const base = SBU_2026 * 0.05
+    expect(r.descuento).toBeCloseTo(base, 2)
+    expect(r.subtotal).toBe(0)
+    expect(r.total).toBe(0)
+  })
+
+  it('aplica 50% en posesion efectiva (adulto mayor)', () => {
+    const r = calcularTramiteNotarial('POSESION_EFECTIVA', 0, {
+      esTerceraEdad: true,
+    })
+    const base = SBU_2026 * 0.4
     expect(r.descuento).toBeCloseTo(base * 0.5, 2)
     expect(r.subtotal).toBeCloseTo(base * 0.5, 2)
   })

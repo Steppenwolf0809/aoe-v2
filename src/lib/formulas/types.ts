@@ -44,6 +44,7 @@ export type TipoServicioNotarial =
   | 'SALIDA_PAIS'
   | 'RECONOCIMIENTO_FIRMA'
   | 'DECLARACION_JURAMENTADA'
+  | 'DECLARACION_JURAMENTADA_PJ'
 
 export interface InputNotarial {
   tipoServicio: TipoServicioNotarial
@@ -59,13 +60,14 @@ export interface InputNotarial {
 export interface ItemAdicional {
   id: string
   tipo: 
-    | 'copia_certificada' 
-    | 'declaracion_juramentada' 
-    | 'poder' 
+    | 'copia_certificada'
+    | 'declaracion_juramentada'
+    | 'declaracion_juramentada_pj'
+    | 'poder'
     | 'cancelacion_hipoteca'
-    | 'reconocimiento_firma' 
+    | 'reconocimiento_firma'
     | 'autenticacion_firma'
-    | 'materializacion' 
+    | 'materializacion'
     | 'protocolizacion'
     | 'marginacion'
   descripcion: string
