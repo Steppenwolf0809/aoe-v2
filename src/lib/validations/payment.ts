@@ -24,10 +24,17 @@ export const payphoneLinkRequestSchema = z.object({
 
 export type PayPhoneLinkRequest = z.infer<typeof payphoneLinkRequestSchema>
 
-// Links Response - PayPhone devuelve una URL (string o JSON)
+// Prepare Response - PayPhone devuelve payWithCard, payWithPayPhone y paymentId
 export const payphoneLinkResponseSchema = z.object({
-  paymentUrl: z.string(), // URL del link de pago
-})
+  paymentId: z.number().optional(),
+  payWithCard: z.string().optional(),
+  payWithPayPhone: z.string().optional(),
+  paymentUrl: z.string().optional(), // Legacy/alias — computed below
+}).transform((data) => ({
+  ...data,
+  // Normalize: use payWithCard as the primary payment URL
+  paymentUrl: data.paymentUrl || data.payWithCard || data.payWithPayPhone || '',
+}))
 
 export type PayPhoneLinkResponse = z.infer<typeof payphoneLinkResponseSchema>
 
