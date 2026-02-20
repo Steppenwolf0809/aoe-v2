@@ -99,7 +99,7 @@ export function PaymentStatus({
             <Link href="/dashboard/contratos">Volver a contratos</Link>
           </Button>
           <Button asChild variant="outline">
-            <Link href="https://wa.me/593998765432" target="_blank">
+            <Link href="https://wa.me/593979317579" target="_blank">
               Contactar soporte
             </Link>
           </Button>

@@ -59,3 +59,7 @@ docs/desktop.ini
 # Local generated PDFs (debug/export)
 docs/reporteJasper*.pdf
 docs/presupuesto-escrituracion-*.pdf
+
+# Saved HTML pages (offline reference docs)
+docs/setup/*.html
+docs/setup/*_files/

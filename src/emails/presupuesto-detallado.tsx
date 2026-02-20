@@ -182,8 +182,8 @@ export const PresupuestoDetalladoEmail = ({
             </Button>
             <Text style={ctaSubtext}>
               O contáctanos por WhatsApp al{' '}
-              <Link style={link} href="https://wa.me/593987654321">
-                +593 98 765 4321
+              <Link style={link} href="https://wa.me/593979317579">
+                +593 97 931 7579
               </Link>
             </Text>
           </Section>

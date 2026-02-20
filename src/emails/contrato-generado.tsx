@@ -117,10 +117,10 @@ export const ContratoGeneradoEmail = ({
             <Text style={contactText}>
               📱 WhatsApp:{' '}
               <Link
-                href="https://wa.me/593998765432"
+                href="https://wa.me/593979317579"
                 style={link}
               >
-                +593 99 876 5432
+                +593 97 931 7579
               </Link>
             </Text>
             <Text style={contactText}>

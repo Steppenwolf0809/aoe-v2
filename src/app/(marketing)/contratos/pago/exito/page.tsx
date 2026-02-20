@@ -74,7 +74,7 @@ export default async function PaymentSuccessPage({
               contacta soporte por WhatsApp.
             </p>
             <Link
-              href="https://wa.me/593998765432?text=Hola%2C%20realicé%20un%20pago%20pero%20no%20puedo%20descargar%20mi%20contrato"
+              href="https://wa.me/593979317579?text=Hola%2C%20realicé%20un%20pago%20pero%20no%20puedo%20descargar%20mi%20contrato"
               className="inline-flex text-sm text-accent-primary hover:underline"
             >
               Contactar soporte
@@ -177,7 +177,7 @@ export default async function PaymentSuccessPage({
                   El enlace de descarga ha expirado.
                 </p>
                 <Link
-                  href="https://wa.me/593998765432?text=Hola%2C%20mi%20enlace%20de%20descarga%20expiró"
+                  href="https://wa.me/593979317579?text=Hola%2C%20mi%20enlace%20de%20descarga%20expiró"
                   className="text-sm text-accent-primary hover:underline"
                 >
                   Contactar soporte para reenvío
@@ -269,7 +269,7 @@ export default async function PaymentSuccessPage({
                   Agendar cita
                 </Button>
               </Link>
-              <Link href="https://wa.me/593998765432?text=Hola%2C%20necesito%20agendar%20un%20reconocimiento%20de%20firmas">
+              <Link href="https://wa.me/593979317579?text=Hola%2C%20necesito%20agendar%20un%20reconocimiento%20de%20firmas">
                 <Button variant="outline">
                   WhatsApp
                 </Button>
