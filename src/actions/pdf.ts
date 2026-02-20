@@ -41,8 +41,8 @@ export async function generateContractPdf(
 
     const contract = contractResult.data
 
-    // Verify contract is paid
-    if (contract.status !== 'PAID' && contract.status !== 'GENERATED') {
+    // Verify contract is paid (DOWNLOADED also valid — may need token regeneration)
+    if (!['PAID', 'GENERATED', 'DOWNLOADED'].includes(contract.status)) {
       return {
         success: false,
         error: `Contrato debe estar pagado. Estado actual: ${contract.status}`,
@@ -147,8 +147,8 @@ export async function generateContractPdfAdmin(
       return { success: false, error: 'Contrato no encontrado' }
     }
 
-    // Verify contract is paid
-    if (contract.status !== 'PAID' && contract.status !== 'GENERATED') {
+    // Verify contract is paid (DOWNLOADED also valid — may need token regeneration)
+    if (!['PAID', 'GENERATED', 'DOWNLOADED'].includes(contract.status)) {
       return {
         success: false,
         error: `Contrato debe estar pagado. Estado actual: ${contract.status}`,

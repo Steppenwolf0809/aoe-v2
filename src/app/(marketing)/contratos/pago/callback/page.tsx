@@ -140,10 +140,11 @@ export default async function PaymentCallbackPage({
         } else {
           errorMessage = 'Contrato no encontrado para esta transaccion.'
         }
-      } else if (contract.status === 'GENERATED' || contract.status === 'DOWNLOADED') {
-        // Already processed — redirect to success
+      } else if ((contract.status === 'GENERATED' || contract.status === 'DOWNLOADED') && contract.download_token) {
+        // Already processed and has valid token — redirect to success
         redirectPath = `/contratos/pago/exito?token=${contract.download_token}`
-      } else if (contract.status === 'PAID') {
+      } else if (contract.status === 'PAID' || contract.status === 'GENERATED' || contract.status === 'DOWNLOADED') {
+        // PAID but no PDF, or GENERATED/DOWNLOADED but missing download_token — (re)generate
         // Already PAID but PDF not generated — try now
         redirectPath = await processPaymentAndGeneratePdf(contract.id)
       } else {
