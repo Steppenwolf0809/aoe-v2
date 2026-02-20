@@ -4,6 +4,7 @@ import {
   personaSchema,
   contratoVehicularSchema,
   requiresConyuge,
+  compradorIncludesConyuge,
   countFirmas,
 } from './contract'
 
@@ -321,37 +322,19 @@ describe('personaSchema', () => {
   })
 
   // --- Conyuge conditional ---
-  it('requires conyuge data when casado', () => {
-    const data = { ...validPersona(), estadoCivil: 'casado' as const }
-    const result = personaSchema.safeParse(data)
-    expect(result.success).toBe(false)
-  })
+  // NOTE: conyuge requirement is now enforced at contract level (vendedor=required, comprador=optional)
+  // personaSchema itself does NOT enforce conyuge - it only enforces apoderado.
 
-  it('requires conyuge data when union_de_hecho', () => {
-    const data = { ...validPersona(), estadoCivil: 'union_de_hecho' as const }
+  it('accepts casado persona without conyuge at personaSchema level (contract-level validates)', () => {
+    const data = { ...validPersona(), estadoCivil: 'casado' as const }
+    // personaSchema alone does NOT reject missing conyuge — contratoVehicularSchema does for vendedor
     const result = personaSchema.safeParse(data)
-    expect(result.success).toBe(false)
+    expect(result.success).toBe(true)
   })
 
   it('accepts casado with valid conyuge data', () => {
     const result = personaSchema.safeParse(validPersonaCasada())
     expect(result.success).toBe(true)
-  })
-
-  it('rejects casado with conyuge cedula too short', () => {
-    const data = {
-      ...validPersonaCasada(),
-      conyuge: { nombres: 'Maria Garcia', cedula: '12345' },
-    }
-    expect(personaSchema.safeParse(data).success).toBe(false)
-  })
-
-  it('rejects casado with conyuge nombres too short', () => {
-    const data = {
-      ...validPersonaCasada(),
-      conyuge: { nombres: 'AB', cedula: '1798765432' },
-    }
-    expect(personaSchema.safeParse(data).success).toBe(false)
   })
 
   it('does not require conyuge when soltero', () => {
@@ -494,6 +477,53 @@ describe('contratoVehicularSchema', () => {
     expect(contratoVehicularSchema.safeParse(data).success).toBe(true)
   })
 
+  // --- VENDEDOR conyuge: always required when casado ---
+  it('rejects contract when vendedor is casado without conyuge', () => {
+    const data = {
+      vehiculo: validVehiculo(),
+      comprador: validPersona(),
+      vendedor: { ...validPersona(), estadoCivil: 'casado' as const }, // no conyuge
+    }
+    expect(contratoVehicularSchema.safeParse(data).success).toBe(false)
+  })
+
+  // --- COMPRADOR conyuge: optional (checkbox) ---
+  it('accepts contract when comprador is casado WITHOUT incluirConyuge (conyuge not required)', () => {
+    const data = {
+      vehiculo: validVehiculo(),
+      comprador: { ...validPersona(), estadoCivil: 'casado' as const }, // no conyuge, no checkbox
+      vendedor: validPersona(),
+    }
+    expect(contratoVehicularSchema.safeParse(data).success).toBe(true)
+  })
+
+  it('accepts contract when comprador is casado with incluirConyuge=false (conyuge not required)', () => {
+    const data = {
+      vehiculo: validVehiculo(),
+      comprador: { ...validPersona(), estadoCivil: 'casado' as const, incluirConyuge: false },
+      vendedor: validPersona(),
+    }
+    expect(contratoVehicularSchema.safeParse(data).success).toBe(true)
+  })
+
+  it('rejects contract when comprador is casado with incluirConyuge=true BUT missing conyuge data', () => {
+    const data = {
+      vehiculo: validVehiculo(),
+      comprador: { ...validPersona(), estadoCivil: 'casado' as const, incluirConyuge: true }, // opted in, no conyuge
+      vendedor: validPersona(),
+    }
+    expect(contratoVehicularSchema.safeParse(data).success).toBe(false)
+  })
+
+  it('accepts contract when comprador is casado with incluirConyuge=true AND valid conyuge data', () => {
+    const data = {
+      vehiculo: validVehiculo(),
+      comprador: { ...validPersonaCasada(), incluirConyuge: true },
+      vendedor: validPersona(),
+    }
+    expect(contratoVehicularSchema.safeParse(data).success).toBe(true)
+  })
+
   it('accepts contract with vendedor as apoderado', () => {
     const data = {
       vehiculo: validVehiculo(),
@@ -534,6 +564,36 @@ describe('requiresConyuge', () => {
 })
 
 // ============================================
+// compradorIncludesConyuge helper
+// ============================================
+describe('compradorIncludesConyuge', () => {
+  it('returns false when comprador is soltero', () => {
+    const comprador = { ...validPersona(), estadoCivil: 'soltero' as const }
+    expect(compradorIncludesConyuge(comprador as any)).toBe(false)
+  })
+
+  it('returns false when comprador is casado but incluirConyuge is undefined', () => {
+    const comprador = { ...validPersona(), estadoCivil: 'casado' as const }
+    expect(compradorIncludesConyuge(comprador as any)).toBe(false)
+  })
+
+  it('returns false when comprador is casado but incluirConyuge is false', () => {
+    const comprador = { ...validPersona(), estadoCivil: 'casado' as const, incluirConyuge: false }
+    expect(compradorIncludesConyuge(comprador as any)).toBe(false)
+  })
+
+  it('returns true when comprador is casado and incluirConyuge is true', () => {
+    const comprador = { ...validPersona(), estadoCivil: 'casado' as const, incluirConyuge: true }
+    expect(compradorIncludesConyuge(comprador as any)).toBe(true)
+  })
+
+  it('returns true when comprador is union_de_hecho and incluirConyuge is true', () => {
+    const comprador = { ...validPersona(), estadoCivil: 'union_de_hecho' as const, incluirConyuge: true }
+    expect(compradorIncludesConyuge(comprador as any)).toBe(true)
+  })
+})
+
+// ============================================
 // countFirmas helper
 // ============================================
 describe('countFirmas', () => {
@@ -546,19 +606,28 @@ describe('countFirmas', () => {
     expect(countFirmas(data)).toBe(3)
   })
 
-  it('returns 4 when one party is casado (3 comparecientes + 1 matricula)', () => {
+  it('returns 4 when vendedor is casado (3 comparecientes + 1 matricula)', () => {
     const data = {
       vehiculo: validVehiculo(),
-      comprador: validPersonaCasada(),
-      vendedor: validPersona(),
+      comprador: validPersona(),
+      vendedor: validPersonaCasada(), // vendedor casado = conyuge always counts
     } as any
     expect(countFirmas(data)).toBe(4)
   })
 
-  it('returns 5 when both parties are casado (4 comparecientes + 1 matricula)', () => {
+  it('returns 4 when comprador casado without incluirConyuge (conyuge does NOT count)', () => {
     const data = {
       vehiculo: validVehiculo(),
-      comprador: validPersonaCasada(),
+      comprador: validPersonaCasada(), // no incluirConyuge — conyuge is optional for buyer
+      vendedor: validPersona(),
+    } as any
+    expect(countFirmas(data)).toBe(3) // comprador + vendedor + matricula only
+  })
+
+  it('returns 5 when both parties casado and comprador has incluirConyuge=true (4 comparecientes + 1 matricula)', () => {
+    const data = {
+      vehiculo: validVehiculo(),
+      comprador: { ...validPersonaCasada(), incluirConyuge: true },
       vendedor: validPersonaCasada(),
     } as any
     expect(countFirmas(data)).toBe(5)

@@ -167,7 +167,7 @@ export function CuvUpload({ onCuvParsed }: CuvUploadProps) {
         className={cn(
           'relative rounded-xl border-2 border-dashed p-5 text-center transition-colors cursor-pointer',
           status === 'idle' &&
-            'border-[var(--glass-border)] hover:border-accent-primary/40 hover:bg-accent-primary/5',
+          'border-[var(--glass-border)] hover:border-accent-primary/40 hover:bg-accent-primary/5',
           status === 'dragging' && 'border-accent-primary bg-accent-primary/10',
           status === 'uploading' && 'border-accent-primary/30 bg-accent-primary/5 cursor-wait',
           status === 'success' && 'border-accent-success/30 bg-accent-success/5 cursor-default',
@@ -288,6 +288,20 @@ export function CuvUpload({ onCuvParsed }: CuvUploadProps) {
           </motion.div>
         </AnimatePresence>
       </motion.div>
+
+      {/* ANT Link — always visible */}
+      <p className="text-xs text-text-muted text-center">
+        ¿No tienes tu CUV?{' '}
+        <a
+          href="https://www.ant.gob.ec/index.php/ant/servicios-ant/consultas/certificado-unico-vehicular"
+          target="_blank"
+          rel="noopener noreferrer"
+          className="text-accent-primary hover:underline font-medium"
+          onClick={(e) => e.stopPropagation()}
+        >
+          Descárgalo gratis en la ANT →
+        </a>
+      </p>
 
       {/* CUV Warnings */}
       <AnimatePresence>

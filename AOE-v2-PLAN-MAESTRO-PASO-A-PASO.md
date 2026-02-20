@@ -789,13 +789,17 @@ Lee el brain.md y el plan definitivo.
    - Estados: DRAFT, PAID, GENERATED, DOWNLOADED
    - Botón descargar (verifica token)
 
-4. PASARELA DE PAGO:
-   - Integración PayPhone/checkout
-   - Webhook en api/webhooks/payment/route.ts
-   - Verificación de secret
+4. PASARELA DE PAGO (✅ Funcional 2026-02-20):
+   - PayPhone Button/Prepare API → redirect al usuario
+   - Proxy n8n en Railway (PayPhone WAF bloquea IPs de Vercel)
+     - 3 webhooks: payphone-links (Prepare), payphone-confirm (Confirm), payphone-sale (Sale)
+   - Callback page: confirma pago → genera PDF → redirige a éxito
+   - Success page: descarga PDF con download_token (válido 7 días)
+   - Email de confirmación con enlace de descarga vía Resend
+   - Estados: DRAFT → PENDING_PAYMENT → PAID → GENERATED → DOWNLOADED
 ```
 
-**Entregable:** Flujo completo: formulario → pago → PDF → descarga → email.
+**Entregable:** Flujo completo: formulario → pago → PDF → descarga → email. ✅ Verificado end-to-end 2026-02-20.
 
 ---
 

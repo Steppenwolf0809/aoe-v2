@@ -33,9 +33,17 @@ export function LegalFields({ prefix }: LegalFieldsProps) {
 
   const estadoCivil = watch(`${prefix}.estadoCivil`)
   const comparecencia = watch(`${prefix}.comparecencia`)
+  const incluirConyuge = watch(`${prefix}.incluirConyuge`)
 
-  const showConyuge =
+  const estadoCivilNeedsConyuge =
     estadoCivil === 'casado' || estadoCivil === 'union_de_hecho'
+
+  // For vendedor: always show conyuge fields when married
+  // For comprador: show only if explicitly opted in via checkbox
+  const showConyugeFields =
+    estadoCivilNeedsConyuge &&
+    (prefix === 'vendedor' || incluirConyuge === true)
+
   const showApoderado = comparecencia === 'apoderado'
 
   // Access nested errors — superRefine issues land at these paths
@@ -134,7 +142,7 @@ export function LegalFields({ prefix }: LegalFieldsProps) {
 
       {/* Conyuge — conditional */}
       <AnimatePresence>
-        {showConyuge && (
+        {estadoCivilNeedsConyuge && (
           <motion.div
             variants={expandVariants}
             initial="hidden"
@@ -147,31 +155,73 @@ export function LegalFields({ prefix }: LegalFieldsProps) {
               <div className="flex items-center gap-2">
                 <Heart className="w-4 h-4 text-accent-primary" />
                 <h3 className="text-sm font-semibold text-text-primary">
-                  Datos del conyuge
+                  Conyuge
                 </h3>
               </div>
-              <p className="text-xs text-text-muted">
-                Al ser casado/a o en union de hecho, el conyuge debe comparecer
-                en el contrato.
-              </p>
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                <Input
-                  id={`${prefix}.conyuge.nombres`}
-                  label="Nombres completos"
-                  placeholder="Nombres del conyuge"
-                  error={pe?.conyuge?.nombres?.message as string | undefined}
-                  {...register(`${prefix}.conyuge.nombres`)}
+
+              {/* For VENDEDOR: always required, show message */}
+              {prefix === 'vendedor' && (
+                <p className="text-xs text-text-muted">
+                  Al ser casado/a o en union de hecho, el conyuge debe comparecer
+                  en el contrato para transferir el bien de la sociedad conyugal.
+                </p>
+              )}
+
+              {/* For COMPRADOR: optional with checkbox */}
+              {prefix === 'comprador' && (
+                <Controller
+                  name="comprador.incluirConyuge"
+                  control={control}
+                  render={({ field }) => (
+                    <label className="flex items-start gap-3 cursor-pointer group">
+                      <input
+                        type="checkbox"
+                        checked={field.value ?? false}
+                        onChange={(e) => field.onChange(e.target.checked)}
+                        className="mt-0.5 h-4 w-4 rounded border-[var(--glass-border)] bg-bg-secondary text-accent-primary focus:ring-accent-primary cursor-pointer flex-shrink-0"
+                      />
+                      <span className="text-xs text-text-secondary group-hover:text-text-primary transition-colors">
+                        <span className="font-medium text-text-primary">¿Comparecerá el cónyuge en el contrato?</span>
+                        <br />
+                        Si el cónyuge no comparece, el comprador adquiere el vehículo a título personal. Puedes agregar los datos del cónyuge manualmente en el documento Word editable.
+                      </span>
+                    </label>
+                  )}
                 />
-                <Input
-                  id={`${prefix}.conyuge.cedula`}
-                  label="Cedula de identidad"
-                  placeholder="1712345678"
-                  maxLength={10}
-                  error={pe?.conyuge?.cedula?.message as string | undefined}
-                  hint="10 digitos sin guiones"
-                  {...register(`${prefix}.conyuge.cedula`)}
-                />
-              </div>
+              )}
+
+              {/* Conyuge fields — shown for vendedor always, or for comprador if opted in */}
+              <AnimatePresence>
+                {showConyugeFields && (
+                  <motion.div
+                    variants={expandVariants}
+                    initial="hidden"
+                    animate="visible"
+                    exit="hidden"
+                    transition={{ duration: 0.2, ease: 'easeInOut' }}
+                    className="overflow-hidden"
+                  >
+                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 pt-1">
+                      <Input
+                        id={`${prefix}.conyuge.nombres`}
+                        label="Nombres completos"
+                        placeholder="Nombres del conyuge"
+                        error={pe?.conyuge?.nombres?.message as string | undefined}
+                        {...register(`${prefix}.conyuge.nombres`)}
+                      />
+                      <Input
+                        id={`${prefix}.conyuge.cedula`}
+                        label="Cedula de identidad"
+                        placeholder="1712345678"
+                        maxLength={10}
+                        error={pe?.conyuge?.cedula?.message as string | undefined}
+                        hint="10 digitos sin guiones"
+                        {...register(`${prefix}.conyuge.cedula`)}
+                      />
+                    </div>
+                  </motion.div>
+                )}
+              </AnimatePresence>
             </div>
           </motion.div>
         )}
