@@ -43,6 +43,15 @@ export function CuvUpload({ onCuvParsed }: CuvUploadProps) {
     if (data.anio) count++
     if (data.color) count++
     if (data.motor) count++
+    if (data.tipo) count++
+    if (data.cilindraje) count++
+    if (data.carroceria) count++
+    if (data.clase) count++
+    if (data.pais) count++
+    if (data.combustible) count++
+    if (data.pasajeros) count++
+    if (data.servicio) count++
+    if (data.ramv) count++
     if (data.cedulaPropietario) count++
     if (data.nombresPropietario) count++
     return count
@@ -56,6 +65,16 @@ export function CuvUpload({ onCuvParsed }: CuvUploadProps) {
     if (data.color) setValue('vehiculo.color', data.color, { shouldValidate: true })
     if (data.motor) setValue('vehiculo.motor', data.motor, { shouldValidate: true })
     if (data.vin) setValue('vehiculo.chasis', data.vin, { shouldValidate: true })
+    // New v2 fields
+    if (data.tipo) setValue('vehiculo.tipo', data.tipo, { shouldValidate: true })
+    if (data.cilindraje) setValue('vehiculo.cilindraje', data.cilindraje, { shouldValidate: true })
+    if (data.carroceria) setValue('vehiculo.carroceria', data.carroceria, { shouldValidate: true })
+    if (data.clase) setValue('vehiculo.clase', data.clase, { shouldValidate: true })
+    if (data.pais) setValue('vehiculo.pais', data.pais, { shouldValidate: true })
+    if (data.combustible) setValue('vehiculo.combustible', data.combustible, { shouldValidate: true })
+    if (data.pasajeros) setValue('vehiculo.pasajeros', data.pasajeros, { shouldValidate: true })
+    if (data.servicio) setValue('vehiculo.servicio', data.servicio, { shouldValidate: true })
+    if (data.ramv) setValue('vehiculo.ramv', data.ramv, { shouldValidate: true })
     // Owner → Seller
     if (data.cedulaPropietario)
       setValue('vendedor.cedula', data.cedulaPropietario, { shouldValidate: true })

@@ -28,9 +28,9 @@ export const OUT_OF_SCOPE_RULES: ScopeRule[] = [
   },
   {
     category: 'familia',
-    keywords: ['divorcio', 'custodia', 'pensión alimenticia', 'alimentos', 'tenencia', 'visitas', 'patria potestad', 'adopción', 'violencia intrafamiliar'],
-    message: 'Los temas de derecho de familia requieren un abogado especializado.',
-    suggestion: 'Puedes acudir al Consejo de la Judicatura o buscar un abogado de familia. Línea de violencia: 1800-000-111',
+    keywords: ['custodia', 'pensión alimenticia', 'alimentos', 'tenencia', 'visitas', 'patria potestad', 'adopción', 'violencia intrafamiliar'],
+    message: 'Algunos temas de derecho de familia requieren un abogado especializado.',
+    suggestion: 'Puedes acudir al Consejo de la Judicatura o buscar un abogado de familia. Línea de violencia: 1800-000-111. Nota: SÍ tramitamos divorcios por mutuo consentimiento ante notario.',
     phone: '1800000111',
   },
   {
@@ -70,6 +70,7 @@ export const IN_SCOPE_SERVICES = [
   'Calculadora de gastos notariales, alcabalas, registro y consejo provincial',
   'Presupuestador de compra/venta de inmuebles',
   'Cotizador de contrato vehicular',
+  'Divorcio por mutuo consentimiento ante notario',
 ]
 
 export const BOT_SYSTEM_CONTEXT = `Eres el asistente virtual de Abogados Online Ecuador, una plataforma legal tecnológica en Quito, Ecuador.
@@ -79,7 +80,7 @@ ${IN_SCOPE_SERVICES.map((s) => `- ${s}`).join('\n')}
 
 REGLAS:
 1. Solo respondes sobre servicios notariales y trámites legales que ofrece la plataforma.
-2. Si te preguntan sobre temas fuera de alcance (penal, laboral, familia, tributario, migración, tránsito), indica amablemente que no manejas esos temas y sugiere dónde acudir.
+2. Si te preguntan sobre temas fuera de alcance (penal, laboral, tributario, migración, tránsito), indica amablemente que no manejas esos temas y sugiere dónde acudir. EXCEPCIÓN: SÍ tramitamos divorcios por mutuo consentimiento ante notario.
 3. Siempre ofrece calcular costos o agendar una cita cuando sea relevante.
 4. Usa lenguaje profesional pero accesible. Tutea al usuario.
 5. El SBU vigente es $482 (2026).

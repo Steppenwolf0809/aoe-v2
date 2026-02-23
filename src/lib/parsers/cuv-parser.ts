@@ -29,6 +29,16 @@ export interface CuvData {
   anio: number | null
   color: string | null
   motor: string | null
+  // New v2 vehicle fields
+  tipo: string | null
+  cilindraje: number | null
+  carroceria: string | null
+  clase: string | null
+  pais: string | null
+  combustible: string | null
+  pasajeros: number | null
+  servicio: string | null
+  ramv: string | null
   // Owner (propietario actual = vendedor)
   cedulaPropietario: string | null
   nombresPropietario: string | null
@@ -137,6 +147,36 @@ function extractBrandNearLabel(vehicleSection: string): string | null {
       if (ci < 0 || ci >= lines.length) continue
       if (isLikelyBrandCandidate(lines[ci])) {
         return normalizeBrand(lines[ci])
+      }
+    }
+  }
+
+  return null
+}
+
+/**
+ * Extract a labeled value from the vehicle section.
+ * Handles both inline "Label: Value" and two-column "Label:\n...\nValue" formats.
+ */
+function extractLabeledValue(section: string, label: string): string | null {
+  // Case 1: inline "Label: Value" or "Label:\tValue"
+  const inlineRegex = new RegExp(`${label}\\s*:\\s*(.+?)(?:\\n|$)`, 'i')
+  const inlineMatch = section.match(inlineRegex)
+  if (inlineMatch) {
+    const val = inlineMatch[1].trim()
+    if (val && !val.endsWith(':') && val.length > 1) return val
+  }
+
+  // Case 2: standalone label with value on nearby line
+  const lines = section.split('\n').map(l => l.trim()).filter(Boolean)
+  for (let i = 0; i < lines.length; i++) {
+    if (new RegExp(`^${label}\\s*:?\\s*$`, 'i').test(lines[i])) {
+      // Check next few non-label lines
+      for (let j = i + 1; j <= Math.min(i + 3, lines.length - 1); j++) {
+        const candidate = lines[j].trim()
+        if (!candidate || candidate.endsWith(':')) continue
+        if (/^(Marca|Modelo|Color|Tipo|Clase|Cilindraje|Servicio|Pasajeros|Pa[ií]s|Combustible|Carrocer[ií]a|RAMV|RANV)\s*:?$/i.test(candidate)) continue
+        return candidate
       }
     }
   }
@@ -346,6 +386,46 @@ export function parseCuvText(rawText: string): CuvData {
     infTotal = Math.max(...amounts)
   }
 
+  // ── 13. TIPO (e.g. AUTOMOVIL, CAMIONETA, SUV) ───────────────────────
+  const tipo = extractLabeledValue(vehicleSection, 'Tipo')
+    ?? extractLabeledValue(vehicleSection, 'Tipo de Veh[ií]culo')
+
+  // ── 14. CILINDRAJE (numeric, in cc) ─────────────────────────────────
+  let cilindraje: number | null = null
+  const cilindrajeStr = extractLabeledValue(vehicleSection, 'Cilindraje')
+  if (cilindrajeStr) {
+    const num = parseFloat(cilindrajeStr.replace(/[^\d.]/g, ''))
+    if (num > 0) cilindraje = num
+  }
+
+  // ── 15. CARROCERÍA ──────────────────────────────────────────────────
+  const carroceria = extractLabeledValue(vehicleSection, 'Carrocer[ií]a')
+
+  // ── 16. CLASE ───────────────────────────────────────────────────────
+  const clase = extractLabeledValue(vehicleSection, 'Clase')
+
+  // ── 17. PAÍS DE ORIGEN ──────────────────────────────────────────────
+  const pais = extractLabeledValue(vehicleSection, 'Pa[ií]s')
+    ?? extractLabeledValue(vehicleSection, 'Pa[ií]s de Origen')
+
+  // ── 18. COMBUSTIBLE ─────────────────────────────────────────────────
+  const combustible = extractLabeledValue(vehicleSection, 'Combustible')
+
+  // ── 19. PASAJEROS ───────────────────────────────────────────────────
+  let pasajeros: number | null = null
+  const pasajerosStr = extractLabeledValue(vehicleSection, 'Pasajeros')
+  if (pasajerosStr) {
+    const num = parseInt(pasajerosStr, 10)
+    if (num > 0) pasajeros = num
+  }
+
+  // ── 20. SERVICIO ────────────────────────────────────────────────────
+  const servicio = extractLabeledValue(vehicleSection, 'Servicio')
+
+  // ── 21. RAMV / RANV ─────────────────────────────────────────────────
+  const ramv = extractLabeledValue(vehicleSection, 'RAMV')
+    ?? extractLabeledValue(vehicleSection, 'RANV')
+
   return {
     placa,
     vin,
@@ -354,6 +434,15 @@ export function parseCuvText(rawText: string): CuvData {
     anio,
     color,
     motor,
+    tipo: tipo ? tipo.toUpperCase() : null,
+    cilindraje,
+    carroceria: carroceria ? toTitleCase(carroceria) : null,
+    clase: clase ? toTitleCase(clase) : null,
+    pais: pais ? toTitleCase(pais) : null,
+    combustible: combustible ? toTitleCase(combustible) : null,
+    pasajeros,
+    servicio: servicio ? servicio.toUpperCase() : null,
+    ramv,
     cedulaPropietario,
     nombresPropietario,
     gravamenes: {
