@@ -19,7 +19,7 @@ type ActionResult<T> =
  */
 export async function initiatePayment(
   contractIdOrFormData: string | FormData
-): Promise<ActionResult<{ paymentUrl: string; clientTransactionId: string }>> {
+): Promise<ActionResult<{ paymentUrl: string; payWithPayPhone?: string; clientTransactionId: string }>> {
   try {
     const contractId =
       typeof contractIdOrFormData === 'string'
@@ -99,6 +99,7 @@ export async function initiatePayment(
       success: true,
       data: {
         paymentUrl: paymentResponse.paymentUrl,
+        payWithPayPhone: paymentResponse.payWithPayPhone,
         clientTransactionId,
       },
     }

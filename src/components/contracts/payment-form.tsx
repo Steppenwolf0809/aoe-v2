@@ -4,7 +4,7 @@ import { useState, useEffect } from 'react'
 import { useRouter } from 'next/navigation'
 import { Card, CardContent } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
-import { ArrowRight, Mail, Loader2, CreditCard } from 'lucide-react'
+import { ArrowRight, Mail, Loader2, CreditCard, Smartphone } from 'lucide-react'
 import { formatCurrency } from '@/lib/utils'
 import { PRECIO_CONTRATO_BASICO } from '@/lib/formulas/vehicular'
 import { initiatePayment } from '@/actions/payments'
@@ -20,8 +20,13 @@ export function PaymentForm({ contractId, defaultEmail, initialError }: PaymentF
     const [isPending, setIsPending] = useState(false)
     const [error, setError] = useState<string | null>(initialError || null)
     const [isPolling, setIsPolling] = useState(false)
+    // Mobile: after initiating payment, show payment method choice
+    const [mobilePaymentUrls, setMobilePaymentUrls] = useState<{
+        payWithCard: string
+        payWithPayPhone?: string
+    } | null>(null)
 
-    // Polling logic when isPolling is true
+    // Polling logic when isPolling is true (desktop flow)
     useEffect(() => {
         let interval: NodeJS.Timeout
 
@@ -69,14 +74,18 @@ export function PaymentForm({ contractId, defaultEmail, initialError }: PaymentF
                 return
             }
 
-            // En móvil, redirigir en la misma pestaña (los popups se bloquean en móvil)
-            // El callback page maneja todo: confirmar pago, generar PDF, y redirigir a éxito
             const isMobile = /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(
                 navigator.userAgent
             )
 
             if (isMobile) {
-                window.location.href = result.data.paymentUrl
+                // En móvil, mostrar opciones de método de pago para evitar que el
+                // deep link de la app intercepte la URL de tarjeta
+                setMobilePaymentUrls({
+                    payWithCard: result.data.paymentUrl,
+                    payWithPayPhone: result.data.payWithPayPhone,
+                })
+                setIsPending(false)
                 return
             }
 
@@ -90,6 +99,62 @@ export function PaymentForm({ contractId, defaultEmail, initialError }: PaymentF
         }
     }
 
+    // Mobile: payment method choice screen
+    if (mobilePaymentUrls) {
+        return (
+            <Card className="bg-[var(--glass-bg)] border-[var(--glass-border)] border-accent-primary shadow-[0_0_30px_rgba(var(--accent-primary-rgb),0.15)] ring-1 ring-accent-primary/20">
+                <CardContent className="p-6 space-y-5">
+                    <div className="text-center space-y-2">
+                        <h3 className="text-lg font-bold text-text-primary">
+                            ¿Cómo deseas pagar?
+                        </h3>
+                        <p className="text-sm text-text-secondary">
+                            Selecciona tu método de pago preferido
+                        </p>
+                    </div>
+
+                    <div className="space-y-3">
+                        <Button
+                            variant="primary"
+                            className="w-full h-14 text-base"
+                            onClick={() => {
+                                window.location.href = mobilePaymentUrls.payWithCard
+                            }}
+                        >
+                            <CreditCard className="w-5 h-5 mr-3" />
+                            Pagar con tarjeta
+                        </Button>
+
+                        {mobilePaymentUrls.payWithPayPhone && (
+                            <Button
+                                variant="outline"
+                                className="w-full h-14 text-base border-accent-primary/30 text-accent-primary hover:bg-accent-primary/10"
+                                onClick={() => {
+                                    window.location.href = mobilePaymentUrls.payWithPayPhone!
+                                }}
+                            >
+                                <Smartphone className="w-5 h-5 mr-3" />
+                                Pagar con app PayPhone
+                            </Button>
+                        )}
+                    </div>
+
+                    <Button
+                        variant="outline"
+                        onClick={() => {
+                            setMobilePaymentUrls(null)
+                            setIsPending(false)
+                        }}
+                        className="w-full text-sm"
+                    >
+                        Cancelar
+                    </Button>
+                </CardContent>
+            </Card>
+        )
+    }
+
+    // Desktop: polling / waiting screen
     if (isPolling) {
         return (
             <Card className="bg-[var(--glass-bg)] border-[var(--glass-border)] border-accent-primary shadow-[0_0_30px_rgba(var(--accent-primary-rgb),0.15)] ring-1 ring-accent-primary/20">
