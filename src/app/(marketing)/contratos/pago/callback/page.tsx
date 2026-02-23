@@ -5,6 +5,7 @@ import { confirmPayment } from '@/lib/payphone'
 import { isPaymentApproved } from '@/lib/validations/payment'
 import { PRECIO_CONTRATO_BASICO } from '@/lib/formulas/vehicular'
 import { generateContractPdfAdmin } from '@/actions/pdf'
+import { notifyN8NContractPaid } from '@/lib/n8n'
 import { XCircle } from 'lucide-react'
 import Link from 'next/link'
 
@@ -57,6 +58,25 @@ async function processPaymentAndGeneratePdf(contractId: string): Promise<string>
     success: pdfResult.success,
     ...(pdfResult.success ? { downloadToken: pdfResult.data.downloadToken } : { error: pdfResult.error }),
   }))
+
+  // Fire-and-forget: notify n8n about the sale for CRM/analytics
+  const adminSupabase = createAdminClient()
+  const { data: contractData } = await adminSupabase
+    .from('contracts')
+    .select('delivery_email, contract_type, amount')
+    .eq('id', contractId)
+    .maybeSingle()
+
+  if (contractData?.delivery_email) {
+    notifyN8NContractPaid({
+      contractId,
+      email: contractData.delivery_email,
+      type: contractData.contract_type ?? 'vehicular',
+      amount: contractData.amount ?? PRECIO_CONTRATO_BASICO,
+      downloadToken: pdfResult.success ? pdfResult.data.downloadToken : undefined,
+    }).catch(() => {})
+  }
+
   if (pdfResult.success) {
     return `/contratos/pago/exito?token=${pdfResult.data.downloadToken}`
   }

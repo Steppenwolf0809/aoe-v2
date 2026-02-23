@@ -14,8 +14,15 @@ export function SellerForm() {
   } = useFormContext<ContratoVehicular>()
 
   const vendedorNombres = watch('vendedor.nombres')
+  const tipoDocumento = watch('vendedor.tipoDocumento')
 
   const se = errors.vendedor
+
+  // Dynamic label for document field
+  const docLabel = tipoDocumento === 'pasaporte' ? 'Número de pasaporte' : 'Cédula de identidad'
+  const docPlaceholder = tipoDocumento === 'pasaporte' ? 'AB1234567' : '1712345678'
+  const docHint = tipoDocumento === 'pasaporte' ? 'Letras y números' : '10 dígitos sin guiones'
+  const docMaxLength = tipoDocumento === 'pasaporte' ? 20 : 10
 
   return (
     <div className="space-y-6">
@@ -28,7 +35,7 @@ export function SellerForm() {
             Datos del vendedor
           </h2>
           <p className="text-sm text-text-secondary">
-            Informacion de quien vende el vehiculo.
+            Información de quien vende el vehículo.
           </p>
           {vendedorNombres && (
             <div className="flex items-center gap-1 mt-1 text-xs text-accent-primary">
@@ -42,24 +49,24 @@ export function SellerForm() {
       <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
         <Input
           id="vendedor.cedula"
-          label="Cedula de identidad"
-          placeholder="1712345678"
-          maxLength={10}
+          label={docLabel}
+          placeholder={docPlaceholder}
+          maxLength={docMaxLength}
           error={se?.cedula?.message}
-          hint="10 digitos sin guiones"
+          hint={docHint}
           {...register('vendedor.cedula')}
         />
         <Input
           id="vendedor.nombres"
           label="Nombres completos"
-          placeholder="Maria Elena Garcia Torres"
+          placeholder="María Elena García Torres"
           error={se?.nombres?.message}
           {...register('vendedor.nombres')}
         />
         <div className="sm:col-span-2">
           <Input
             id="vendedor.direccion"
-            label="Direccion"
+            label="Dirección"
             placeholder="Av. 6 de Diciembre N32-456, Quito"
             error={se?.direccion?.message}
             {...register('vendedor.direccion')}
@@ -67,7 +74,7 @@ export function SellerForm() {
         </div>
         <Input
           id="vendedor.telefono"
-          label="Telefono"
+          label="Teléfono"
           type="tel"
           placeholder="0987654321"
           error={se?.telefono?.message}
@@ -75,7 +82,7 @@ export function SellerForm() {
         />
         <Input
           id="vendedor.email"
-          label="Correo electronico"
+          label="Correo electrónico"
           type="email"
           placeholder="maria@email.com"
           error={se?.email?.message}

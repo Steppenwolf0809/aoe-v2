@@ -293,7 +293,7 @@ export function CuvUpload({ onCuvParsed }: CuvUploadProps) {
       <p className="text-xs text-text-muted text-center mt-3">
         ¿No tienes tu CUV?{' '}
         <a
-          href="https://www.ant.gob.ec/index.php/ant/servicios-ant/consultas/certificado-unico-vehicular"
+          href="https://consultaweb.ant.gob.ec/SVT/paginas/portal/svf_solicitar_servicio.jsp?ps_param_tip_serv=CER"
           target="_blank"
           rel="noopener noreferrer"
           className="text-accent-primary hover:underline font-medium"

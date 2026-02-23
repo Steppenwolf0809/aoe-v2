@@ -1,0 +1,110 @@
+{
+  "name": "05_Social_Media_Blog",
+  "nodes": [
+    {
+      "parameters": {
+        "httpMethod": "POST",
+        "path": "blog-published",
+        "responseMode": "responseNode",
+        "options": {}
+      },
+      "id": "webhook-trigger",
+      "name": "Webhook Blog Published",
+      "type": "n8n-nodes-base.webhook",
+      "position": [180, 300],
+      "typeVersion": 2,
+      "webhookId": "blog-published-webhook"
+    },
+    {
+      "parameters": {
+        "jsCode": "const input = $input.first().json;\nconst body = input.body ?? input;\n\nconst slug = String(body.slug ?? '').trim();\nconst title = String(body.title ?? '').trim();\nconst excerpt = String(body.excerpt ?? '').trim();\nconst category = String(body.category ?? 'Legal').trim();\nconst tags = Array.isArray(body.tags) ? body.tags : [];\n\nif (!slug || !title) {\n  throw new Error('Payload invalido: se requiere slug y title');\n}\n\nconst url = 'https://abogadosonlineecuador.com/blog/' + slug;\nconst hashtags = tags.map(t => '#' + t.replace(/\\s+/g, '')).join(' ');\n\nreturn [{ json: { slug, title, excerpt, category, tags, url, hashtags } }];"
+      },
+      "id": "normalize-input",
+      "name": "Normalizar Datos",
+      "type": "n8n-nodes-base.code",
+      "position": [440, 300],
+      "typeVersion": 2
+    },
+    {
+      "parameters": {
+        "jsCode": "const { title, excerpt, url, hashtags, category } = $input.first().json;\n\nconst facebook = `${title}\\n\\n${excerpt}\\n\\nLee el articulo completo:\\n${url}\\n\\n${hashtags} #AbogadosOnlineEcuador #DerechoEcuatoriano`;\n\nconst instagram = `${title}\\n\\n${excerpt}\\n\\nLink en bio\\n\\n${hashtags} #AbogadosOnlineEcuador #DerechoEcuatoriano #NotariaQuito #TramitesLegales`;\n\nconst linkedin = `Nuevo articulo en nuestro blog legal:\\n\\n${title}\\n\\n${excerpt}\\n\\nLee mas: ${url}\\n\\n${hashtags} #LegalTech #Ecuador`;\n\nconst whatsapp = `Nuevo en el blog de AOE:\\n\\n*${title}*\\n\\n${excerpt}\\n\\n${url}`;\n\nreturn [{ json: { facebook, instagram, linkedin, whatsapp, url, title } }];"
+      },
+      "id": "format-posts",
+      "name": "Formatear Posts",
+      "type": "n8n-nodes-base.code",
+      "position": [700, 300],
+      "typeVersion": 2
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "facebook",
+              "name": "facebook",
+              "value": "={{ $json.facebook }}",
+              "type": "string"
+            },
+            {
+              "id": "instagram",
+              "name": "instagram",
+              "value": "={{ $json.instagram }}",
+              "type": "string"
+            },
+            {
+              "id": "linkedin",
+              "name": "linkedin",
+              "value": "={{ $json.linkedin }}",
+              "type": "string"
+            },
+            {
+              "id": "whatsapp",
+              "name": "whatsapp",
+              "value": "={{ $json.whatsapp }}",
+              "type": "string"
+            },
+            {
+              "id": "instructions",
+              "name": "instructions",
+              "value": "Posts formateados para redes sociales. Copia y pega manualmente en cada plataforma. En el futuro se puede conectar la API de Meta para publicar automaticamente.",
+              "type": "string"
+            }
+          ]
+        }
+      },
+      "id": "output-posts",
+      "name": "Posts Listos",
+      "type": "n8n-nodes-base.set",
+      "position": [960, 300],
+      "typeVersion": 3.4
+    },
+    {
+      "parameters": {
+        "respondWith": "json",
+        "responseBody": "={{ JSON.stringify({ received: true, title: $json.title || 'Post formateado', platforms: ['facebook', 'instagram', 'linkedin', 'whatsapp'] }) }}"
+      },
+      "id": "respond-webhook",
+      "name": "Responder Webhook",
+      "type": "n8n-nodes-base.respondToWebhook",
+      "position": [1220, 300],
+      "typeVersion": 1.1
+    }
+  ],
+  "connections": {
+    "Webhook Blog Published": {
+      "main": [[{"node": "Normalizar Datos", "type": "main", "index": 0}]]
+    },
+    "Normalizar Datos": {
+      "main": [[{"node": "Formatear Posts", "type": "main", "index": 0}]]
+    },
+    "Formatear Posts": {
+      "main": [[{"node": "Posts Listos", "type": "main", "index": 0}]]
+    },
+    "Posts Listos": {
+      "main": [[{"node": "Responder Webhook", "type": "main", "index": 0}]]
+    }
+  },
+  "settings": {
+    "executionOrder": "v1"
+  }
+}

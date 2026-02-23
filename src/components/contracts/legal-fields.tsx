@@ -2,7 +2,7 @@
 
 import { useFormContext, Controller } from 'react-hook-form'
 import { motion, AnimatePresence } from 'framer-motion'
-import { Heart, Scale } from 'lucide-react'
+import { Heart, Scale, User } from 'lucide-react'
 import { Input } from '@/components/ui/input'
 import {
   Select,
@@ -34,6 +34,7 @@ export function LegalFields({ prefix }: LegalFieldsProps) {
   const estadoCivil = watch(`${prefix}.estadoCivil`)
   const comparecencia = watch(`${prefix}.comparecencia`)
   const incluirConyuge = watch(`${prefix}.incluirConyuge`)
+  const tipoDocumento = watch(`${prefix}.tipoDocumento`)
 
   const estadoCivilNeedsConyuge =
     estadoCivil === 'casado' || estadoCivil === 'union_de_hecho'
@@ -49,6 +50,12 @@ export function LegalFields({ prefix }: LegalFieldsProps) {
   // Access nested errors — superRefine issues land at these paths
   const pe = errors[prefix] as Record<string, any> | undefined
 
+  // Dynamic label for document field
+  const docLabel = tipoDocumento === 'pasaporte' ? 'Número de pasaporte' : 'Cédula de identidad'
+  const docPlaceholder = tipoDocumento === 'pasaporte' ? 'AB1234567' : '1712345678'
+  const docHint = tipoDocumento === 'pasaporte' ? 'Letras y números' : '10 dígitos sin guiones'
+  const docMaxLength = tipoDocumento === 'pasaporte' ? 20 : 10
+
   return (
     <div className="space-y-4 mt-4">
       {/* Divider */}
@@ -58,12 +65,80 @@ export function LegalFields({ prefix }: LegalFieldsProps) {
         </div>
         <div className="relative flex justify-center">
           <span className="px-3 bg-[var(--glass-bg)] text-xs text-[var(--text-muted)]">
-            Informacion legal
+            Información legal
           </span>
         </div>
       </div>
 
+      {/* Row: Sexo + Nacionalidad */}
       <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+        {/* Sexo */}
+        <div className="space-y-1.5">
+          <label className="block text-sm font-medium text-text-secondary">
+            Sexo
+          </label>
+          <Controller
+            name={`${prefix}.sexo`}
+            control={control}
+            render={({ field }) => (
+              <Select value={field.value ?? ''} onValueChange={field.onChange}>
+                <SelectTrigger
+                  className={
+                    pe?.sexo
+                      ? 'border-accent-error bg-bg-secondary border-[var(--glass-border)]'
+                      : 'bg-bg-secondary border-[var(--glass-border)]'
+                  }
+                >
+                  <SelectValue placeholder="Seleccionar..." />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="M">Masculino</SelectItem>
+                  <SelectItem value="F">Femenino</SelectItem>
+                </SelectContent>
+              </Select>
+            )}
+          />
+          {pe?.sexo?.message && (
+            <p className="text-xs text-accent-error">
+              {pe.sexo.message as string}
+            </p>
+          )}
+        </div>
+
+        {/* Nacionalidad */}
+        <Input
+          id={`${prefix}.nacionalidad`}
+          label="Nacionalidad"
+          placeholder="ecuatoriana"
+          error={pe?.nacionalidad?.message as string | undefined}
+          {...register(`${prefix}.nacionalidad`)}
+        />
+      </div>
+
+      {/* Row: Tipo Documento + Estado Civil */}
+      <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+        {/* Tipo de documento */}
+        <div className="space-y-1.5">
+          <label className="block text-sm font-medium text-text-secondary">
+            Tipo de documento
+          </label>
+          <Controller
+            name={`${prefix}.tipoDocumento`}
+            control={control}
+            render={({ field }) => (
+              <Select value={field.value ?? 'cedula'} onValueChange={field.onChange}>
+                <SelectTrigger className="bg-bg-secondary border-[var(--glass-border)]">
+                  <SelectValue placeholder="Seleccionar..." />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="cedula">Cédula de ciudadanía</SelectItem>
+                  <SelectItem value="pasaporte">Pasaporte</SelectItem>
+                </SelectContent>
+              </Select>
+            )}
+          />
+        </div>
+
         {/* Estado Civil */}
         <div className="space-y-1.5">
           <label className="block text-sm font-medium text-text-secondary">
@@ -101,8 +176,10 @@ export function LegalFields({ prefix }: LegalFieldsProps) {
             </p>
           )}
         </div>
+      </div>
 
-        {/* Comparecencia */}
+      {/* Comparecencia */}
+      <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
         <div className="space-y-1.5">
           <label className="block text-sm font-medium text-text-secondary">
             Comparece por
@@ -155,14 +232,14 @@ export function LegalFields({ prefix }: LegalFieldsProps) {
               <div className="flex items-center gap-2">
                 <Heart className="w-4 h-4 text-accent-primary" />
                 <h3 className="text-sm font-semibold text-text-primary">
-                  Conyuge
+                  Cónyuge
                 </h3>
               </div>
 
               {/* For VENDEDOR: always required, show message */}
               {prefix === 'vendedor' && (
                 <p className="text-xs text-text-muted">
-                  Al ser casado/a o en union de hecho, el conyuge debe comparecer
+                  Al ser casado/a o en unión de hecho, el cónyuge debe comparecer
                   en el contrato para transferir el bien de la sociedad conyugal.
                 </p>
               )}
@@ -205,17 +282,16 @@ export function LegalFields({ prefix }: LegalFieldsProps) {
                       <Input
                         id={`${prefix}.conyuge.nombres`}
                         label="Nombres completos"
-                        placeholder="Nombres del conyuge"
+                        placeholder="Nombres del cónyuge"
                         error={pe?.conyuge?.nombres?.message as string | undefined}
                         {...register(`${prefix}.conyuge.nombres`)}
                       />
                       <Input
                         id={`${prefix}.conyuge.cedula`}
-                        label="Cedula de identidad"
+                        label="Documento de identidad"
                         placeholder="1712345678"
-                        maxLength={10}
                         error={pe?.conyuge?.cedula?.message as string | undefined}
-                        hint="10 digitos sin guiones"
+                        hint="Cédula o pasaporte"
                         {...register(`${prefix}.conyuge.cedula`)}
                       />
                     </div>
@@ -246,7 +322,7 @@ export function LegalFields({ prefix }: LegalFieldsProps) {
                 </h3>
               </div>
               <p className="text-xs text-text-muted">
-                El apoderado firmara en representacion de esta persona segun
+                El apoderado firmará en representación de esta persona según
                 poder especial.
               </p>
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
@@ -261,17 +337,16 @@ export function LegalFields({ prefix }: LegalFieldsProps) {
                 />
                 <Input
                   id={`${prefix}.apoderado.cedula`}
-                  label="Cedula del apoderado"
+                  label="Documento del apoderado"
                   placeholder="1712345678"
-                  maxLength={10}
                   error={pe?.apoderado?.cedula?.message as string | undefined}
-                  hint="10 digitos sin guiones"
+                  hint="Cédula o pasaporte"
                   {...register(`${prefix}.apoderado.cedula`)}
                 />
                 <Input
                   id={`${prefix}.apoderado.notariaPoder`}
-                  label="Notaria del poder"
-                  placeholder="Notaria Decima Octava de Quito"
+                  label="Notaría del poder"
+                  placeholder="Notaría Décima Octava de Quito"
                   error={
                     pe?.apoderado?.notariaPoder?.message as string | undefined
                   }

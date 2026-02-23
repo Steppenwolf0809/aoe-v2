@@ -1,0 +1,127 @@
+{
+  "name": "04_Post_Sale_Automation",
+  "nodes": [
+    {
+      "parameters": {
+        "httpMethod": "POST",
+        "path": "contract-paid",
+        "responseMode": "responseNode",
+        "options": {}
+      },
+      "id": "webhook-trigger",
+      "name": "Webhook Contract Paid",
+      "type": "n8n-nodes-base.webhook",
+      "position": [180, 300],
+      "typeVersion": 2,
+      "webhookId": "contract-paid-webhook"
+    },
+    {
+      "parameters": {
+        "jsCode": "const input = $input.first().json;\nconst body = input.body ?? input;\n\nconst contractId = String(body.contractId ?? '').trim();\nconst email = String(body.email ?? '').trim();\nconst type = String(body.type ?? 'vehicular').trim();\nconst amount = Number(body.amount ?? 0);\nconst downloadToken = body.downloadToken || null;\nconst fecha = body.fecha || new Date().toISOString();\n\nif (!contractId || !email) {\n  throw new Error('Payload invalido: se requiere contractId y email');\n}\n\nreturn [{ json: { contractId, email, type, amount, downloadToken, fecha } }];"
+      },
+      "id": "normalize-input",
+      "name": "Normalizar Datos",
+      "type": "n8n-nodes-base.code",
+      "position": [440, 300],
+      "typeVersion": 2
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "https://api.resend.com/emails",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "Authorization",
+              "value": "Bearer CONFIGURAR_RESEND_API_KEY"
+            },
+            {
+              "name": "Content-Type",
+              "value": "application/json"
+            }
+          ]
+        },
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={{ JSON.stringify({ from: 'Abogados Online Ecuador <noreply@abogadosonlineecuador.com>', to: [$json.email], subject: 'Tu contrato esta listo - Abogados Online Ecuador', html: '<div style=\"font-family:Arial,sans-serif;max-width:600px;margin:0 auto;padding:20px\"><img src=\"https://abogadosonlineecuador.com/logo/logo-horizontal.svg\" alt=\"AOE\" width=\"200\" style=\"margin-bottom:20px\"/><h1 style=\"color:#1a1a2e;font-size:24px\">Tu contrato esta listo</h1><p style=\"color:#444;font-size:16px;line-height:1.6\">Hola, tu contrato de compraventa vehicular ha sido generado exitosamente.</p><p style=\"color:#444;font-size:16px;line-height:1.6\"><strong>ID:</strong> ' + $json.contractId.substring(0,8) + '...</p><p style=\"color:#444;font-size:16px;line-height:1.6\"><strong>Monto pagado:</strong> $' + $json.amount.toFixed(2) + '</p>' + ($json.downloadToken ? '<p style=\"margin-top:20px\"><a href=\"https://abogadosonlineecuador.com/contratos/pago/exito?token=' + $json.downloadToken + '\" style=\"background:#3b82f6;color:white;padding:12px 24px;text-decoration:none;border-radius:8px;display:inline-block\">Descargar Contrato</a></p>' : '') + '<hr style=\"margin:30px 0;border:none;border-top:1px solid #eee\"/><p style=\"color:#888;font-size:12px\">Abogados Online Ecuador | info@abogadosonlineecuador.com | +593 979317579</p></div>', tags: [{ name: 'category', value: 'contract-confirmation' }] }) }}"
+      },
+      "id": "send-email",
+      "name": "Email Confirmacion",
+      "type": "n8n-nodes-base.httpRequest",
+      "position": [700, 200],
+      "typeVersion": 4.2
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "https://api.callmebot.com/whatsapp.php",
+        "sendQuery": true,
+        "queryParameters": {
+          "parameters": [
+            {
+              "name": "phone",
+              "value": "593979317579"
+            },
+            {
+              "name": "text",
+              "value": "=Nueva venta AOE!\nContrato: {{ $json.contractId.substring(0,8) }}\nEmail: {{ $json.email }}\nMonto: ${{ $json.amount }}\nFecha: {{ $json.fecha }}"
+            },
+            {
+              "name": "apikey",
+              "value": "CONFIGURAR_CALLMEBOT_KEY"
+            }
+          ]
+        }
+      },
+      "id": "whatsapp-notify",
+      "name": "WhatsApp Notificacion",
+      "type": "n8n-nodes-base.httpRequest",
+      "position": [700, 400],
+      "typeVersion": 4.2
+    },
+    {
+      "parameters": {
+        "jsCode": "const input = $input.first().json;\nconst now = new Date().toISOString();\n\nreturn [{ json: {\n  contractId: input.contractId,\n  email: input.email,\n  type: input.type,\n  amount: input.amount,\n  fecha: input.fecha,\n  emailSent: true,\n  processedAt: now\n}}];"
+      },
+      "id": "log-result",
+      "name": "Registrar Resultado",
+      "type": "n8n-nodes-base.code",
+      "position": [960, 300],
+      "typeVersion": 2
+    },
+    {
+      "parameters": {
+        "respondWith": "json",
+        "responseBody": "={{ JSON.stringify({ received: true, contractId: $json.contractId }) }}"
+      },
+      "id": "respond-webhook",
+      "name": "Responder Webhook",
+      "type": "n8n-nodes-base.respondToWebhook",
+      "position": [1220, 300],
+      "typeVersion": 1.1
+    }
+  ],
+  "connections": {
+    "Webhook Contract Paid": {
+      "main": [[{"node": "Normalizar Datos", "type": "main", "index": 0}]]
+    },
+    "Normalizar Datos": {
+      "main": [
+        [
+          {"node": "Email Confirmacion", "type": "main", "index": 0},
+          {"node": "WhatsApp Notificacion", "type": "main", "index": 0}
+        ]
+      ]
+    },
+    "Email Confirmacion": {
+      "main": [[{"node": "Registrar Resultado", "type": "main", "index": 0}]]
+    },
+    "Registrar Resultado": {
+      "main": [[{"node": "Responder Webhook", "type": "main", "index": 0}]]
+    }
+  },
+  "settings": {
+    "executionOrder": "v1"
+  }
+}

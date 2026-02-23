@@ -38,9 +38,30 @@ export async function generateContractDocx(
             return { success: false, error: 'Token de descarga inválido' }
         }
 
+        // Add v2 field defaults for backward compatibility with v1 contracts
+        const raw = contract.data as Record<string, any>
+        const personaDefaults = { sexo: 'M', nacionalidad: 'ecuatoriana', tipoDocumento: 'cedula' }
+        const vehiculoDefaults = {
+            tipo: '', cilindraje: 1, carroceria: '', clase: '', pais: '',
+            combustible: '', pasajeros: 5, servicio: 'USO PARTICULAR', tonelaje: '', ramv: '',
+        }
+        const contractDefaults = {
+            tipoAntecedente: 'compraventa', formaPago: 'transferencia',
+            tieneObservaciones: false, observacionesTexto: '',
+            cuvNumero: '', cuvFecha: '', fechaInscripcion: '', matriculaVigencia: '',
+        }
+        const migrated = {
+            ...contractDefaults,
+            ...raw,
+            vehiculo: { ...vehiculoDefaults, ...raw?.vehiculo },
+            comprador: { ...personaDefaults, ...raw?.comprador },
+            vendedor: { ...personaDefaults, ...raw?.vendedor },
+        }
+
         // Parse and validate data
-        const validated = contratoVehicularSchema.safeParse(contract.data)
+        const validated = contratoVehicularSchema.safeParse(migrated)
         if (!validated.success) {
+            console.error('[generateContractDocx] validation errors:', validated.error.issues)
             return { success: false, error: 'Datos del contrato inválidos' }
         }
 

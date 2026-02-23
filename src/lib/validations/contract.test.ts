@@ -6,6 +6,9 @@ import {
   requiresConyuge,
   compradorIncludesConyuge,
   countFirmas,
+  resolverGenero,
+  resolverEstadoCivil,
+  buildTextoDocumento,
 } from './contract'
 
 // ============================================
@@ -22,6 +25,16 @@ function validVehiculo() {
     chasis: '9BR53ZEC2L1234567',
     avaluo: 15000,
     valorContrato: 14500,
+    tipo: 'Automóvil',
+    cilindraje: 1500,
+    carroceria: 'Metálica',
+    clase: 'Automóvil',
+    pais: 'Japón',
+    combustible: 'Gasolina',
+    pasajeros: 5,
+    servicio: 'USO PARTICULAR',
+    tonelaje: '',
+    ramv: '',
   }
 }
 
@@ -32,6 +45,9 @@ function validPersona() {
     direccion: 'Av. Amazonas N24-123, Quito',
     telefono: '0991234567',
     email: 'juan@email.com',
+    sexo: 'M' as const,
+    nacionalidad: 'ecuatoriana',
+    tipoDocumento: 'cedula' as const,
     estadoCivil: 'soltero' as const,
     comparecencia: 'propios_derechos' as const,
   }
@@ -400,6 +416,14 @@ describe('contratoVehicularSchema', () => {
       vehiculo: validVehiculo(),
       comprador: validPersona(),
       vendedor: validPersona(),
+      tipoAntecedente: 'compraventa' as const,
+      cuvNumero: '',
+      cuvFecha: '',
+      fechaInscripcion: '',
+      matriculaVigencia: '',
+      formaPago: 'transferencia' as const,
+      tieneObservaciones: false,
+      observacionesTexto: '',
     }
   }
 
@@ -470,7 +494,7 @@ describe('contratoVehicularSchema', () => {
 
   it('accepts contract with both parties casado', () => {
     const data = {
-      vehiculo: validVehiculo(),
+      ...validContrato(),
       comprador: validPersonaCasada(),
       vendedor: validPersonaCasada(),
     }
@@ -480,7 +504,7 @@ describe('contratoVehicularSchema', () => {
   // --- VENDEDOR conyuge: always required when casado ---
   it('rejects contract when vendedor is casado without conyuge', () => {
     const data = {
-      vehiculo: validVehiculo(),
+      ...validContrato(),
       comprador: validPersona(),
       vendedor: { ...validPersona(), estadoCivil: 'casado' as const }, // no conyuge
     }
@@ -490,44 +514,39 @@ describe('contratoVehicularSchema', () => {
   // --- COMPRADOR conyuge: optional (checkbox) ---
   it('accepts contract when comprador is casado WITHOUT incluirConyuge (conyuge not required)', () => {
     const data = {
-      vehiculo: validVehiculo(),
+      ...validContrato(),
       comprador: { ...validPersona(), estadoCivil: 'casado' as const }, // no conyuge, no checkbox
-      vendedor: validPersona(),
     }
     expect(contratoVehicularSchema.safeParse(data).success).toBe(true)
   })
 
   it('accepts contract when comprador is casado with incluirConyuge=false (conyuge not required)', () => {
     const data = {
-      vehiculo: validVehiculo(),
+      ...validContrato(),
       comprador: { ...validPersona(), estadoCivil: 'casado' as const, incluirConyuge: false },
-      vendedor: validPersona(),
     }
     expect(contratoVehicularSchema.safeParse(data).success).toBe(true)
   })
 
   it('rejects contract when comprador is casado with incluirConyuge=true BUT missing conyuge data', () => {
     const data = {
-      vehiculo: validVehiculo(),
-      comprador: { ...validPersona(), estadoCivil: 'casado' as const, incluirConyuge: true }, // opted in, no conyuge
-      vendedor: validPersona(),
+      ...validContrato(),
+      comprador: { ...validPersona(), estadoCivil: 'casado' as const, incluirConyuge: true },
     }
     expect(contratoVehicularSchema.safeParse(data).success).toBe(false)
   })
 
   it('accepts contract when comprador is casado with incluirConyuge=true AND valid conyuge data', () => {
     const data = {
-      vehiculo: validVehiculo(),
+      ...validContrato(),
       comprador: { ...validPersonaCasada(), incluirConyuge: true },
-      vendedor: validPersona(),
     }
     expect(contratoVehicularSchema.safeParse(data).success).toBe(true)
   })
 
   it('accepts contract with vendedor as apoderado', () => {
     const data = {
-      vehiculo: validVehiculo(),
-      comprador: validPersona(),
+      ...validContrato(),
       vendedor: validPersonaApoderado(),
     }
     expect(contratoVehicularSchema.safeParse(data).success).toBe(true)

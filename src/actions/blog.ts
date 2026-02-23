@@ -1,7 +1,8 @@
 'use server'
 
-import { unstable_cache } from 'next/cache'
+import { revalidateTag, unstable_cache } from 'next/cache'
 import { createClient as createSupabaseClient } from '@supabase/supabase-js'
+import { createAdminClient } from '@/lib/supabase/admin'
 import type { BlogPost, BlogPostSummary, PublishedPostsResult } from '@/types/blog'
 
 const POSTS_PER_PAGE = 6
@@ -244,4 +245,90 @@ const getPublishedSlugsCached = unstable_cache(
 
 export async function getPublishedSlugs(): Promise<string[]> {
   return getPublishedSlugsCached()
+}
+
+// ---------------------------------------------------------------------------
+// Write operations (admin only — used by n8n webhook, not exposed to clients)
+// ---------------------------------------------------------------------------
+
+type ActionResult = { success: true } | { success: false; error: string }
+
+interface BlogDraftData {
+  slug: string
+  title: string
+  content: string
+  excerpt?: string
+  category?: string
+  tags?: string[]
+  coverImage?: string
+  seoTitle?: string
+  seoDescription?: string
+}
+
+export async function createOrUpdateBlogDraft(data: BlogDraftData): Promise<ActionResult> {
+  try {
+    const supabase = createAdminClient()
+
+    const { error } = await supabase
+      .from('blog_posts')
+      .upsert(
+        {
+          slug: data.slug,
+          title: data.title,
+          content: data.content,
+          excerpt: data.excerpt ?? null,
+          category: data.category ?? null,
+          tags: data.tags ?? [],
+          cover_image: data.coverImage ?? null,
+          seo_title: data.seoTitle ?? null,
+          seo_description: data.seoDescription ?? null,
+          published: false,
+          updated_at: new Date().toISOString(),
+        },
+        { onConflict: 'slug' },
+      )
+
+    if (error) {
+      console.error('[createOrUpdateBlogDraft]', error)
+      return { success: false, error: error.message }
+    }
+
+    revalidateTag('blog-posts', 'max')
+    return { success: true }
+  } catch (error) {
+    console.error('[createOrUpdateBlogDraft]', error)
+    return { success: false, error: error instanceof Error ? error.message : 'Error desconocido' }
+  }
+}
+
+export async function publishBlogPost(slug: string): Promise<ActionResult> {
+  try {
+    const supabase = createAdminClient()
+
+    const { data, error } = await supabase
+      .from('blog_posts')
+      .update({
+        published: true,
+        published_at: new Date().toISOString(),
+        updated_at: new Date().toISOString(),
+      })
+      .eq('slug', slug)
+      .select('id')
+      .maybeSingle()
+
+    if (error) {
+      console.error('[publishBlogPost]', error)
+      return { success: false, error: error.message }
+    }
+
+    if (!data) {
+      return { success: false, error: `Post con slug "${slug}" no encontrado` }
+    }
+
+    revalidateTag('blog-posts', 'max')
+    return { success: true }
+  } catch (error) {
+    console.error('[publishBlogPost]', error)
+    return { success: false, error: error instanceof Error ? error.message : 'Error desconocido' }
+  }
 }

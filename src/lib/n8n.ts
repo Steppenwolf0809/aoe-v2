@@ -17,6 +17,14 @@ interface LeadPayload {
   metadata?: Record<string, unknown>
 }
 
+interface ContractPaidPayload {
+  contractId: string
+  email: string
+  type: string
+  amount: number
+  downloadToken?: string
+}
+
 function resolveLeadCaptureWebhookUrl(rawUrl: string): string {
   const normalized = rawUrl.trim().replace(/\/+$/, '')
 
@@ -93,6 +101,53 @@ export async function notifyN8NLead(data: LeadPayload): Promise<boolean> {
     return true
   } catch (error) {
     console.error('[n8n] Webhook notification failed:', error)
+    return false
+  }
+}
+
+/**
+ * Notifies n8n about a successful contract payment (fire-and-forget).
+ * Used for CRM sync, WhatsApp notifications, Google Sheets logging, etc.
+ */
+export async function notifyN8NContractPaid(data: ContractPaidPayload): Promise<boolean> {
+  if (!N8N_WEBHOOK_URL) {
+    console.warn('[n8n] N8N_WEBHOOK_URL not configured, skipping contract notification')
+    return false
+  }
+
+  try {
+    const baseUrl = N8N_WEBHOOK_URL.trim().replace(/\/+$/, '')
+    const webhookUrl = baseUrl.endsWith('/contract-paid')
+      ? baseUrl
+      : `${baseUrl}/webhook/contract-paid`
+
+    const response = await fetch(webhookUrl, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        ...(N8N_WEBHOOK_SECRET ? { 'x-webhook-secret': N8N_WEBHOOK_SECRET } : {}),
+      },
+      body: JSON.stringify({
+        event: 'contract.post_sale',
+        contractId: data.contractId,
+        email: data.email,
+        type: data.type,
+        amount: data.amount,
+        downloadToken: data.downloadToken || null,
+        fecha: new Date().toISOString(),
+      }),
+      signal: AbortSignal.timeout(5000),
+    })
+
+    if (!response.ok) {
+      const responseText = await response.text().catch(() => '')
+      console.error(`[n8n] Contract webhook returned ${response.status}${responseText ? `: ${responseText}` : ''}`)
+      return false
+    }
+
+    return true
+  } catch (error) {
+    console.error('[n8n] Contract webhook notification failed:', error)
     return false
   }
 }

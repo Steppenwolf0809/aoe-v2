@@ -8,11 +8,17 @@ import {
     TableRow,
     TableCell,
     WidthType,
-    HeadingLevel,
     Packer,
 } from 'docx'
 import type { ContratoVehicular } from '@/lib/validations/contract'
-import { requiresConyuge, compradorIncludesConyuge } from '@/lib/validations/contract'
+import {
+    requiresConyuge,
+    compradorIncludesConyuge,
+    resolverGenero,
+    resolverEstadoCivil,
+    buildTextoDocumento,
+    getFormaPagoTexto,
+} from '@/lib/validations/contract'
 
 const BLANK = '_______________'
 
@@ -49,6 +55,13 @@ function formatDate() {
     return `${DIAS_LETRAS[dia] ?? dia} (${dia}) días del mes de ${mes} del año ${ANIOS_LETRAS[anio] ?? anio} (${anio})`
 }
 
+function numeroALetras(n: number): string {
+    const letras = ANIOS_LETRAS[n]
+    if (letras) return letras
+    // Fallback for years / numbers not in map
+    return String(n)
+}
+
 function formatPrecioLetras(valor: number): string {
     const unidades = ['', 'uno', 'dos', 'tres', 'cuatro', 'cinco', 'seis', 'siete', 'ocho', 'nueve',
         'diez', 'once', 'doce', 'trece', 'catorce', 'quince', 'dieciséis', 'diecisiete', 'dieciocho', 'diecinueve']
@@ -66,6 +79,12 @@ function formatPrecioLetras(valor: number): string {
         if (resto < 20) return [cStr, unidades[resto]].filter(Boolean).join(' ')
         const d = Math.floor(resto / 10)
         const u = resto % 10
+        // 21-29 go as one word
+        if (d === 2 && u > 0) {
+            const veinti = ['', 'veintiuno', 'veintidós', 'veintitrés', 'veinticuatro',
+                'veinticinco', 'veintiséis', 'veintisiete', 'veintiocho', 'veintinueve']
+            return [cStr, veinti[u]].filter(Boolean).join(' ')
+        }
         return [cStr, decenas[d], u > 0 ? `y ${unidades[u]}` : ''].filter(Boolean).join(' ')
     }
 
@@ -83,6 +102,29 @@ function formatPrecioLetras(valor: number): string {
     const centStr = centavos > 0 ? ` con ${centavos}/100` : ''
     const precioFormato = valor.toLocaleString('es-EC', { minimumFractionDigits: 2 })
     return `${texto.toUpperCase()}${centStr} DÓLARES DE LOS ESTADOS UNIDOS DE AMÉRICA (USD$ ${precioFormato})`
+}
+
+function formatCilindraje(cc: number): string {
+    // Simple number-to-words for common cilindrajes
+    const miles = Math.floor(cc / 1000)
+    const resto = cc % 1000
+    if (cc === 0) return BLANK
+    let texto = ''
+    if (miles > 0) {
+        const milesStr = miles === 1 ? 'mil' : `${['', 'dos', 'tres', 'cuatro', 'cinco'][miles] ?? miles} mil`
+        texto = milesStr
+    }
+    if (resto > 0) {
+        const centenas = ['', 'cien', 'doscientos', 'trescientos', 'cuatrocientos', 'quinientos']
+        texto += ` ${centenas[Math.floor(resto / 100)] ?? resto}`
+    }
+    return texto.trim()
+}
+
+function formatPasajerosLetras(n: number): string {
+    const nums = ['', 'uno', 'dos', 'tres', 'cuatro', 'cinco', 'seis', 'siete', 'ocho', 'nueve', 'diez',
+        'once', 'doce', 'trece', 'catorce', 'quince']
+    return nums[n] ?? String(n)
 }
 
 // --- Paragraph builders ---
@@ -135,31 +177,13 @@ function blankLine(spacing = 200): Paragraph {
     return new Paragraph({ children: [normalText('')], spacing: { after: spacing } })
 }
 
-// --- Signature block ---
-
-function signatureBlock(nombre: string, cedula: string, rol: string): Paragraph[] {
-    return [
-        new Paragraph({
-            children: [],
-            spacing: { before: 1400, after: 0 },
-            border: { top: { style: BorderStyle.SINGLE, size: 6, color: '1e293b' } },
-        }),
-        new Paragraph({
-            children: [boldText(nombre.toUpperCase())],
-            alignment: AlignmentType.CENTER,
-            spacing: { after: 40 },
-        }),
-        new Paragraph({
-            children: [normalText(`C.I. ${cedula}`)],
-            alignment: AlignmentType.CENTER,
-            spacing: { after: 40 },
-        }),
-        new Paragraph({
-            children: [normalText(rol)],
-            alignment: AlignmentType.CENTER,
-            spacing: { after: 80 },
-        }),
-    ]
+function bulletItem(label: string, value: string): Paragraph {
+    return new Paragraph({
+        children: [boldText(`${label}: `), normalText(value)],
+        alignment: AlignmentType.LEFT,
+        spacing: { after: 60 },
+        indent: { left: 360 },
+    })
 }
 
 // --- Main function ---
@@ -174,34 +198,40 @@ export async function generateContratoVehicularDocx(contrato: ContratoVehicular)
     const compradorConConyuge = compradorIncludesConyuge(comprador)
     const vendedorConConyuge = requiresConyuge(vendedor.estadoCivil) && !!vendedor.conyuge?.nombres
 
+    // Gender resolution
+    const gVend = resolverGenero(vendedor.sexo)
+    const gComp = resolverGenero(comprador.sexo)
+    const denomVend = gVend.denominacionVendedor
+    const denomComp = gComp.denominacionComprador
+
     // Build compareciente texts
-    function buildCompareciente(persona: typeof vendedor, num: string, rol: string, inclConyuge: boolean): Paragraph {
+    function buildCompareciente(
+        persona: typeof vendedor,
+        num: string,
+        denominacion: string,
+        inclConyuge: boolean,
+    ): Paragraph {
         const prefix = num === '1' ? '1. Por una parte,' : '2. Por otra parte,'
-        const estadoCivilLabel = (() => {
-            switch (persona.estadoCivil) {
-                case 'soltero': return 'soltero'
-                case 'casado': return 'casado'
-                case 'divorciado': return 'divorciado'
-                case 'viudo': return 'viudo'
-                case 'union_de_hecho': return 'en unión de hecho'
-                default: return persona.estadoCivil
-            }
-        })()
+        const g = resolverGenero(persona.sexo)
+        const estadoCivilLabel = resolverEstadoCivil(persona.estadoCivil, persona.sexo)
+        const textoDoc = buildTextoDocumento(persona.tipoDocumento, persona.cedula)
 
         const runs: TextRun[] = [
-            normalText(`${prefix} el señor `),
+            normalText(`${prefix} ${g.articulo} `),
             boldText(toUpper(persona.nombres)),
-            normalText(`, de nacionalidad ecuatoriana, portador de la cédula de ciudadanía No. `),
-            boldText(persona.cedula),
-            normalText(`, de estado civil ${estadoCivilLabel}`),
+            normalText(`, de nacionalidad ${persona.nacionalidad}, ${g.portador} de la ${textoDoc}, de estado civil ${estadoCivilLabel}`),
         ]
 
         if (inclConyuge && persona.conyuge?.nombres) {
+            const gConyuge = resolverGenero(persona.conyuge.sexo ?? (persona.sexo === 'M' ? 'F' : 'M'))
+            const textoDocConyuge = buildTextoDocumento(
+                persona.conyuge.tipoDocumento ?? 'cedula',
+                persona.conyuge.cedula,
+            )
             runs.push(
-                normalText(`, casado con la señora `),
+                normalText(`, ${g.casado} con ${gConyuge.articulo} `),
                 boldText(toUpper(persona.conyuge.nombres)),
-                normalText(`, portadora de la cédula de ciudadanía No. `),
-                boldText(orBlank(persona.conyuge.cedula)),
+                normalText(`, ${gConyuge.portador} de la ${textoDocConyuge}`),
                 normalText(`, quienes comparecen por sus propios y personales derechos, así como por los que representan dentro de la sociedad conyugal`),
             )
         } else if (persona.comparecencia === 'apoderado' && persona.apoderado) {
@@ -212,16 +242,125 @@ export async function generateContratoVehicularDocx(contrato: ContratoVehicular)
                 boldText(persona.apoderado.cedula),
                 normalText(`, según poder especial otorgado ante la ${persona.apoderado.notariaPoder} el ${persona.apoderado.fechaPoder}`),
             )
+        } else {
+            // Solo comparece por propios derechos (no conyuge)
+            runs.push(normalText(`, por sus propios y personales derechos`))
         }
 
         runs.push(
-            normalText(`, domiciliado en ${orBlank(persona.direccion)}, por sus propios y personales derechos, quien en adelante se denominará `),
-            boldText(`"${rol}"`),
+            normalText(`, ${g.domiciliado} en ${orBlank(persona.direccion)}, quien(es) en adelante se denominará(n) `),
+            boldText(`"${denominacion}"`),
             normalText(num === '1' ? '; y,' : '.'),
         )
 
         return makeParagraph(runs, 200)
     }
+
+    // --- Build PRIMERA: ANTECEDENTES ---
+    function buildAntecedentes(): Paragraph[] {
+        const paragraphs: Paragraph[] = [clauseTitle('PRIMERA: ANTECEDENTES.-')]
+
+        const hasCuv = contrato.cuvNumero && contrato.cuvNumero.trim().length > 0
+
+        if (contrato.tipoAntecedente === 'compraventa') {
+            if (hasCuv) {
+                paragraphs.push(subClause(
+                    `1.1.- ${denomVend} declara ser ${gVend.propietario} del vehículo que se describe en el presente contrato, según consta en el Certificado Único Vehicular No. ${contrato.cuvNumero}, emitido por la Agencia Nacional de Tránsito el ${orBlank(contrato.cuvFecha)}, habiendo adquirido la propiedad del mismo mediante transferencia de dominio inscrita el ${orBlank(contrato.fechaInscripcion)}.`,
+                ))
+            } else {
+                // Opción B: antecedente genérico sin CUV
+                paragraphs.push(subClause(
+                    `1.1.- ${denomVend} declara ser ${gVend.propietario} del vehículo que se describe en el presente contrato, según consta en los registros de la Agencia Nacional de Tránsito, documento que será anexo al presente contrato.`,
+                ))
+            }
+        } else if (contrato.tipoAntecedente === 'herencia') {
+            const h = contrato.herencia
+            if (h) {
+                const cuvText = hasCuv
+                    ? `, según el Certificado Único Vehicular No. ${contrato.cuvNumero} emitido por la Agencia Nacional de Tránsito el ${orBlank(contrato.cuvFecha)}`
+                    : `, según consta en los registros de la Agencia Nacional de Tránsito`
+                paragraphs.push(subClause(
+                    `1.1.- ${denomVend} declara(n) que mediante Acta Notarial de Posesión Efectiva otorgada ante la ${h.posEfectivaNotaria} con fecha ${h.posEfectivaFecha}, se concedió la posesión efectiva proindiviso de los bienes dejados por ${h.causanteNombre}, quien falleció el ${h.causanteFechaFallecimiento}, a favor de ${h.herederosLista} en calidad de ${h.parentesco}. Entre los bienes del causante se encuentra el vehículo descrito en este contrato${cuvText}.`,
+                ))
+            } else {
+                paragraphs.push(subClause(
+                    `1.1.- ${denomVend} declara ser ${gVend.propietario} del vehículo que se describe en el presente contrato, habiéndolo adquirido mediante posesión efectiva, según consta en los registros de la Agencia Nacional de Tránsito, documento que será anexo al presente contrato.`,
+                ))
+            }
+        } else if (contrato.tipoAntecedente === 'donacion') {
+            const cuvText = hasCuv
+                ? `, según consta en el Certificado Único Vehicular No. ${contrato.cuvNumero}, emitido por la Agencia Nacional de Tránsito el ${orBlank(contrato.cuvFecha)}`
+                : `, según consta en los registros de la Agencia Nacional de Tránsito, documento que será anexo al presente contrato`
+            paragraphs.push(subClause(
+                `1.1.- ${denomVend} declara ser ${gVend.propietario} del vehículo que se describe en el presente contrato, habiéndolo adquirido mediante escritura pública de donación${cuvText}.`,
+            ))
+        } else if (contrato.tipoAntecedente === 'importacion') {
+            const cuvText = hasCuv
+                ? `, según consta en el Certificado Único Vehicular No. ${contrato.cuvNumero}, emitido por la Agencia Nacional de Tránsito el ${orBlank(contrato.cuvFecha)}`
+                : `, según consta en los registros de la Agencia Nacional de Tránsito, documento que será anexo al presente contrato`
+            paragraphs.push(subClause(
+                `1.1.- ${denomVend} declara ser ${gVend.propietario} del vehículo que se describe en el presente contrato, habiéndolo adquirido mediante importación directa debidamente nacionalizada${cuvText}.`,
+            ))
+        }
+
+        // 1.2 — Libre de gravámenes
+        if (hasCuv) {
+            paragraphs.push(subClause(
+                `1.2.- Según el referido Certificado Único Vehicular, el vehículo objeto de la presente compraventa se encuentra libre de gravámenes, embargos y prohibiciones de enajenar, encontrándose en perfecto estado legal para su transferencia de dominio.`,
+            ))
+        } else {
+            paragraphs.push(subClause(
+                `1.2.- ${denomVend} declara que el vehículo objeto de la presente compraventa se encuentra libre de gravámenes, embargos y prohibiciones de enajenar, encontrándose en perfecto estado legal para su transferencia de dominio.`,
+            ))
+        }
+
+        // 1.3 — Matrícula vigente
+        if (contrato.matriculaVigencia && contrato.matriculaVigencia.trim()) {
+            paragraphs.push(subClause(
+                `1.3.- ${denomVend} declara que el vehículo se encuentra con su matrícula vigente hasta el ${contrato.matriculaVigencia}, según los registros de la Agencia Nacional de Tránsito.`,
+            ))
+        } else {
+            paragraphs.push(subClause(
+                `1.3.- ${denomVend} declara que el vehículo se encuentra con su matrícula en regla, conforme los registros de la Agencia Nacional de Tránsito del Ecuador.`,
+            ))
+        }
+
+        return paragraphs
+    }
+
+    // --- Dynamic clause numbering ---
+    const hasObservaciones = contrato.tieneObservaciones && contrato.observacionesTexto?.trim()
+    const clauseNames = hasObservaciones
+        ? { observaciones: 'SÉPTIMA', aceptacion: 'OCTAVA', cuantia: 'NOVENA' }
+        : { aceptacion: 'SÉPTIMA', cuantia: 'OCTAVA' }
+
+    // --- Build vehicle description items ---
+    const vehicleItems: Paragraph[] = [
+        bulletItem('PLACA', vehiculo.placa),
+        bulletItem('MARCA', vehiculo.marca),
+        bulletItem('MODELO', vehiculo.modelo),
+        bulletItem('TIPO', orBlank(vehiculo.tipo)),
+        bulletItem('AÑO DE MODELO', `${numeroALetras(vehiculo.anio)} (${vehiculo.anio})`),
+        bulletItem('NÚMERO DE MOTOR', vehiculo.motor),
+        bulletItem('NÚMERO DE CHASIS/VIN', vehiculo.chasis),
+        bulletItem('COLOR', vehiculo.color),
+    ]
+    if (vehiculo.cilindraje && vehiculo.cilindraje > 0) {
+        vehicleItems.push(bulletItem('CILINDRAJE', `${formatCilindraje(vehiculo.cilindraje)} (${vehiculo.cilindraje}) cc`))
+    }
+    if (vehiculo.carroceria) vehicleItems.push(bulletItem('CARROCERÍA', vehiculo.carroceria))
+    if (vehiculo.clase) vehicleItems.push(bulletItem('CLASE', vehiculo.clase))
+    if (vehiculo.pais) vehicleItems.push(bulletItem('PAÍS DE ORIGEN', vehiculo.pais))
+    if (vehiculo.combustible) vehicleItems.push(bulletItem('COMBUSTIBLE', vehiculo.combustible))
+    if (vehiculo.pasajeros && vehiculo.pasajeros > 0) {
+        vehicleItems.push(bulletItem('NÚMERO DE PASAJEROS', `${formatPasajerosLetras(vehiculo.pasajeros)} (${vehiculo.pasajeros})`))
+    }
+    vehicleItems.push(bulletItem('SERVICIO', orBlank(vehiculo.servicio)))
+    if (vehiculo.tonelaje && vehiculo.tonelaje.trim()) vehicleItems.push(bulletItem('TONELAJE', vehiculo.tonelaje))
+    if (vehiculo.ramv && vehiculo.ramv.trim()) vehicleItems.push(bulletItem('RAMV/CPN', vehiculo.ramv))
+
+    // Build forma de pago text
+    const formaPagoTexto = getFormaPagoTexto(contrato.formaPago)
 
     const children: Paragraph[] = [
         // Title block
@@ -230,7 +369,7 @@ export async function generateContratoVehicularDocx(contrato: ContratoVehicular)
         blankLine(160),
         centeredBold('CONTRATO DE COMPRAVENTA DE VEHÍCULO'),
         centeredBold(`CUANTÍA: USD$ ${precioFormato}`),
-        centeredNormal('COPIAS: DOS', 240),
+        blankLine(100),
 
         // Intro
         makeParagraph([
@@ -240,70 +379,69 @@ export async function generateContratoVehicularDocx(contrato: ContratoVehicular)
         ], 200),
 
         // Comparecientes
-        buildCompareciente(vendedor, '1', 'EL VENDEDOR', vendedorConConyuge),
-        buildCompareciente(comprador, '2', 'EL COMPRADOR', compradorConConyuge),
+        buildCompareciente(vendedor, '1', denomVend, vendedorConConyuge),
+        buildCompareciente(comprador, '2', denomComp, compradorConConyuge),
 
         makeParagraph([normalText('Los comparecientes, mayores de edad, hábiles y capaces para contratar y obligarse, libre y voluntariamente convienen en celebrar el presente contrato de compraventa de vehículo automotor al tenor de las siguientes cláusulas:')]),
 
-        // PRIMERA
-        clauseTitle('PRIMERA: ANTECEDENTES.-'),
-        subClause(`1.1.- ${toUpper(vendedor.nombres)} declara ser legítimo propietario del vehículo que se describe en el presente contrato, según consta en el Certificado Único Vehicular emitido por la Agencia Nacional de Tránsito, el mismo que se encuentra libre de gravámenes, embargos y prohibiciones de enajenar.`),
-        subClause(`1.2.- El referido vehículo se encuentra con su matrícula en regla, conforme los registros de la Agencia Nacional de Tránsito del Ecuador.`),
+        // PRIMERA — ANTECEDENTES
+        ...buildAntecedentes(),
 
-        // SEGUNDA
+        // SEGUNDA — OBJETO
         clauseTitle('SEGUNDA: OBJETO.-'),
-        subClause(`Por el presente contrato, EL VENDEDOR transfiere en favor de EL COMPRADOR, a título de venta, el dominio, posesión y todos los derechos que le corresponden sobre el siguiente vehículo automotor:`),
-        makeParagraph([
-            boldText('PLACA: '), normalText(vehiculo.placa + '   '),
-            boldText('MARCA: '), normalText(vehiculo.marca + '   '),
-            boldText('MODELO: '), normalText(vehiculo.modelo),
-        ], 100),
-        makeParagraph([
-            boldText('AÑO: '), normalText(String(vehiculo.anio) + '   '),
-            boldText('COLOR: '), normalText(vehiculo.color + '   '),
-            boldText('SERVICIO: '), normalText('USO PARTICULAR'),
-        ], 100),
-        makeParagraph([
-            boldText('NÚM. MOTOR: '), normalText(vehiculo.motor + '   '),
-            boldText('CHASIS/VIN: '), normalText(vehiculo.chasis),
-        ], 200),
+        subClause(`Por el presente contrato, ${denomVend} transfiere en favor de ${denomComp}, a título de venta, el dominio, posesión y todos los derechos que le(s) corresponde(n) sobre el siguiente vehículo automotor:`),
+        ...vehicleItems,
+        blankLine(100),
 
-        // TERCERA
+        // TERCERA — PRECIO Y FORMA DE PAGO
         clauseTitle('TERCERA: PRECIO Y FORMA DE PAGO.-'),
-        subClause(`3.1.- El precio de la presente compraventa es la suma de ${precioLetras}, valor que EL VENDEDOR declara haber recibido a su entera satisfacción por parte de EL COMPRADOR, otorgando el más completo y eficaz finiquito de pago.`),
-        subClause(`3.2.- Con la recepción del precio señalado, EL VENDEDOR se da por satisfecho y cancela toda obligación derivada de la presente compraventa.`),
+        subClause(`3.1.- El precio de la presente compraventa es la suma de ${precioLetras}, cantidad que ${denomVend} declara haber recibido a su entera satisfacción mediante ${formaPagoTexto} realizada por ${denomComp}, otorgando el más amplio y eficaz finiquito de pago.`),
+        subClause(`3.2.- Con el pago del precio señalado, ${denomVend} se da por ${gVend.cancelado} y ${gVend.satisfecho} de la obligación contraída por ${denomComp}.`),
 
-        // CUARTA
+        // CUARTA — ESTADO DEL VEHÍCULO Y GARANTÍAS
         clauseTitle('CUARTA: ESTADO DEL VEHÍCULO Y GARANTÍAS.-'),
-        subClause(`4.1.- EL VENDEDOR declara expresamente que el vehículo se encuentra libre de todo gravamen, hipoteca, prenda, embargo, prohibición de enajenar o cualquier otra limitación de dominio vigente.`),
-        subClause(`4.2.- EL VENDEDOR garantiza el saneamiento por evicción del bien vendido, comprometiéndose a responder ante EL COMPRADOR por cualquier reclamo de terceros sobre la propiedad o dominio del vehículo.`),
-        subClause(`4.3.- EL COMPRADOR declara conocer el estado físico y mecánico del vehículo y manifiesta su total conformidad, renunciando expresamente a todo reclamo por vicios redhibitorios o defectos ocultos.`),
+        subClause(`4.1.- ${denomVend} declara expresamente que el vehículo objeto de la presente compraventa se encuentra completamente libre de todo gravamen, hipoteca, prenda, embargo, prohibición de enajenar o cualquier otra limitación de dominio, según se acredita con el Certificado Único Vehicular antes mencionado.`),
+        subClause(`4.2.- ${denomVend} garantiza a ${denomComp} el saneamiento por evicción del bien vendido, comprometiéndose a responder por cualquier reclamo de terceros sobre la propiedad del vehículo.`),
+        subClause(`4.3.- ${denomComp} declara conocer perfectamente el estado físico y mecánico del vehículo, manifestando su total conformidad con el mismo y renunciando expresamente a todo reclamo por vicios redhibitorios o defectos ocultos que pudiera presentar el automotor.`),
 
-        // QUINTA
+        // QUINTA — GASTOS
         clauseTitle('QUINTA: GASTOS.-'),
-        makeParagraph([normalText(`Todos los gastos que origine la transferencia de dominio del vehículo, incluyendo derechos de matrícula, especies valoradas, impuestos y demás tributos establecidos por la ley, serán cubiertos en su totalidad por EL COMPRADOR.`)]),
+        makeParagraph([normalText(`Todos los gastos que origine la transferencia de dominio del vehículo, tales como derechos de matrícula, especies valoradas, impuestos y demás tributos establecidos por la ley, serán cubiertos por ${denomComp}.`)]),
 
-        // SEXTA
+        // SEXTA — JURISDICCIÓN
         clauseTitle('SEXTA: JURISDICCIÓN Y COMPETENCIA.-'),
-        makeParagraph([normalText(`Para todos los efectos legales derivados del presente contrato, las partes se someten expresamente a los jueces competentes de la ciudad de Quito, renunciando a fuero especial que pudieren tener o corresponderles.`)]),
-
-        // SÉPTIMA
-        clauseTitle('SÉPTIMA: ACEPTACIÓN.-'),
-        makeParagraph([normalText(`Las partes libre y voluntariamente aceptan íntegramente el contenido del presente contrato, declarando que sus cláusulas han sido redactadas de común acuerdo y son expresión fiel de su voluntad. El presente instrumento se extiende en dos (2) ejemplares de igual tenor y valor, uno para cada parte.`)]),
-
-        // OCTAVA
-        clauseTitle('OCTAVA: CUANTÍA.-'),
-        makeParagraph([normalText(`La cuantía de la presente compraventa asciende a la suma de ${precioLetras}.`)]),
-
-        makeParagraph([normalText('En fe de lo cual, firman las partes en el lugar y fecha indicados en el encabezamiento del presente contrato.')], 400),
-
-        // Signatures — row via table
-        new Paragraph({ children: [], spacing: { after: 0 } }),
+        makeParagraph([normalText(`Para todos los efectos legales derivados del presente contrato, las partes se someten a los jueces competentes de la ciudad de Quito, renunciando expresamente a fuero especial que pudieren tener.`)]),
     ]
 
+    // SÉPTIMA — OBSERVACIONES (condicional)
+    if (hasObservaciones) {
+        children.push(
+            clauseTitle(`${clauseNames.observaciones}: OBSERVACIONES.-`),
+            makeParagraph([normalText(contrato.observacionesTexto!)]),
+        )
+    }
+
+    // ACEPTACIÓN
+    const aceptacionNum = hasObservaciones ? clauseNames.aceptacion : clauseNames.aceptacion
+    children.push(
+        clauseTitle(`${aceptacionNum}: ACEPTACIÓN Y RATIFICACIÓN.-`),
+        makeParagraph([normalText(`Las partes aceptan íntegramente las cláusulas del presente contrato, declarando que han sido redactadas de común acuerdo y que las mismas son expresión fiel de su voluntad. El presente contrato se extiende en dos (2) ejemplares de igual tenor y valor, uno para cada una de las partes.`)]),
+    )
+
+    // CUANTÍA
+    const cuantiaNum = hasObservaciones ? clauseNames.cuantia : clauseNames.cuantia
+    children.push(
+        clauseTitle(`${cuantiaNum}: CUANTÍA.-`),
+        makeParagraph([normalText(`La cuantía de la presente compraventa asciende a la suma de ${precioLetras}.`)]),
+    )
+
+    // Cierre
+    children.push(
+        makeParagraph([normalText('En fe de lo cual, firman las partes en el lugar y fecha indicados en el encabezamiento del presente contrato.')], 400),
+        new Paragraph({ children: [], spacing: { after: 0 } }),
+    )
+
     // Build signature rows using a table for side-by-side layout
-    // Row 1: Vendedor + Cónyuge Vendedor (if any)
-    // Row 2: Comprador + Cónyuge Comprador (if any)
     function sigCell(nombre: string, cedula: string, rol: string): TableCell {
         return new TableCell({
             width: { size: 50, type: WidthType.PERCENTAGE },
@@ -342,16 +480,16 @@ export async function generateContratoVehicularDocx(contrato: ContratoVehicular)
     }
 
     const sigRow1Cells = [
-        sigCell(vendedor.nombres, vendedor.cedula, 'EL VENDEDOR'),
+        sigCell(vendedor.nombres, vendedor.cedula, denomVend),
         vendedorConConyuge
-            ? sigCell(vendedor.conyuge!.nombres, orBlank(vendedor.conyuge!.cedula), 'CÓNYUGE DEL VENDEDOR')
+            ? sigCell(vendedor.conyuge!.nombres, orBlank(vendedor.conyuge!.cedula), `CÓNYUGE DE ${denomVend}`)
             : emptyCell(),
     ]
 
     const sigRow2Cells = [
-        sigCell(comprador.nombres, comprador.cedula, 'EL COMPRADOR'),
+        sigCell(comprador.nombres, comprador.cedula, denomComp),
         compradorConConyuge && comprador.conyuge?.nombres
-            ? sigCell(comprador.conyuge!.nombres, orBlank(comprador.conyuge!.cedula), 'CÓNYUGE DEL COMPRADOR')
+            ? sigCell(comprador.conyuge!.nombres, orBlank(comprador.conyuge!.cedula), `CÓNYUGE DE ${denomComp}`)
             : emptyCell(),
     ]
 

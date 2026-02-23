@@ -5,9 +5,13 @@ import { cn, formatCurrency } from '@/lib/utils'
 import type { ContratoVehicular } from '@/lib/validations/contract'
 import {
   ESTADOS_CIVILES_LABELS,
+  TIPOS_ANTECEDENTE_LABELS,
+  FORMAS_PAGO_LABELS,
   requiresConyuge,
   countFirmas,
   type EstadoCivil,
+  type TipoAntecedente,
+  type FormaPago,
 } from '@/lib/validations/contract'
 import type { CuvData } from '@/lib/parsers/cuv-parser'
 import {
@@ -48,7 +52,7 @@ export function SummaryStep({
       {/* Vehicle summary */}
       <SummarySection
         icon={<Car className="w-4 h-4 text-accent-primary" />}
-        title="Vehiculo"
+        title="Vehículo"
       >
         <SummaryRow label="Placa" value={data.vehiculo.placa} />
         <SummaryRow
@@ -58,8 +62,12 @@ export function SummaryStep({
         <SummaryRow label="Color" value={data.vehiculo.color} />
         <SummaryRow label="Motor" value={data.vehiculo.motor} />
         <SummaryRow label="Chasis" value={data.vehiculo.chasis} />
+        {data.vehiculo.tipo && <SummaryRow label="Tipo" value={data.vehiculo.tipo} />}
+        {data.vehiculo.cilindraje > 0 && <SummaryRow label="Cilindraje" value={`${data.vehiculo.cilindraje} cc`} />}
+        {data.vehiculo.combustible && <SummaryRow label="Combustible" value={data.vehiculo.combustible} />}
+        {data.vehiculo.servicio && <SummaryRow label="Servicio" value={data.vehiculo.servicio} />}
         <SummaryRow
-          label="Avaluo"
+          label="Avalúo"
           value={formatCurrency(data.vehiculo.avaluo)}
         />
         <SummaryRow
@@ -67,6 +75,15 @@ export function SummaryStep({
           value={formatCurrency(data.vehiculo.valorContrato)}
           highlight
         />
+        <SummaryRow
+          label="Forma de pago"
+          value={FORMAS_PAGO_LABELS[data.formaPago as FormaPago] ?? data.formaPago}
+        />
+        <SummaryRow
+          label="Antecedente"
+          value={TIPOS_ANTECEDENTE_LABELS[data.tipoAntecedente as TipoAntecedente] ?? data.tipoAntecedente}
+        />
+        {data.cuvNumero && <SummaryRow label="CUV" value={data.cuvNumero} />}
       </SummarySection>
 
       {/* Buyer summary */}
@@ -210,10 +227,13 @@ function PersonaSummary({
 
   return (
     <>
-      <SummaryRow label="Cedula" value={persona.cedula} />
+      <SummaryRow label="Documento" value={persona.cedula} />
+      <SummaryRow label="Tipo doc." value={persona.tipoDocumento === 'pasaporte' ? 'Pasaporte' : 'Cédula'} />
       <SummaryRow label="Nombres" value={persona.nombres} />
-      <SummaryRow label="Direccion" value={persona.direccion} />
-      <SummaryRow label="Telefono" value={persona.telefono} />
+      <SummaryRow label="Nacionalidad" value={persona.nacionalidad} />
+      <SummaryRow label="Sexo" value={persona.sexo === 'F' ? 'Femenino' : 'Masculino'} />
+      <SummaryRow label="Dirección" value={persona.direccion} />
+      <SummaryRow label="Teléfono" value={persona.telefono} />
       <SummaryRow label="Email" value={persona.email} />
       <SummaryRow label="Estado civil" value={estadoCivilLabel} />
       <SummaryRow label="Comparecencia" value={comparecenciaLabel} />

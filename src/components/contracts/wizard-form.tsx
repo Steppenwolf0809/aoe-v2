@@ -44,6 +44,16 @@ export function WizardForm() {
         chasis: '',
         avaluo: 0,
         valorContrato: 0,
+        tipo: '',
+        cilindraje: 0,
+        carroceria: '',
+        clase: '',
+        pais: '',
+        combustible: '',
+        pasajeros: 5,
+        servicio: 'USO PARTICULAR',
+        tonelaje: '',
+        ramv: '',
       },
       comprador: {
         cedula: '',
@@ -51,9 +61,12 @@ export function WizardForm() {
         direccion: '',
         telefono: '',
         email: '',
+        sexo: '' as any,
+        nacionalidad: 'ecuatoriana',
+        tipoDocumento: 'cedula' as const,
         estadoCivil: '' as any,
         comparecencia: '' as any,
-        conyuge: { nombres: '', cedula: '' },
+        conyuge: { nombres: '', cedula: '', tipoDocumento: 'cedula' as const },
         apoderado: { nombres: '', cedula: '', notariaPoder: '', fechaPoder: '' },
       },
       vendedor: {
@@ -62,11 +75,22 @@ export function WizardForm() {
         direccion: '',
         telefono: '',
         email: '',
+        sexo: '' as any,
+        nacionalidad: 'ecuatoriana',
+        tipoDocumento: 'cedula' as const,
         estadoCivil: '' as any,
         comparecencia: '' as any,
-        conyuge: { nombres: '', cedula: '' },
+        conyuge: { nombres: '', cedula: '', tipoDocumento: 'cedula' as const },
         apoderado: { nombres: '', cedula: '', notariaPoder: '', fechaPoder: '' },
       },
+      tipoAntecedente: 'compraventa' as const,
+      cuvNumero: '',
+      cuvFecha: '',
+      fechaInscripcion: '',
+      matriculaVigencia: '',
+      formaPago: 'transferencia' as const,
+      tieneObservaciones: false,
+      observacionesTexto: '',
     },
     mode: 'onTouched',
   })
@@ -76,7 +100,8 @@ export function WizardForm() {
   async function validateCurrentStep(): Promise<boolean> {
     switch (currentStep) {
       case 0:
-        return trigger('vehiculo')
+        // Validate vehicle data + contract-level fields in step 0
+        return trigger(['vehiculo', 'tipoAntecedente', 'formaPago'])
       case 1:
         return trigger('comprador')
       case 2:
@@ -214,12 +239,12 @@ function StepIndicator({
                 className={cn(
                   'w-8 h-8 rounded-full flex items-center justify-center text-xs font-semibold border transition-colors duration-300',
                   isCompleted &&
-                    'bg-accent-primary border-accent-primary text-white',
+                  'bg-accent-primary border-accent-primary text-white',
                   isActive &&
-                    'bg-accent-primary/20 border-accent-primary text-accent-primary',
+                  'bg-accent-primary/20 border-accent-primary text-accent-primary',
                   !isActive &&
-                    !isCompleted &&
-                    'bg-bg-secondary border-[var(--glass-border)] text-[var(--text-muted)]',
+                  !isCompleted &&
+                  'bg-bg-secondary border-[var(--glass-border)] text-[var(--text-muted)]',
                 )}
                 animate={isActive ? { scale: [1, 1.1, 1] } : { scale: 1 }}
                 transition={{ duration: 0.3 }}
