@@ -155,34 +155,40 @@ function extractBrandNearLabel(vehicleSection: string): string | null {
 }
 
 /**
- * Extract a labeled value from the vehicle section.
- * Handles both inline "Label: Value" and two-column "Label:\n...\nValue" formats.
+ * Extract a labeled value using "Label: Value" on the SAME LINE only.
+ * This avoids the two-column interleaving problem.
  */
-function extractLabeledValue(section: string, label: string): string | null {
-  // Case 1: inline "Label: Value" or "Label:\tValue"
-  const inlineRegex = new RegExp(`${label}\\s*:\\s*(.+?)(?:\\n|$)`, 'i')
-  const inlineMatch = section.match(inlineRegex)
-  if (inlineMatch) {
-    const val = inlineMatch[1].trim()
-    if (val && !val.endsWith(':') && val.length > 1) return val
+function extractInlineValue(text: string, label: string): string | null {
+  const regex = new RegExp(`${label}\\s*:\\s*(.+?)(?:\\t|\\n|$)`, 'i')
+  const match = text.match(regex)
+  if (match) {
+    const val = match[1].trim()
+    if (val && !val.endsWith(':') && val.length > 1 && !/^\d{17}$/.test(val)) return val
   }
-
-  // Case 2: standalone label with value on nearby line
-  const lines = section.split('\n').map(l => l.trim()).filter(Boolean)
-  for (let i = 0; i < lines.length; i++) {
-    if (new RegExp(`^${label}\\s*:?\\s*$`, 'i').test(lines[i])) {
-      // Check next few non-label lines
-      for (let j = i + 1; j <= Math.min(i + 3, lines.length - 1); j++) {
-        const candidate = lines[j].trim()
-        if (!candidate || candidate.endsWith(':')) continue
-        if (/^(Marca|Modelo|Color|Tipo|Clase|Cilindraje|Servicio|Pasajeros|Pa[ií]s|Combustible|Carrocer[ií]a|RAMV|RANV)\s*:?$/i.test(candidate)) continue
-        return candidate
-      }
-    }
-  }
-
   return null
 }
+
+// Known value lists for pattern-matching (two-column PDF safe)
+const VEHICLE_TYPES = [
+  'DOBLE CABINA', 'CABINA SIMPLE', 'CABINA DOBLE', 'SEDAN', 'HATCHBACK',
+  'STATION WAGON', 'COUPE', 'CONVERTIBLE', 'SUV', 'FURGONETA', 'PANEL',
+  'TANQUERO', 'VOLQUETA', 'PLATAFORMA', 'CHASIS', 'BUS', 'MINIBUS',
+]
+
+const BODY_TYPES = ['METALICA', 'METÁLICA', 'FIBRA', 'MIXTA', 'MADERA']
+
+const FUEL_TYPES = ['GASOLINA', 'DIESEL', 'DIÉSEL', 'GAS', 'ELECTRICO', 'ELÉCTRICO', 'HIBRIDO', 'HÍBRIDO', 'GLP', 'GNV']
+
+const VEHICLE_CLASSES = [
+  'CAMIONETA', 'AUTOMOVIL', 'AUTOMÓVIL', 'JEEP', 'CAMION', 'CAMIÓN',
+  'BUS', 'MOTOCICLETA', 'FURGONETA', 'TODO TERRENO', 'TANQUERO',
+  'VOLQUETA', 'TRACTOCAMION', 'TRACTOCAMIÓN', 'TRAILER', 'TRÁILER',
+]
+
+const SERVICE_TYPES = [
+  'PARTICULAR', 'USO PARTICULAR', 'PUBLICO', 'PÚBLICO', 'ESTATAL',
+  'OFICIAL', 'COMERCIAL', 'ALQUILER',
+]
 
 // ---------------------------------------------------------------------------
 // Main parser
@@ -243,82 +249,88 @@ export function parseCuvText(rawText: string): CuvData {
   }
 
   // ── 4. MODELO ───────────────────────────────────────────────────────
-  // Model lines are descriptive (e.g. "LUV D-MAX 2.4L CD TM 4X2"),
-  // contain both letters and numbers, and have spaces or dashes.
-  let modelo: string | null = null
-  const vsLines = vehicleSection.split('\n').map((l) => l.trim()).filter(Boolean)
+  // Try inline "Modelo: VALUE" first (most reliable)
+  let modelo: string | null = extractInlineValue(text, 'Modelo')
 
-  for (const line of vsLines) {
-    if (line.endsWith(':')) continue
-    if (line.length < 5) continue
-    if (/^\d{4}$/.test(line)) continue
-    if (/^[\d.,]+$/.test(line)) continue
-    if (CAR_BRANDS.some((b) => line.toUpperCase() === b)) continue
-    if (VEHICLE_COLORS.some((c) => line.toUpperCase() === c)) continue
-    if (/^NO REGISTRADO$/i.test(line)) continue
-    if (/^(CED|USO\s|METALICA|CAMIONETA|DOBLE|GASOLINA|DIESEL|ECUADOR|LIVIANO)/i.test(line)) continue
-    if (/certifica|Registro|Nacional|Agencia/i.test(line)) continue
-    if (/Fecha|Lugar|Vigencia|Solicitud|Comprobante|Valor del Servicio/i.test(line)) continue
-    if (/Modificada|Emisión|Información|Historia/i.test(line)) continue
-    if (/CERTIFICADO|CUV-/i.test(line)) continue
-    if (/^Pasajeros:?/i.test(line)) continue
-    if (vin && line.includes(vin)) continue
-    // Filter out date-like lines ("17 de Diciembre de 2025 11:43")
-    if (/\b(Enero|Febrero|Marzo|Abril|Mayo|Junio|Julio|Agosto|Septiembre|Octubre|Noviembre|Diciembre)\b/i.test(line)) continue
-    if (/^\d{1,2}\s+de\s+/i.test(line)) continue
-    // Filter out legal/document text
-    if (/Ortop[eé]dico|Tipo de Peso/i.test(line)) continue
+  // Fallback: pattern matching in vehicle section
+  if (!modelo) {
+    const vsLines = vehicleSection.split('\n').map((l) => l.trim()).filter(Boolean)
+    for (const line of vsLines) {
+      if (line.endsWith(':')) continue
+      if (line.length < 5) continue
+      if (/^\d{4}$/.test(line)) continue
+      if (/^[\d.,]+$/.test(line)) continue
+      if (CAR_BRANDS.some((b) => line.toUpperCase() === b)) continue
+      if (VEHICLE_COLORS.some((c) => line.toUpperCase() === c)) continue
+      if (/^NO REGISTRADO$/i.test(line)) continue
+      if (/^(CED|USO\s|METALICA|METÁLICA|CAMIONETA|DOBLE|GASOLINA|DIESEL|ECUADOR|LIVIANO)/i.test(line)) continue
+      if (/certifica|Registro|Nacional|Agencia/i.test(line)) continue
+      if (/Fecha|Lugar|Vigencia|Solicitud|Comprobante|Valor del Servicio/i.test(line)) continue
+      if (/Modificada|Emisión|Información|Historia/i.test(line)) continue
+      if (/CERTIFICADO|CUV-/i.test(line)) continue
+      if (/^Pasajeros:?/i.test(line)) continue
+      if (vin && line.includes(vin)) continue
+      if (/\b(Enero|Febrero|Marzo|Abril|Mayo|Junio|Julio|Agosto|Septiembre|Octubre|Noviembre|Diciembre)\b/i.test(line)) continue
+      if (/^\d{1,2}\s+de\s+/i.test(line)) continue
+      if (/Ortop[eé]dico|Tipo de Peso/i.test(line)) continue
 
-    // Model lines have both letters and numbers, with spaces or dashes
-    if (/[A-Z]/.test(line) && /\d/.test(line) && (line.includes(' ') || line.includes('-'))) {
-      modelo = line
-      break
+      if (/[A-Z]/.test(line) && /\d/.test(line) && (line.includes(' ') || line.includes('-'))) {
+        modelo = line
+        break
+      }
     }
   }
 
   // ── 5. AÑO ──────────────────────────────────────────────────────────
-  // Look for standalone 4-digit years in the vehicle section.
-  // Skip years embedded in dates (preceded by "de", "-", "/") or in the header.
   let anio: number | null = null
-  const yearRegex = /\b(19\d{2}|20[0-3]\d)\b/g
-  let ym: RegExpExecArray | null
-  while ((ym = yearRegex.exec(vehicleSection)) !== null) {
-    const year = parseInt(ym[1], 10)
-    if (year < 1990 || year > new Date().getFullYear() + 1) continue
-    const idx = ym.index
-    const before3 = vehicleSection.slice(Math.max(0, idx - 4), idx)
-    // Skip if preceded by " de " (date context like "17 de Diciembre de 2025")
-    if (/de\s$/i.test(before3)) continue
-    // Skip if preceded by "-" or "/" (date like 11-12-2008)
-    const charBefore = vehicleSection[idx - 1]
-    if (charBefore === '-' || charBefore === '/') continue
-    anio = year
-    break
+  // Try inline first
+  const anioInline = extractInlineValue(text, 'A[ñn]o(?:\\s+de\\s+Modelo)?')
+  if (anioInline) {
+    const y = parseInt(anioInline, 10)
+    if (y >= 1990 && y <= new Date().getFullYear() + 1) anio = y
   }
-
-  // ── 6. COLOR ────────────────────────────────────────────────────────
-  let color: string | null = null
-  for (const c of VEHICLE_COLORS) {
-    if (new RegExp(`\\b${c}\\b`, 'i').test(vehicleSection)) {
-      color = c
+  if (!anio) {
+    const yearRegex = /\b(19\d{2}|20[0-3]\d)\b/g
+    let ym: RegExpExecArray | null
+    while ((ym = yearRegex.exec(vehicleSection)) !== null) {
+      const year = parseInt(ym[1], 10)
+      if (year < 1990 || year > new Date().getFullYear() + 1) continue
+      const idx = ym.index
+      const before3 = vehicleSection.slice(Math.max(0, idx - 4), idx)
+      if (/de\s$/i.test(before3)) continue
+      const charBefore = vehicleSection[idx - 1]
+      if (charBefore === '-' || charBefore === '/') continue
+      anio = year
       break
     }
   }
 
-  // ── 7. MOTOR (Número de Motor) ──────────────────────────────────────
-  // Alphanumeric code, 8-16 chars, has both letters and digits, NOT the VIN.
-  let motor: string | null = null
-  const alphanumCodes = vehicleSection.match(/\b([A-Z]\d{2}[A-Z0-9]{5,12})\b/g)
-    || vehicleSection.match(/\b([A-Z0-9]{8,16})\b/g)
-
-  if (alphanumCodes) {
-    for (const code of alphanumCodes) {
-      if (code.length === 17) continue // VIN
-      if (code.length < 8) continue
-      if (placa && code === placa.replace('-', '')) continue
-      if (/[A-Z]/.test(code) && /\d/.test(code)) {
-        motor = code
+  // ── 6. COLOR ────────────────────────────────────────────────────────
+  let color: string | null = extractInlineValue(text, 'Color')
+  if (!color) {
+    for (const c of VEHICLE_COLORS) {
+      if (new RegExp(`\\b${c}\\b`, 'i').test(vehicleSection)) {
+        color = c
         break
+      }
+    }
+  }
+
+  // ── 7. MOTOR (Número de Motor) ──────────────────────────────────────
+  // Try inline "Número de Motor: ZD25T5154207" first
+  let motor: string | null = extractInlineValue(text, 'N[uú]mero\\s+(?:de\\s+)?Motor')
+  if (!motor) {
+    const alphanumCodes = vehicleSection.match(/\b([A-Z]\d{2}[A-Z0-9]{5,12})\b/g)
+      || vehicleSection.match(/\b([A-Z0-9]{8,16})\b/g)
+    if (alphanumCodes) {
+      for (const code of alphanumCodes) {
+        if (code.length === 17) continue // VIN
+        if (code.length < 8) continue
+        if (placa && code === placa.replace('-', '')) continue
+        if (/[A-Z]/.test(code) && /\d/.test(code)) {
+          motor = code
+          break
+        }
       }
     }
   }
@@ -342,7 +354,6 @@ export function parseCuvText(rawText: string): CuvData {
       if (/^(CED|Documento|Propietario|Nombres)/i.test(line)) continue
       if (/^\d/.test(line)) continue
       if (/NO REGISTRADO/i.test(line)) continue
-      // Full name: 2+ words, all uppercase letters (including accented)
       if (/^[A-ZÁÉÍÓÚÑ\s]{6,}$/.test(line) && line.includes(' ')) {
         nombresPropietario = toTitleCase(line)
         break
@@ -367,14 +378,11 @@ export function parseCuvText(rawText: string): CuvData {
     !!bloqueosText && !bloqueosText.toUpperCase().includes('NO TIENE REGISTRADOS')
 
   // ── 12. INFRACCIONES ────────────────────────────────────────────────
-  // pdf-parse may scramble the infracciones line, e.g.:
-  // "CANTIDAD DE INFRACCIONES: TOTAL:\tINTERÉS:\tVALOR: $ 1.488,60\t$ 1.488,60 $ 2.977,20\t13"
   const infLine = text.match(/CANTIDAD\s+DE\s+INFRACCIONES:.*/i)?.[0] ?? ''
   const cantidadMatch = infLine.match(/\b(\d{1,4})\s*$/)
     || infLine.match(/INFRACCIONES:\s*(\d+)/i)
   const infCantidad = cantidadMatch ? parseInt(cantidadMatch[1], 10) : 0
 
-  // Extract all dollar amounts and take the largest as TOTAL
   let infTotal = 0
   const amountRegex = /\$\s*([\d.,]+)/g
   const amounts: number[] = []
@@ -386,45 +394,100 @@ export function parseCuvText(rawText: string): CuvData {
     infTotal = Math.max(...amounts)
   }
 
-  // ── 13. TIPO (e.g. AUTOMOVIL, CAMIONETA, SUV) ───────────────────────
-  const tipo = extractLabeledValue(vehicleSection, 'Tipo')
-    ?? extractLabeledValue(vehicleSection, 'Tipo de Veh[ií]culo')
+  // ═══════════════════════════════════════════════════════════════════════
+  // V2 FIELDS — extracted using INLINE "Label: Value" + known value lists
+  // These are robust against the two-column interleaving problem.
+  // ═══════════════════════════════════════════════════════════════════════
 
-  // ── 14. CILINDRAJE (numeric, in cc) ─────────────────────────────────
+  // ── 13. CILINDRAJE (inline "Cilindraje (cc): 2498") ─────────────────
   let cilindraje: number | null = null
-  const cilindrajeStr = extractLabeledValue(vehicleSection, 'Cilindraje')
+  const cilindrajeStr = extractInlineValue(text, 'Cilindraje\\s*(?:\\(cc\\))?')
   if (cilindrajeStr) {
     const num = parseFloat(cilindrajeStr.replace(/[^\d.]/g, ''))
     if (num > 0) cilindraje = num
   }
 
-  // ── 15. CARROCERÍA ──────────────────────────────────────────────────
-  const carroceria = extractLabeledValue(vehicleSection, 'Carrocer[ií]a')
-
-  // ── 16. CLASE ───────────────────────────────────────────────────────
-  const clase = extractLabeledValue(vehicleSection, 'Clase')
-
-  // ── 17. PAÍS DE ORIGEN ──────────────────────────────────────────────
-  const pais = extractLabeledValue(vehicleSection, 'Pa[ií]s')
-    ?? extractLabeledValue(vehicleSection, 'Pa[ií]s de Origen')
-
-  // ── 18. COMBUSTIBLE ─────────────────────────────────────────────────
-  const combustible = extractLabeledValue(vehicleSection, 'Combustible')
-
-  // ── 19. PASAJEROS ───────────────────────────────────────────────────
-  let pasajeros: number | null = null
-  const pasajerosStr = extractLabeledValue(vehicleSection, 'Pasajeros')
-  if (pasajerosStr) {
-    const num = parseInt(pasajerosStr, 10)
-    if (num > 0) pasajeros = num
+  // ── 14. CARROCERÍA — known value matching ───────────────────────────
+  let carroceria: string | null = extractInlineValue(text, 'Carrocer[ií]a')
+  if (!carroceria) {
+    for (const bt of BODY_TYPES) {
+      if (new RegExp(`\\b${bt}\\b`, 'i').test(vehicleSection)) {
+        carroceria = bt
+        break
+      }
+    }
   }
 
-  // ── 20. SERVICIO ────────────────────────────────────────────────────
-  const servicio = extractLabeledValue(vehicleSection, 'Servicio')
+  // ── 15. COMBUSTIBLE — known value matching ──────────────────────────
+  let combustible: string | null = extractInlineValue(text, 'Combustible')
+  if (!combustible) {
+    for (const ft of FUEL_TYPES) {
+      if (new RegExp(`\\b${ft}\\b`, 'i').test(vehicleSection)) {
+        combustible = ft
+        break
+      }
+    }
+  }
 
-  // ── 21. RAMV / RANV ─────────────────────────────────────────────────
-  const ramv = extractLabeledValue(vehicleSection, 'RAMV')
-    ?? extractLabeledValue(vehicleSection, 'RANV')
+  // ── 16. CLASE — known value matching ────────────────────────────────
+  let clase: string | null = extractInlineValue(text, 'Clase')
+  if (!clase) {
+    for (const vc of VEHICLE_CLASSES) {
+      if (new RegExp(`\\b${vc}\\b`, 'i').test(vehicleSection)) {
+        clase = vc
+        break
+      }
+    }
+  }
+
+  // ── 17. TIPO — inline or known value matching ───────────────────────
+  let tipo: string | null = extractInlineValue(text, 'Tipo(?:\\s+de\\s+Veh[ií]culo)?')
+  // Filter out false matches (e.g. "Tipo de Peso: LIVIANO" being captured as tipo)
+  if (tipo && /LIVIANO|PESADO/i.test(tipo)) tipo = null
+  if (!tipo) {
+    for (const vt of VEHICLE_TYPES) {
+      if (new RegExp(`\\b${vt}\\b`, 'i').test(vehicleSection)) {
+        tipo = vt
+        break
+      }
+    }
+  }
+
+  // ── 18. SERVICIO — inline or known value matching ───────────────────
+  let servicio: string | null = extractInlineValue(text, 'Servicio')
+  if (!servicio) {
+    for (const st of SERVICE_TYPES) {
+      if (new RegExp(`\\b${st}\\b`, 'i').test(vehicleSection)) {
+        servicio = st
+        break
+      }
+    }
+  }
+
+  // ── 19. PAÍS DE ORIGEN — inline extraction ──────────────────────────
+  const pais = extractInlineValue(text, 'Pa[ií]s\\s+(?:de\\s+)?Origen')
+
+  // ── 20. PASAJEROS — inline extraction ───────────────────────────────
+  let pasajeros: number | null = null
+  const pasajerosStr = extractInlineValue(text, 'Pasajeros')
+  if (pasajerosStr) {
+    const num = parseInt(pasajerosStr, 10)
+    if (num > 0 && num < 100) pasajeros = num
+  }
+
+  // ── 21. TONELAJE — inline extraction ────────────────────────────────
+  // "Tonelaje (t): 1,25" or "Tonelaje: 1.25"
+  let tonelaje: string | null = extractInlineValue(text, 'Tonelaje\\s*(?:\\(t\\))?')
+  if (tonelaje) {
+    // Normalize comma decimal separator
+    tonelaje = tonelaje.replace(',', '.')
+  }
+
+  // ── 22. RANV / RAMV / CPN — inline extraction ──────────────────────
+  const ramv = extractInlineValue(text, 'RANV\\s*/?\\s*CPN')
+    ?? extractInlineValue(text, 'RAMV\\s*/?\\s*CPN')
+    ?? extractInlineValue(text, 'RANV')
+    ?? extractInlineValue(text, 'RAMV')
 
   return {
     placa,
