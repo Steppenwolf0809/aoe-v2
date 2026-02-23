@@ -61,7 +61,7 @@
           "parameters": [
             {
               "name": "Authorization",
-              "value": "Bearer 2e567b43f94a1b470cd810cf444aaeac20639ad2cb2a1ff84613e01125438a5d"
+              "value": "Bearer CONFIGURAR_WASENDER_API_KEY"
             },
             {
               "name": "Content-Type",
