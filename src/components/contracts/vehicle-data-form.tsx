@@ -207,12 +207,6 @@ export function VehicleDataForm({ onCuvParsed }: VehicleDataFormProps) {
           placeholder="0.75"
           {...register('vehiculo.tonelaje')}
         />
-        <Input
-          id="vehiculo.ramv"
-          label="RAMV/CPN (opcional)"
-          placeholder="U02040301"
-          {...register('vehiculo.ramv')}
-        />
       </div>
 
       {/* Financial section */}

@@ -43,7 +43,7 @@ export async function generateContractDocx(
         const personaDefaults = { sexo: 'M', nacionalidad: 'ecuatoriana', tipoDocumento: 'cedula' }
         const vehiculoDefaults = {
             tipo: '', cilindraje: 1, carroceria: '', clase: '', pais: '',
-            combustible: '', pasajeros: 5, servicio: 'USO PARTICULAR', tonelaje: '', ramv: '',
+            combustible: '', pasajeros: 5, servicio: 'USO PARTICULAR', tonelaje: '',
         }
         const contractDefaults = {
             tipoAntecedente: 'compraventa', formaPago: 'transferencia',

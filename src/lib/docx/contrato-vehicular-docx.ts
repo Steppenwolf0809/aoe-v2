@@ -357,7 +357,6 @@ export async function generateContratoVehicularDocx(contrato: ContratoVehicular)
     }
     vehicleItems.push(bulletItem('SERVICIO', orBlank(vehiculo.servicio)))
     if (vehiculo.tonelaje && vehiculo.tonelaje.trim()) vehicleItems.push(bulletItem('TONELAJE', vehiculo.tonelaje))
-    if (vehiculo.ramv && vehiculo.ramv.trim()) vehicleItems.push(bulletItem('RAMV/CPN', vehiculo.ramv))
 
     // Build forma de pago text
     const formaPagoTexto = getFormaPagoTexto(contrato.formaPago)

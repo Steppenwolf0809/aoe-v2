@@ -84,7 +84,6 @@ export const vehiculoSchema = z.object({
   servicio: z.string().min(2, 'Servicio requerido'),
   // Optional v2 fields
   tonelaje: z.string().optional(),
-  ramv: z.string().optional(),
 })
 
 // Sub-schemas are lenient (just strings) — actual business-rule validation

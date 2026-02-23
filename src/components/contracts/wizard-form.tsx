@@ -53,7 +53,6 @@ export function WizardForm() {
         pasajeros: 5,
         servicio: 'USO PARTICULAR',
         tonelaje: '',
-        ramv: '',
       },
       comprador: {
         cedula: '',

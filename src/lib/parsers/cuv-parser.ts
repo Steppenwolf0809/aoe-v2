@@ -35,10 +35,12 @@ export interface CuvData {
   pasajeros: number | null
   servicio: string | null
   tonelaje: string | null
-  ramv: string | null
   cuvNumero: string | null
   cuvFecha: string | null
   // Owner
+  tipoDocumentoPropietario: 'CED' | 'RUC' | null
+  documentoPropietario: string | null
+  propietarioEsEmpresa: boolean
   cedulaPropietario: string | null
   nombresPropietario: string | null
   // Legal warnings
@@ -364,41 +366,6 @@ function extractMotor(lines: ParsedLine[], vin: string | null, placa: string | n
   return allCandidates.sort((left, right) => right.length - left.length)[0]
 }
 
-function extractRamv(
-  lines: ParsedLine[],
-  vin: string | null,
-  placa: string | null,
-  motor: string | null,
-): string | null {
-  const ranvLabelIndex = findLineIndex(lines, /^(RANV|RAMV)\s*\/?\s*CPN\s*:?\s*$/i)
-
-  const pickCandidate = (line: ParsedLine): string | null => {
-    const code = extractCodes(line).find((item) => {
-      if (!isMotorCandidate(item, vin, placa)) return false
-      if (motor && item === motor) return false
-      if (item.length > 12) return false
-      return true
-    })
-    return code ?? null
-  }
-
-  if (ranvLabelIndex >= 0) {
-    const end = Math.min(lines.length - 1, ranvLabelIndex + 40)
-    for (let index = ranvLabelIndex + 1; index <= end; index += 1) {
-      const code = pickCandidate(lines[index])
-      if (code) return code
-    }
-  }
-
-  if (motor) {
-    const motorLineIndex = lines.findIndex((line) => line.raw.includes(motor))
-    const nearMotor = findNextLine(lines, motorLineIndex, 4, (line) => Boolean(pickCandidate(line)))
-    if (nearMotor) return pickCandidate(nearMotor)
-  }
-
-  return null
-}
-
 function extractCilindraje(lines: ParsedLine[], sectionText: string): number | null {
   const placasLabelIndex = findLineIndex(lines, /^PLACAS\s*:?\s*$/i)
   const nearPlacas = findNextLine(lines, placasLabelIndex, 4, (line) => /^\d{2,5}$/.test(line.norm))
@@ -592,22 +559,28 @@ export function parseCuvText(rawText: string): CuvData {
   const pasajeros = extractPasajeros(vehicleLines, vin)
   const tonelaje = extractTonelaje(vehicleLines, vehicleSection)
   const motor = extractMotor(vehicleLines, vin, placa)
-  const ramv = extractRamv(vehicleLines, vin, placa, motor)
 
   const cuvNumero = text.match(/\bCUV-\d{4}-\d+\b/i)?.[0]?.toUpperCase() ?? null
   const cuvFecha =
     text.match(/\b\d{1,2}\s+de\s+[A-Za-z\u00C0-\u00FF]+\s+de\s+\d{4}(?:\s+\d{2}:\d{2})?\b/i)?.[0]
     ?? null
 
-  const cedulaPropietario = text.match(/CED\s*-?\s*(\d{10,13})/i)?.[1]?.slice(0, 10) ?? null
+  const documentoMatch = text.match(/\b(CED|RUC)\s*-\s*(\d{10,13})\b/i)
+  const tipoDocumentoPropietario = documentoMatch?.[1]?.toUpperCase() as 'CED' | 'RUC' | undefined
+  const documentoPropietario = documentoMatch?.[2] ?? null
+  const propietarioEsEmpresa = tipoDocumentoPropietario === 'RUC'
+  const cedulaPropietario =
+    tipoDocumentoPropietario === 'CED'
+      ? documentoPropietario?.slice(0, 10) ?? null
+      : null
 
   let nombresPropietario: string | null = null
   for (const line of ownerLines) {
     if (line.raw.endsWith(':')) continue
-    if (/^(CED|DOCUMENTO|PROPIETARIO|NOMBRES)\b/i.test(line.raw)) continue
+    if (/^(CED|RUC|DOCUMENTO|PROPIETARIO|NOMBRES)\b/i.test(line.raw)) continue
     if (/^\d/.test(line.raw)) continue
     if (isNoRegistrado(line.raw)) continue
-    if (/^[A-Z\u00C0-\u00FF\s]{6,}$/.test(line.raw) && line.raw.includes(' ')) {
+    if (/^[A-Z\u00C0-\u00FF\s.&-]{6,}$/.test(line.raw) && line.raw.includes(' ')) {
       nombresPropietario = toTitleCase(line.raw)
       break
     }
@@ -642,9 +615,11 @@ export function parseCuvText(rawText: string): CuvData {
     pasajeros,
     servicio: servicio ? servicio.toUpperCase() : null,
     tonelaje,
-    ramv,
     cuvNumero,
     cuvFecha,
+    tipoDocumentoPropietario: tipoDocumentoPropietario ?? null,
+    documentoPropietario,
+    propietarioEsEmpresa,
     cedulaPropietario,
     nombresPropietario,
     gravamenes: {

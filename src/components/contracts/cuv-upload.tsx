@@ -52,9 +52,9 @@ export function CuvUpload({ onCuvParsed }: CuvUploadProps) {
     if (data.pasajeros) count++
     if (data.servicio) count++
     if (data.tonelaje) count++
-    if (data.ramv) count++
     if (data.cuvNumero) count++
     if (data.cuvFecha) count++
+    if (data.documentoPropietario) count++
     if (data.cedulaPropietario) count++
     if (data.nombresPropietario) count++
     return count
@@ -78,16 +78,18 @@ export function CuvUpload({ onCuvParsed }: CuvUploadProps) {
     if (data.pasajeros) setValue('vehiculo.pasajeros', data.pasajeros, { shouldValidate: true })
     if (data.servicio) setValue('vehiculo.servicio', data.servicio, { shouldValidate: true })
     if (data.tonelaje) setValue('vehiculo.tonelaje', data.tonelaje, { shouldValidate: true })
-    if (data.ramv) setValue('vehiculo.ramv', data.ramv, { shouldValidate: true })
     if (data.cuvNumero) setValue('cuvNumero', data.cuvNumero, { shouldValidate: true })
     if (data.cuvFecha) setValue('cuvFecha', data.cuvFecha, { shouldValidate: true })
-    // Owner → Seller
-    if (data.cedulaPropietario)
-      setValue('vendedor.cedula', data.cedulaPropietario, { shouldValidate: true })
-    if (data.nombresPropietario)
-      setValue('vendedor.nombres', data.nombresPropietario, { shouldValidate: true })
+    // Owner -> Seller (solo persona natural con cedula)
+    if (data.tipoDocumentoPropietario === 'CED') {
+      if (data.cedulaPropietario) {
+        setValue('vendedor.cedula', data.cedulaPropietario, { shouldValidate: true })
+      }
+      if (data.nombresPropietario) {
+        setValue('vendedor.nombres', data.nombresPropietario, { shouldValidate: true })
+      }
+    }
   }
-
   const processFile = useCallback(
     async (file: File) => {
       setStatus('uploading')
@@ -184,7 +186,8 @@ export function CuvUpload({ onCuvParsed }: CuvUploadProps) {
     parsedData &&
     (parsedData.gravamenes.tiene ||
       parsedData.bloqueos.tiene ||
-      parsedData.infracciones.tiene)
+      parsedData.infracciones.tiene ||
+      parsedData.propietarioEsEmpresa)
 
   return (
     <div className="space-y-3">
@@ -365,6 +368,14 @@ export function CuvUpload({ onCuvParsed }: CuvUploadProps) {
                 detail={`Total adeudado: $${parsedData!.infracciones.total.toFixed(2)}`}
               />
             )}
+
+            {parsedData!.propietarioEsEmpresa && (
+              <WarningCard
+                type="warning"
+                title="Propietario registrado como empresa (RUC)"
+                detail={`RUC: ${parsedData!.documentoPropietario ?? 'no detectado'}. Complete manualmente los datos del representante legal del vendedor. En ventas de persona juridica suele requerirse acta de junta: Cia. Ltda. (junta de socios) o S.A. (junta de accionistas).`}
+              />
+            )}
           </motion.div>
         )}
       </AnimatePresence>
@@ -404,3 +415,4 @@ function WarningCard({
     </div>
   )
 }
+

@@ -153,13 +153,15 @@ describe('parseCuvText', () => {
       expect(result.tonelaje).toBe('0.75')
     })
 
-    it('extracts RAMV/CPN', () => {
-      expect(result.ramv).toBe('B0183667')
-    })
-
     it('extracts CUV metadata', () => {
       expect(result.cuvNumero).toBe('CUV-2025-00972772')
       expect(result.cuvFecha).toBe('17 de Diciembre de 2025 11:43')
+    })
+
+    it('extracts owner document metadata', () => {
+      expect(result.tipoDocumentoPropietario).toBe('CED')
+      expect(result.documentoPropietario).toBe('0200055671')
+      expect(result.propietarioEsEmpresa).toBe(false)
     })
 
     it('extracts cedula del propietario', () => {
@@ -236,6 +238,9 @@ describe('parseCuvText', () => {
       expect(result.tonelaje).toBeNull()
       expect(result.cuvNumero).toBeNull()
       expect(result.cuvFecha).toBeNull()
+      expect(result.tipoDocumentoPropietario).toBeNull()
+      expect(result.documentoPropietario).toBeNull()
+      expect(result.propietarioEsEmpresa).toBe(false)
       expect(result.cedulaPropietario).toBeNull()
       expect(result.nombresPropietario).toBeNull()
       expect(result.gravamenes.tiene).toBe(false)
@@ -307,6 +312,21 @@ describe('parseCuvText', () => {
       const text = SAMPLE_CUV_TEXT.replace('PLATEADO', 'NEGRO')
       const result = parseCuvText(text)
       expect(result.color).toBe('NEGRO')
+    })
+  })
+
+  describe('owner as company (RUC)', () => {
+    it('detects RUC owner and avoids natural person fields', () => {
+      const text = SAMPLE_CUV_TEXT
+        .replace('CED - 0200055671\tDocumento de Identidad: 11-12-2008', 'RUC - 1791774906001\tDocumento de Identidad: 27-04-2004')
+        .replace('AIDA MARIA VASCONEZ ESPINOZA', 'CAMIONES Y BUSES DEL ECUADOR S.A.')
+
+      const result = parseCuvText(text)
+      expect(result.tipoDocumentoPropietario).toBe('RUC')
+      expect(result.documentoPropietario).toBe('1791774906001')
+      expect(result.propietarioEsEmpresa).toBe(true)
+      expect(result.cedulaPropietario).toBeNull()
+      expect(result.nombresPropietario).toBe('Camiones Y Buses Del Ecuador S.A.')
     })
   })
 })
