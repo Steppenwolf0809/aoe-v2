@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { createAdminClient } from '@/lib/supabase/admin'
+import { confirmPayment } from '@/lib/payphone'
 import { payphoneWebhookSchema, isPaymentApproved } from '@/lib/validations/payment'
 import { PRECIO_CONTRATO_BASICO } from '@/lib/formulas/vehicular'
 
@@ -42,6 +43,13 @@ export async function POST(request: NextRequest) {
 
         if (legacyContract && isPaymentApproved(payload.statusCode) &&
             (legacyContract.status === 'DRAFT' || legacyContract.status === 'PENDING_PAYMENT')) {
+          // Confirm payment with PayPhone (app-based payments may not trigger callback)
+          try {
+            await confirmPayment({ id: payload.id, clientTxId: payload.clientTransactionId })
+          } catch (confirmError) {
+            console.error('[PayPhone Webhook] Legacy confirm error (non-fatal):', confirmError)
+          }
+
           await supabase
             .from('contracts')
             .update({
@@ -67,6 +75,22 @@ export async function POST(request: NextRequest) {
       (contract.status === 'DRAFT' || contract.status === 'PENDING_PAYMENT')
     ) {
       console.log('[PayPhone Webhook] Processing payment for contract:', contract.id)
+
+      // Confirm payment with PayPhone (required within 5 min for Button/Prepare flow).
+      // This is critical for app-based payments where the browser may not redirect
+      // to the callback page and the confirm would otherwise never happen.
+      try {
+        await confirmPayment({
+          id: payload.id,
+          clientTxId: payload.clientTransactionId,
+        })
+        console.log('[PayPhone Webhook] Payment confirmed successfully')
+      } catch (confirmError) {
+        // Non-fatal: the callback page or polling may also confirm.
+        // Log but don't block the status update.
+        console.error('[PayPhone Webhook] Confirm error (non-fatal):', confirmError)
+      }
+
       await supabase
         .from('contracts')
         .update({

@@ -69,10 +69,19 @@ export function PaymentForm({ contractId, defaultEmail, initialError }: PaymentF
                 return
             }
 
-            // Abre la URL de pago en una pestaña emergente / nueva ventana
-            window.open(result.data.paymentUrl, '_blank')
+            // En móvil, redirigir en la misma pestaña (los popups se bloquean en móvil)
+            // El callback page maneja todo: confirmar pago, generar PDF, y redirigir a éxito
+            const isMobile = /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(
+                navigator.userAgent
+            )
 
-            // Inicia el proceso de búsqueda automática (polling)
+            if (isMobile) {
+                window.location.href = result.data.paymentUrl
+                return
+            }
+
+            // En escritorio, abrir en nueva pestaña y hacer polling
+            window.open(result.data.paymentUrl, '_blank')
             setIsPolling(true)
         } catch (err) {
             setError('Error inesperado al iniciar el pago')

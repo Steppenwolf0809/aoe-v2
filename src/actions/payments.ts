@@ -48,8 +48,9 @@ export async function initiatePayment(
       return { success: false, error: 'Contrato no encontrado' }
     }
 
-    // Verify contract is in DRAFT status
-    if (contract.status !== 'DRAFT') {
+    // Verify contract is in a payable status
+    // Allow PENDING_PAYMENT to support retries (e.g. mobile user hit back button)
+    if (contract.status !== 'DRAFT' && contract.status !== 'PENDING_PAYMENT') {
       return {
         success: false,
         error: `Contrato en estado ${contract.status}, no se puede pagar`,
