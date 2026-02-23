@@ -51,7 +51,10 @@ export function CuvUpload({ onCuvParsed }: CuvUploadProps) {
     if (data.combustible) count++
     if (data.pasajeros) count++
     if (data.servicio) count++
+    if (data.tonelaje) count++
     if (data.ramv) count++
+    if (data.cuvNumero) count++
+    if (data.cuvFecha) count++
     if (data.cedulaPropietario) count++
     if (data.nombresPropietario) count++
     return count
@@ -74,7 +77,10 @@ export function CuvUpload({ onCuvParsed }: CuvUploadProps) {
     if (data.combustible) setValue('vehiculo.combustible', data.combustible, { shouldValidate: true })
     if (data.pasajeros) setValue('vehiculo.pasajeros', data.pasajeros, { shouldValidate: true })
     if (data.servicio) setValue('vehiculo.servicio', data.servicio, { shouldValidate: true })
+    if (data.tonelaje) setValue('vehiculo.tonelaje', data.tonelaje, { shouldValidate: true })
     if (data.ramv) setValue('vehiculo.ramv', data.ramv, { shouldValidate: true })
+    if (data.cuvNumero) setValue('cuvNumero', data.cuvNumero, { shouldValidate: true })
+    if (data.cuvFecha) setValue('cuvFecha', data.cuvFecha, { shouldValidate: true })
     // Owner → Seller
     if (data.cedulaPropietario)
       setValue('vendedor.cedula', data.cedulaPropietario, { shouldValidate: true })
