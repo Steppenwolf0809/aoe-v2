@@ -62,7 +62,7 @@ export default async function PagoPage({ params, searchParams }: PageProps) {
     }
   }
 
-  // If paid but PDF not yet generated, redirect to success (will show pending state)
+  // If paid but DOCX token is not yet prepared, redirect to success (will show pending state)
   if (contract.status === 'PAID') {
     redirect(`/contratos/pago/exito?contractId=${contractId}&pending=true`)
   }
@@ -155,7 +155,7 @@ export default async function PagoPage({ params, searchParams }: PageProps) {
             <ul className="space-y-3">
               {[
                 'Contrato notarial completo y válido',
-                'PDF descargable inmediatamente',
+                'Contrato Word (.docx) descargable inmediatamente',
                 'Formato aprobado por notarías',
                 'Soporte por email',
               ].map((item, i) => (

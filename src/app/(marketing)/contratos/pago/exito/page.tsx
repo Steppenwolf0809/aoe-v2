@@ -93,7 +93,7 @@ export default async function PaymentSuccessPage({
   const comprador =
     contractData?.partes?.comprador || contractData?.comprador || {}
   const deliveryEmail = contract.delivery_email || contract.email || ''
-  const isPdfReady = contract.status === 'GENERATED' || contract.status === 'DOWNLOADED'
+  const isDocumentReady = contract.status === 'GENERATED' || contract.status === 'DOWNLOADED'
   const downloadToken = contract.download_token
 
   // Check if token is expired
@@ -160,7 +160,7 @@ export default async function PaymentSuccessPage({
             </div>
 
             {/* Download button */}
-            {isPdfReady && downloadToken && !tokenExpired ? (
+            {isDocumentReady && downloadToken && !tokenExpired ? (
               <a
                 href={`/api/contracts/${contract.id}/download-docx?token=${downloadToken}`}
                 className="flex items-center justify-center gap-3 w-full rounded-lg bg-accent-primary hover:bg-accent-primary/90 text-white font-semibold py-4 px-6 transition-colors text-lg"
@@ -201,7 +201,7 @@ export default async function PaymentSuccessPage({
             )}
 
             {/* Token validity */}
-            {isPdfReady && !tokenExpired && (
+            {isDocumentReady && !tokenExpired && (
               <p className="text-xs text-text-muted text-center">
                 <Clock className="w-3 h-3 inline mr-1" />
                 Este enlace es válido por 7 días

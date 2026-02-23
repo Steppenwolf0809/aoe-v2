@@ -128,7 +128,7 @@ export function SummaryStep({
         </div>
         <p className="text-xs text-text-muted mt-1">
           * {numFirmas} certificaciones = {numFirmas - 1} compareciente{numFirmas - 1 > 1 ? 's' : ''} + 1 matricula.
-          El pago se procesara cuando decida generar el PDF del contrato.
+          El pago se procesar? cuando decida generar el contrato Word (.docx).
         </p>
       </SummarySection>
 

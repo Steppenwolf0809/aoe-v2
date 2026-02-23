@@ -3,7 +3,7 @@ import { createAdminClient } from '@/lib/supabase/admin'
 import { checkTransactionStatus, confirmPayment } from '@/lib/payphone'
 import { isPaymentApproved } from '@/lib/validations/payment'
 import { PRECIO_CONTRATO_BASICO } from '@/lib/formulas/vehicular'
-import { generateContractPdfAdmin } from '@/actions/pdf'
+import { prepareContractDocxDeliveryAdmin } from '@/actions/docx'
 
 export async function GET(request: Request) {
     const { searchParams } = new URL(request.url)
@@ -37,13 +37,13 @@ export async function GET(request: Request) {
         }
 
         if (contract.status === 'PAID') {
-            // Intentar generar si no se ha hecho
-            const pdfResult = await generateContractPdfAdmin(contractId)
-            if (pdfResult.success) {
+            // Intentar preparar DOCX y token de descarga
+            const docxResult = await prepareContractDocxDeliveryAdmin(contractId)
+            if (docxResult.success) {
                 return NextResponse.json({
                     success: true,
                     status: 'GENERATED',
-                    redirectUrl: `/contratos/pago/exito?token=${pdfResult.data.downloadToken}`
+                    redirectUrl: `/contratos/pago/exito?token=${docxResult.data.downloadToken}`
                 })
             }
             return NextResponse.json({
@@ -77,13 +77,13 @@ export async function GET(request: Request) {
                         })
                         .eq('id', contract.id)
 
-                    // Generar PDF
-                    const pdfResult = await generateContractPdfAdmin(contractId)
-                    if (pdfResult.success) {
+                    // Preparar DOCX y token de descarga
+                    const docxResult = await prepareContractDocxDeliveryAdmin(contractId)
+                    if (docxResult.success) {
                         return NextResponse.json({
                             success: true,
                             status: 'GENERATED',
-                            redirectUrl: `/contratos/pago/exito?token=${pdfResult.data.downloadToken}`
+                            redirectUrl: `/contratos/pago/exito?token=${docxResult.data.downloadToken}`
                         })
                     } else {
                         return NextResponse.json({

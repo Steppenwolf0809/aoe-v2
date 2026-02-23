@@ -4,7 +4,7 @@ import { createAdminClient } from '@/lib/supabase/admin'
 import { confirmPayment } from '@/lib/payphone'
 import { isPaymentApproved } from '@/lib/validations/payment'
 import { PRECIO_CONTRATO_BASICO } from '@/lib/formulas/vehicular'
-import { generateContractPdfAdmin } from '@/actions/pdf'
+import { prepareContractDocxDeliveryAdmin } from '@/actions/docx'
 import { notifyN8NContractPaid } from '@/lib/n8n'
 import { XCircle } from 'lucide-react'
 import Link from 'next/link'
@@ -48,15 +48,15 @@ function ErrorState({ message }: { message: string }) {
 }
 
 /**
- * Verify payment with PayPhone, generate PDF, send email, redirect to success.
+ * Verify payment with PayPhone, prepare DOCX download, send email, redirect to success.
  * No authentication required — the payment token is the authorization.
  */
-async function processPaymentAndGeneratePdf(contractId: string): Promise<string> {
-  console.log('[PayPhone Callback] Generating PDF for contract:', contractId)
-  const pdfResult = await generateContractPdfAdmin(contractId)
-  console.log('[PayPhone Callback] PDF result:', JSON.stringify({
-    success: pdfResult.success,
-    ...(pdfResult.success ? { downloadToken: pdfResult.data.downloadToken } : { error: pdfResult.error }),
+async function processPaymentAndPrepareDocx(contractId: string): Promise<string> {
+  console.log('[PayPhone Callback] Preparing DOCX delivery for contract:', contractId)
+  const docxResult = await prepareContractDocxDeliveryAdmin(contractId)
+  console.log('[PayPhone Callback] DOCX delivery result:', JSON.stringify({
+    success: docxResult.success,
+    ...(docxResult.success ? { downloadToken: docxResult.data.downloadToken } : { error: docxResult.error }),
   }))
 
   // Fire-and-forget: notify n8n about the sale for CRM/analytics
@@ -73,14 +73,14 @@ async function processPaymentAndGeneratePdf(contractId: string): Promise<string>
       email: contractData.delivery_email,
       type: contractData.contract_type ?? 'vehicular',
       amount: contractData.amount ?? PRECIO_CONTRATO_BASICO,
-      downloadToken: pdfResult.success ? pdfResult.data.downloadToken : undefined,
+      downloadToken: docxResult.success ? docxResult.data.downloadToken : undefined,
     }).catch(() => {})
   }
 
-  if (pdfResult.success) {
-    return `/contratos/pago/exito?token=${pdfResult.data.downloadToken}`
+  if (docxResult.success) {
+    return `/contratos/pago/exito?token=${docxResult.data.downloadToken}`
   }
-  // Payment OK but PDF failed — still show success with pending
+  // Payment OK but DOCX preparation failed — still show success with pending
   return `/contratos/pago/exito?contractId=${contractId}&pending=true`
 }
 
@@ -156,7 +156,7 @@ export default async function PaymentCallbackPage({
               })
               .eq('id', legacyContractId)
 
-            redirectPath = await processPaymentAndGeneratePdf(legacyContractId)
+            redirectPath = await processPaymentAndPrepareDocx(legacyContractId)
           } else {
             errorMessage = 'Contrato no encontrado.'
           }
@@ -167,9 +167,8 @@ export default async function PaymentCallbackPage({
         // Already processed and has valid token — redirect to success
         redirectPath = `/contratos/pago/exito?token=${contract.download_token}`
       } else if (contract.status === 'PAID' || contract.status === 'GENERATED' || contract.status === 'DOWNLOADED') {
-        // PAID but no PDF, or GENERATED/DOWNLOADED but missing download_token — (re)generate
-        // Already PAID but PDF not generated — try now
-        redirectPath = await processPaymentAndGeneratePdf(contract.id)
+        // Already paid but missing token — prepare DOCX delivery now
+        redirectPath = await processPaymentAndPrepareDocx(contract.id)
       } else {
         // Update contract to PAID with real PayPhone transaction ID
         const { error: updateError } = await adminSupabase
@@ -184,7 +183,7 @@ export default async function PaymentCallbackPage({
         if (updateError) {
           errorMessage = updateError.message
         } else {
-          redirectPath = await processPaymentAndGeneratePdf(contract.id)
+          redirectPath = await processPaymentAndPrepareDocx(contract.id)
         }
       }
     }

@@ -1,10 +1,9 @@
-'use client'
+﻿'use client'
 
 import { useState } from 'react'
 import { Button } from '@/components/ui/button'
-import { CreditCard, Download, Loader2, FileText, FileDown } from 'lucide-react'
+import { CreditCard, Loader2, FileText, FileDown } from 'lucide-react'
 import { initiatePayment } from '@/actions/payments'
-import { getContractDownloadUrl } from '@/actions/pdf'
 import { generateContractDocx } from '@/actions/docx'
 import Link from 'next/link'
 import { PRECIO_CONTRATO_BASICO } from '@/lib/formulas/vehicular'
@@ -22,7 +21,6 @@ export function ContractActions({
   downloadToken,
 }: ContractActionsProps) {
   const [isLoadingPayment, setIsLoadingPayment] = useState(false)
-  const [isLoadingPdf, setIsLoadingPdf] = useState(false)
   const [isLoadingDocx, setIsLoadingDocx] = useState(false)
   const [error, setError] = useState<string | null>(null)
 
@@ -46,31 +44,6 @@ export function ContractActions({
     }
   }
 
-  const handleDownloadPdf = async () => {
-    if (!downloadToken) {
-      setError('Token de descarga no disponible')
-      return
-    }
-
-    setIsLoadingPdf(true)
-    setError(null)
-
-    try {
-      const result = await getContractDownloadUrl(contractId, downloadToken)
-
-      if (result.success) {
-        window.open(result.data.signedUrl, '_blank')
-      } else {
-        setError(result.error)
-      }
-    } catch (err) {
-      console.error('[handleDownloadPdf]', err)
-      setError(err instanceof Error ? err.message : 'Error al descargar el PDF')
-    } finally {
-      setIsLoadingPdf(false)
-    }
-  }
-
   const handleDownloadDocx = async () => {
     if (!downloadToken) {
       setError('Token de descarga no disponible')
@@ -84,7 +57,6 @@ export function ContractActions({
       const result = await generateContractDocx(contractId, downloadToken)
 
       if (result.success) {
-        // Convert base64 → Blob → trigger download
         const binary = atob(result.data.base64)
         const bytes = new Uint8Array(binary.length)
         for (let i = 0; i < binary.length; i++) {
@@ -112,7 +84,6 @@ export function ContractActions({
     }
   }
 
-  // DRAFT / PENDING_PAYMENT: show payment button
   if (status === 'DRAFT' || status === 'PENDING_PAYMENT') {
     return (
       <div className="space-y-3">
@@ -142,48 +113,25 @@ export function ContractActions({
     )
   }
 
-  // PAID: generating PDF
   if (status === 'PAID') {
     return (
       <div className="space-y-3">
         <div className="flex items-center text-sm text-text-secondary">
           <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-          Generando contrato...
+          Preparando contrato Word...
         </div>
       </div>
     )
   }
 
-  // GENERATED / DOWNLOADED: show PDF + DOCX download buttons
   if (status === 'GENERATED' || status === 'DOWNLOADED') {
     return (
       <div className="space-y-3">
         <div className="flex flex-col gap-2 sm:flex-row sm:flex-wrap">
-          {/* PDF Button */}
-          <Button
-            onClick={handleDownloadPdf}
-            disabled={isLoadingPdf || isLoadingDocx}
-            variant="primary"
-            className="w-full sm:w-auto"
-          >
-            {isLoadingPdf ? (
-              <>
-                <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                Descargando PDF...
-              </>
-            ) : (
-              <>
-                <Download className="mr-2 h-4 w-4" />
-                Descargar PDF
-              </>
-            )}
-          </Button>
-
-          {/* Word DOCX Button */}
           <Button
             onClick={handleDownloadDocx}
-            disabled={isLoadingPdf || isLoadingDocx}
-            variant="outline"
+            disabled={isLoadingDocx}
+            variant="primary"
             className="w-full sm:w-auto"
           >
             {isLoadingDocx ? (
@@ -199,12 +147,7 @@ export function ContractActions({
             )}
           </Button>
 
-          {/* View details */}
-          <Button
-            asChild
-            variant="ghost"
-            className="w-full sm:w-auto"
-          >
+          <Button asChild variant="ghost" className="w-full sm:w-auto">
             <Link href={`/dashboard/contratos/${contractId}`}>
               <FileText className="mr-2 h-4 w-4" />
               Ver detalles
@@ -216,11 +159,12 @@ export function ContractActions({
 
         {status === 'GENERATED' && (
           <p className="text-xs text-text-tertiary">
-            También enviamos el contrato por email
+            También enviamos el contrato por email.
           </p>
         )}
+
         <p className="text-xs text-text-muted">
-          El archivo Word (.docx) es editable — puedes abrirlo en Microsoft Word, Google Docs o LibreOffice para agregar datos adicionales antes de imprimir.
+          El archivo Word (.docx) es editable; puedes abrirlo en Microsoft Word, Google Docs o LibreOffice para completar datos adicionales antes de imprimir.
         </p>
       </div>
     )

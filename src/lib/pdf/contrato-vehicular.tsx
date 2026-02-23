@@ -1,4 +1,4 @@
-import {
+﻿import {
   Document,
   Page,
   Text,
@@ -6,110 +6,92 @@ import {
   StyleSheet,
 } from '@react-pdf/renderer'
 import type { ContratoVehicular } from '@/lib/validations/contract'
-import { requiresConyuge, compradorIncludesConyuge } from '@/lib/validations/contract'
+import {
+  requiresConyuge,
+  compradorIncludesConyuge,
+  resolverGenero,
+  resolverEstadoCivil,
+  buildTextoDocumento,
+  getFormaPagoTexto,
+} from '@/lib/validations/contract'
+
+const BLANK = '_______________'
+const FOOTER_BRAND = 'Documento generado por Abogados Online Ecuador • www.abogadosonlineecuador.com'
+const FOOTER_DISCLAIMER =
+  'AVISO LEGAL: Documento generado automáticamente con datos proporcionados por el usuario. Requiere revisión legal y notarial previa a su firma.'
 
 const styles = StyleSheet.create({
   page: {
-    padding: 50,
+    paddingTop: 44,
+    paddingBottom: 68,
+    paddingHorizontal: 44,
     fontSize: 10,
     fontFamily: 'Helvetica',
     backgroundColor: '#ffffff',
-    lineHeight: 1.5,
+    lineHeight: 1.45,
   },
-  header: {
+  centeredTitle: {
     textAlign: 'center',
-    marginBottom: 18,
-    borderBottom: 2,
-    borderBottomColor: '#1e40af',
-    paddingBottom: 14,
-  },
-  notariaTitle: {
-    fontSize: 12,
-    fontWeight: 'bold',
-    color: '#1e40af',
-    marginBottom: 3,
-  },
-  notariaSubtitle: {
-    fontSize: 9,
-    color: '#475569',
-    marginBottom: 2,
-  },
-  contractTitle: {
-    fontSize: 13,
-    fontWeight: 'bold',
-    color: '#1e293b',
-    marginTop: 18,
-    marginBottom: 6,
-    textAlign: 'center',
-  },
-  cuantia: {
-    fontSize: 10,
-    fontWeight: 'bold',
-    textAlign: 'center',
+    fontWeight: 700,
     marginBottom: 4,
   },
-  copias: {
-    fontSize: 9,
+  centeredSubtitle: {
     textAlign: 'center',
-    marginBottom: 16,
-    color: '#64748b',
+    marginBottom: 8,
+    color: '#334155',
   },
   paragraph: {
-    marginBottom: 8,
+    marginBottom: 7,
     textAlign: 'justify',
-    lineHeight: 1.6,
   },
   clauseTitle: {
-    fontSize: 10,
-    fontWeight: 'bold',
-    color: '#1e40af',
-    marginTop: 12,
-    marginBottom: 6,
+    marginTop: 10,
+    marginBottom: 5,
+    fontWeight: 700,
   },
-  subClause: {
-    marginBottom: 6,
-    textAlign: 'justify',
-    lineHeight: 1.6,
+  vehicleItem: {
+    marginBottom: 4,
+    marginLeft: 12,
   },
-  signatures: {
-    marginTop: 36,
+  signaturesSection: {
+    marginTop: 24,
+    gap: 14,
+  },
+  signaturesRow: {
     flexDirection: 'row',
-    justifyContent: 'space-around',
-    flexWrap: 'wrap',
-    gap: 12,
+    justifyContent: 'space-between',
+    gap: 14,
   },
   signatureBlock: {
-    width: '42%',
-    textAlign: 'center',
-    marginBottom: 12,
+    width: '48%',
+    minHeight: 64,
   },
   signatureLine: {
-    borderTop: 1,
+    borderTopWidth: 1,
     borderTopColor: '#1e293b',
-    paddingTop: 8,
-    marginTop: 48,
+    marginTop: 28,
+    paddingTop: 6,
   },
   signatureName: {
+    textAlign: 'center',
     fontSize: 9,
-    fontWeight: 'bold',
-    color: '#1e293b',
+    fontWeight: 700,
   },
   signatureRole: {
+    textAlign: 'center',
     fontSize: 8,
-    color: '#64748b',
+    color: '#475569',
     marginTop: 2,
   },
   footer: {
     position: 'absolute',
-    bottom: 28,
-    left: 50,
-    right: 50,
-    fontSize: 7,
-    color: '#94a3b8',
+    left: 44,
+    right: 44,
+    bottom: 18,
     textAlign: 'center',
-    borderTop: 1,
-    borderTopColor: '#e2e8f0',
-    paddingTop: 8,
+    fontSize: 7,
+    color: '#64748b',
+    lineHeight: 1.35,
   },
 })
 
@@ -117,29 +99,179 @@ interface ContratoVehicularPdfProps {
   contrato: ContratoVehicular
 }
 
-// --- Date helpers ---
-
-const DIAS_LETRAS: Record<number, string> = {
-  1: 'uno', 2: 'dos', 3: 'tres', 4: 'cuatro', 5: 'cinco',
-  6: 'seis', 7: 'siete', 8: 'ocho', 9: 'nueve', 10: 'diez',
-  11: 'once', 12: 'doce', 13: 'trece', 14: 'catorce', 15: 'quince',
-  16: 'dieciséis', 17: 'diecisiete', 18: 'dieciocho', 19: 'diecinueve',
-  20: 'veinte', 21: 'veintiuno', 22: 'veintidós', 23: 'veintitrés',
-  24: 'veinticuatro', 25: 'veinticinco', 26: 'veintiséis', 27: 'veintisiete',
-  28: 'veintiocho', 29: 'veintinueve', 30: 'treinta', 31: 'treinta y uno',
+function normalizeSpaces(value: string): string {
+  return value.replace(/\s+/g, ' ').trim()
 }
 
-const ANIOS_LETRAS: Record<number, string> = {
-  2024: 'dos mil veinticuatro',
-  2025: 'dos mil veinticinco',
-  2026: 'dos mil veintiséis',
-  2027: 'dos mil veintisiete',
-  2028: 'dos mil veintiocho',
+function removeConsecutiveDuplicateWords(value: string): string {
+  const words = value.split(' ')
+  const result: string[] = []
+  let prevNormalized = ''
+
+  for (const word of words) {
+    const normalized = word
+      .toLowerCase()
+      .normalize('NFD')
+      .replace(/[\u0300-\u036f]/g, '')
+
+    if (normalized !== prevNormalized) {
+      result.push(word)
+      prevNormalized = normalized
+    }
+  }
+
+  return result.join(' ')
 }
 
-const MESES: string[] = [
-  'enero', 'febrero', 'marzo', 'abril', 'mayo', 'junio',
-  'julio', 'agosto', 'septiembre', 'octubre', 'noviembre', 'diciembre',
+function normalizeContractText(value?: string): string {
+  if (!value) return ''
+  let text = normalizeSpaces(value)
+  text = removeConsecutiveDuplicateWords(text)
+  text = text
+    .replace(/\s+,/g, ',')
+    .replace(/\s+\./g, '.')
+    .replace(/\s+;/g, ';')
+    .replace(/\s+:/g, ':')
+
+  return text
+}
+
+function orBlank(value?: string): string {
+  const text = normalizeContractText(value)
+  return text || BLANK
+}
+
+function removeAccents(value: string): string {
+  return value.normalize('NFD').replace(/[\u0300-\u036f]/g, '')
+}
+
+const UNIDADES: Record<number, string> = {
+  0: 'cero',
+  1: 'uno',
+  2: 'dos',
+  3: 'tres',
+  4: 'cuatro',
+  5: 'cinco',
+  6: 'seis',
+  7: 'siete',
+  8: 'ocho',
+  9: 'nueve',
+}
+
+const ESPECIALES: Record<number, string> = {
+  10: 'diez',
+  11: 'once',
+  12: 'doce',
+  13: 'trece',
+  14: 'catorce',
+  15: 'quince',
+  16: 'dieciséis',
+  17: 'diecisiete',
+  18: 'dieciocho',
+  19: 'diecinueve',
+  20: 'veinte',
+  21: 'veintiuno',
+  22: 'veintidós',
+  23: 'veintitrés',
+  24: 'veinticuatro',
+  25: 'veinticinco',
+  26: 'veintiséis',
+  27: 'veintisiete',
+  28: 'veintiocho',
+  29: 'veintinueve',
+}
+
+const DECENAS: Record<number, string> = {
+  30: 'treinta',
+  40: 'cuarenta',
+  50: 'cincuenta',
+  60: 'sesenta',
+  70: 'setenta',
+  80: 'ochenta',
+  90: 'noventa',
+}
+
+const CENTENAS: Record<number, string> = {
+  100: 'cien',
+  200: 'doscientos',
+  300: 'trescientos',
+  400: 'cuatrocientos',
+  500: 'quinientos',
+  600: 'seiscientos',
+  700: 'setecientos',
+  800: 'ochocientos',
+  900: 'novecientos',
+}
+
+function toWordsBelow100(n: number): string {
+  if (n < 10) return UNIDADES[n]
+  if (n <= 29) return ESPECIALES[n]
+
+  const decena = Math.floor(n / 10) * 10
+  const unidad = n % 10
+  if (unidad === 0) return DECENAS[decena]
+  return `${DECENAS[decena]} y ${UNIDADES[unidad]}`
+}
+
+function toWordsBelow1000(n: number): string {
+  if (n < 100) return toWordsBelow100(n)
+  if (n === 100) return 'cien'
+
+  const centena = Math.floor(n / 100) * 100
+  const resto = n % 100
+  const centenaTexto = centena === 100 ? 'ciento' : CENTENAS[centena]
+
+  if (resto === 0) return centenaTexto
+  return `${centenaTexto} ${toWordsBelow100(resto)}`
+}
+
+function numberToWords(n: number): string {
+  if (!Number.isFinite(n)) return String(n)
+
+  const entero = Math.trunc(Math.abs(n))
+
+  if (entero < 1000) return toWordsBelow1000(entero)
+
+  if (entero < 1000000) {
+    const miles = Math.floor(entero / 1000)
+    const resto = entero % 1000
+    const milesTexto = miles === 1 ? 'mil' : `${toWordsBelow1000(miles)} mil`
+    if (resto === 0) return milesTexto
+    return `${milesTexto} ${toWordsBelow1000(resto)}`
+  }
+
+  if (entero < 1000000000) {
+    const millones = Math.floor(entero / 1000000)
+    const resto = entero % 1000000
+    const millonesTexto = millones === 1 ? 'un millón' : `${numberToWords(millones)} millones`
+
+    if (resto === 0) return millonesTexto
+    if (resto < 1000) return `${millonesTexto} ${toWordsBelow1000(resto)}`
+
+    const miles = Math.floor(resto / 1000)
+    const restoFinal = resto % 1000
+    const milesTexto = miles === 1 ? 'mil' : `${toWordsBelow1000(miles)} mil`
+
+    if (restoFinal === 0) return `${millonesTexto} ${milesTexto}`
+    return `${millonesTexto} ${milesTexto} ${toWordsBelow1000(restoFinal)}`
+  }
+
+  return String(entero)
+}
+
+const MESES = [
+  'enero',
+  'febrero',
+  'marzo',
+  'abril',
+  'mayo',
+  'junio',
+  'julio',
+  'agosto',
+  'septiembre',
+  'octubre',
+  'noviembre',
+  'diciembre',
 ]
 
 function formatDate() {
@@ -147,267 +279,264 @@ function formatDate() {
   const dia = now.getDate()
   const mes = MESES[now.getMonth()]
   const anio = now.getFullYear()
-  const diaLetras = DIAS_LETRAS[dia] ?? dia.toString()
-  const anioLetras = ANIOS_LETRAS[anio] ?? anio.toString()
-  return {
-    ciudad: 'San Francisco de Quito, Distrito Metropolitano, capital de la República del Ecuador',
-    texto: `${diaLetras} (${dia}) días del mes de ${mes} del año ${anioLetras} (${anio})`,
-  }
-}
 
-// --- Price in words ---
+  return `${numberToWords(dia)} (${dia}) días del mes de ${mes} del año ${numberToWords(anio)} (${anio})`
+}
 
 function formatPrecioLetras(valor: number): string {
-  // Simple implementation for common values; returns formatted string
   const entero = Math.floor(valor)
   const centavos = Math.round((valor - entero) * 100)
+  const precioFormato = valor.toLocaleString('es-EC', { minimumFractionDigits: 2 })
+  const centavosTexto = centavos > 0 ? ` CON ${String(centavos).padStart(2, '0')}/100` : ''
 
-  const unidades = ['', 'uno', 'dos', 'tres', 'cuatro', 'cinco', 'seis', 'siete', 'ocho', 'nueve',
-    'diez', 'once', 'doce', 'trece', 'catorce', 'quince', 'dieciséis', 'diecisiete', 'dieciocho', 'diecinueve']
-  const decenas = ['', '', 'veinte', 'treinta', 'cuarenta', 'cincuenta', 'sesenta', 'setenta', 'ochenta', 'noventa']
-  const centenas = ['', 'cien', 'doscientos', 'trescientos', 'cuatrocientos', 'quinientos',
-    'seiscientos', 'setecientos', 'ochocientos', 'novecientos']
-
-  function tresDigitos(n: number): string {
-    if (n === 0) return ''
-    if (n === 100) return 'cien'
-    const c = Math.floor(n / 100)
-    const resto = n % 100
-    const cStr = c > 0 ? (c === 1 && resto > 0 ? 'ciento' : centenas[c]) : ''
-    if (resto === 0) return cStr
-    if (resto < 20) return [cStr, unidades[resto]].filter(Boolean).join(' ')
-    const d = Math.floor(resto / 10)
-    const u = resto % 10
-    const dStr = decenas[d]
-    const uStr = u > 0 ? `y ${unidades[u]}` : ''
-    return [cStr, dStr, uStr].filter(Boolean).join(' ')
-  }
-
-  let texto = ''
-  if (entero >= 1000) {
-    const miles = Math.floor(entero / 1000)
-    const restoMiles = entero % 1000
-    texto = miles === 1 ? 'mil' : `${tresDigitos(miles)} mil`
-    if (restoMiles > 0) texto += ` ${tresDigitos(restoMiles)}`
-  } else {
-    texto = tresDigitos(entero)
-  }
-
-  const centStr = centavos > 0 ? ` con ${centavos}/100` : ''
-  return `${texto.toUpperCase()}${centStr} DÓLARES DE LOS ESTADOS UNIDOS DE AMÉRICA (USD$ ${valor.toLocaleString('es-EC', { minimumFractionDigits: 2 })})`
+  return `${numberToWords(entero).toUpperCase()}${centavosTexto} DÓLARES DE LOS ESTADOS UNIDOS DE AMÉRICA (USD$ ${precioFormato})`
 }
 
-// --- Blank placeholder for missing optional fields ---
-const BLANK = '_______________'
+function normalizeObservation(raw?: string, enabled?: boolean): string {
+  if (!enabled) {
+    return 'No se registran observaciones adicionales sobre el estado físico o mecánico del vehículo.'
+  }
 
-// --- Build compareciente text ---
+  const cleaned = normalizeContractText(raw)
+  if (!cleaned) {
+    return 'No se registran observaciones adicionales sobre el estado físico o mecánico del vehículo.'
+  }
+
+  const normalized = removeAccents(cleaned.toLowerCase())
+  const sensitivePatterns = [
+    /\brobad[oa]?\b/,
+    /\bsin\s+papeles\b/,
+    /\bclonad[oa]?\b/,
+    /\bkilometraje\s+alterad[oa]?\b/,
+    /\bodometro\s+alterad[oa]?\b/,
+  ]
+
+  if (sensitivePatterns.some((pattern) => pattern.test(normalized))) {
+    return '[REVISIÓN MANUAL REQUERIDA] La observación ingresada contiene un término sensible que debe ser verificado por asesoría legal antes de la firma del contrato.'
+  }
+
+  if (/\bchoque\b/.test(normalized)) {
+    return 'El vehículo presenta daños por choque, circunstancia conocida y aceptada por la parte compradora.'
+  }
+
+  if (/\brayones?\b|\braspones?\b/.test(normalized)) {
+    return 'El vehículo presenta rayones o afectaciones estéticas, circunstancia conocida y aceptada por la parte compradora.'
+  }
+
+  if (/\bfalla\s+mecanica\b|\bmecanic[oa]\b/.test(normalized)) {
+    return 'El vehículo presenta una novedad mecánica, circunstancia conocida y aceptada por la parte compradora.'
+  }
+
+  if (/\bfalla\s+electrica\b|\belectric[oa]\b/.test(normalized)) {
+    return 'El vehículo presenta una novedad eléctrica, circunstancia conocida y aceptada por la parte compradora.'
+  }
+
+  return `Se deja constancia de la siguiente observación sobre el vehículo: ${cleaned}. Esta circunstancia es conocida y aceptada por la parte compradora.`
+}
 
 function buildComparecienteText(
   persona: ContratoVehicular['comprador'],
-  numero: string,
-  rol: string,
-  separator: string,
-  incluirConyuge?: boolean,
+  numero: '1' | '2',
+  denominacion: string,
+  inclConyuge: boolean,
 ): string {
-  const nombres = persona.nombres.toUpperCase()
-  const estadoCivilLabel = (() => {
-    switch (persona.estadoCivil) {
-      case 'soltero': return 'soltero'
-      case 'casado': return 'casado'
-      case 'divorciado': return 'divorciado'
-      case 'viudo': return 'viudo'
-      case 'union_de_hecho': return 'en unión de hecho'
-      default: return persona.estadoCivil
-    }
-  })()
+  const prefix = numero === '1' ? '1. Por una parte,' : '2. Por otra parte,'
+  const g = resolverGenero(persona.sexo)
+  const estadoCivilLabel = resolverEstadoCivil(persona.estadoCivil, persona.sexo)
+  const textoDoc = buildTextoDocumento(persona.tipoDocumento, persona.cedula)
 
-  let text = `${numero}. Por una parte, el señor ${nombres}, de nacionalidad ecuatoriana, portador de la cédula de ciudadanía No. ${persona.cedula}, de estado civil ${estadoCivilLabel}`
+  let text = `${prefix} ${g.articulo} ${orBlank(persona.nombres).toUpperCase()}, de nacionalidad ${orBlank(persona.nacionalidad)}, ${g.portador} de la ${textoDoc}, de estado civil ${estadoCivilLabel}`
 
-  // Conyuge block
-  const showConyuge = (requiresConyuge(persona.estadoCivil) && (incluirConyuge !== false)) ||
-    (rol === 'EL VENDEDOR' && requiresConyuge(persona.estadoCivil))
+  if (inclConyuge && persona.conyuge?.nombres) {
+    const gConyuge = resolverGenero(persona.conyuge.sexo ?? (persona.sexo === 'M' ? 'F' : 'M'))
+    const textoDocConyuge = buildTextoDocumento(
+      persona.conyuge.tipoDocumento ?? 'cedula',
+      persona.conyuge.cedula,
+    )
 
-  if (showConyuge && persona.conyuge?.nombres) {
-    const conyugeNombre = persona.conyuge.nombres.toUpperCase()
-    const conyugeCedula = persona.conyuge.cedula || BLANK
-    text += `, casado con la señora ${conyugeNombre}, portadora de la cédula de ciudadanía No. ${conyugeCedula}, quienes comparecen por sus propios y personales derechos, así como por los que representan dentro de la sociedad conyugal`
+    text += ` con ${gConyuge.articulo} ${orBlank(persona.conyuge.nombres).toUpperCase()}, ${gConyuge.portador} de la ${textoDocConyuge}, quienes comparecen por sus propios y personales derechos, así como por los que representan dentro de la sociedad conyugal`
+  } else if (persona.comparecencia === 'apoderado' && persona.apoderado) {
+    text += `, debidamente representado por ${orBlank(persona.apoderado.nombres).toUpperCase()}, portador de la cédula No. ${orBlank(persona.apoderado.cedula)}, según poder especial otorgado ante la ${orBlank(persona.apoderado.notariaPoder)} el ${orBlank(persona.apoderado.fechaPoder)}`
+  } else {
+    text += ', por sus propios y personales derechos'
   }
 
-  // Apoderado block
-  if (persona.comparecencia === 'apoderado' && persona.apoderado) {
-    const apNombre = persona.apoderado.nombres.toUpperCase()
-    text += `, debidamente representado por ${apNombre}, portador de la cédula de ciudadanía No. ${persona.apoderado.cedula}, según poder especial otorgado ante la ${persona.apoderado.notariaPoder} el ${persona.apoderado.fechaPoder}`
-  }
-
-  text += `, domiciliado en ${persona.direccion || BLANK}`
-
-  if (persona.comparecencia !== 'apoderado' && !showConyuge) {
-    text += `, por sus propios y personales derechos`
-  }
-
-  text += `, quien en adelante se denominará "${rol}"${separator}`
+  const comparecienteFinal = inclConyuge ? 'quienes en adelante se denominarán' : 'quien en adelante se denominará'
+  text += `, con domicilio en ${orBlank(persona.direccion)}, ${comparecienteFinal} "${denominacion}"${numero === '1' ? '; y,' : '.'}`
 
   return text
 }
 
 export function ContratoVehicularPdf({ contrato }: ContratoVehicularPdfProps) {
-  const fecha = formatDate()
   const { vendedor, comprador, vehiculo } = contrato
-  const precio =
-    typeof vehiculo.valorContrato === 'number' && vehiculo.valorContrato > 0
-      ? vehiculo.valorContrato
-      : vehiculo.avaluo
-
+  const precio = vehiculo.valorContrato > 0 ? vehiculo.valorContrato : vehiculo.avaluo
   const precioLetras = formatPrecioLetras(precio)
   const precioFormato = precio.toLocaleString('es-EC', { minimumFractionDigits: 2 })
+  const fechaTexto = formatDate()
 
+  const vendedorConConyuge = requiresConyuge(vendedor.estadoCivil) && !!vendedor.conyuge?.nombres
   const compradorConConyuge = compradorIncludesConyuge(comprador)
 
-  const vendedorText = buildComparecienteText(vendedor, '1', 'EL VENDEDOR', '; y,')
-  const compradorText = buildComparecienteText(comprador, '2', 'EL COMPRADOR', '.', compradorConConyuge)
+  const gVend = resolverGenero(vendedor.sexo)
+  const gComp = resolverGenero(comprador.sexo)
+  const denomVend = gVend.denominacionVendedor
+  const denomComp = gComp.denominacionComprador
 
-  // Signatures setup
-  const vendedorConyuge = requiresConyuge(vendedor.estadoCivil) && vendedor.conyuge
-  const compradorConyuge = compradorConConyuge && comprador.conyuge
+  const vendedorText = buildComparecienteText(vendedor, '1', denomVend, vendedorConConyuge)
+  const compradorText = buildComparecienteText(comprador, '2', denomComp, compradorConConyuge)
+
+  const observacionNormalizada = normalizeObservation(contrato.observacionesTexto, contrato.tieneObservaciones)
+  const formaPagoTexto = getFormaPagoTexto(contrato.formaPago)
 
   return (
     <Document>
       <Page size="A4" style={styles.page}>
-        {/* Header */}
-        <View style={styles.header}>
-          <Text style={styles.notariaTitle}>ABOGADOS ONLINE ECUADOR</Text>
-          <Text style={styles.notariaSubtitle}>Servicio legal digital independiente</Text>
-          <Text style={styles.notariaSubtitle}>Quito, Ecuador</Text>
-        </View>
+        <Text style={styles.centeredTitle}>ABOGADOS ONLINE ECUADOR</Text>
+        <Text style={styles.centeredSubtitle}>Servicio legal digital independiente | Quito, Ecuador</Text>
+        <Text style={styles.centeredTitle}>CONTRATO DE COMPRAVENTA DE VEHÍCULO</Text>
+        <Text style={[styles.centeredTitle, { marginBottom: 10 }]}>CUANTÍA: USD$ {precioFormato}</Text>
 
-        <Text style={styles.contractTitle}>CONTRATO DE COMPRAVENTA DE VEHÍCULO</Text>
-        <Text style={styles.cuantia}>CUANTÍA: USD$ {precioFormato}</Text>
-        <Text style={styles.copias}>COPIAS: DOS</Text>
-
-        {/* Intro */}
         <Text style={styles.paragraph}>
-          En la ciudad de {fecha.ciudad}, a los {fecha.texto}, comparecen a la celebración del presente contrato de compraventa:
+          En la ciudad de San Francisco de Quito, Distrito Metropolitano, capital de la República del Ecuador, a los {fechaTexto}, comparecen a la celebración del presente contrato de compraventa:
         </Text>
-
         <Text style={styles.paragraph}>{vendedorText}</Text>
         <Text style={styles.paragraph}>{compradorText}</Text>
-
         <Text style={styles.paragraph}>
           Los comparecientes, mayores de edad, hábiles y capaces para contratar y obligarse, libre y voluntariamente convienen en celebrar el presente contrato de compraventa de vehículo automotor al tenor de las siguientes cláusulas:
         </Text>
 
-        {/* PRIMERA */}
         <Text style={styles.clauseTitle}>PRIMERA: ANTECEDENTES.-</Text>
-        <Text style={styles.subClause}>
-          {`1.1.- ${vendedor.nombres.toUpperCase()} declara ser legítimo propietario del vehículo que se describe en el presente contrato, según consta en el Certificado Único Vehicular emitido por la Agencia Nacional de Tránsito, el mismo que se encuentra libre de gravámenes, embargos y prohibiciones de enajenar.`}
+        <Text style={styles.paragraph}>
+          1.1.- {denomVend} declara ser {gVend.propietario} del vehículo que se describe en el presente contrato, según consta en los registros y documentos habilitantes de la Agencia Nacional de Tránsito.
         </Text>
-        <Text style={styles.subClause}>
-          {`1.2.- El referido vehículo se encuentra con su matrícula en regla, conforme los registros de la Agencia Nacional de Tránsito del Ecuador.`}
+        <Text style={styles.paragraph}>
+          1.2.- {denomVend} declara que el vehículo objeto de la presente compraventa se encuentra libre de gravámenes, prendas, reserva de dominio, prohibiciones de enajenar, medidas cautelares y demás limitaciones al dominio que afecten su transferencia.
+        </Text>
+        <Text style={styles.paragraph}>
+          1.3.- {denomVend} declara que el vehículo se encuentra con su matrícula en regla, conforme a los registros de la Agencia Nacional de Tránsito del Ecuador.
         </Text>
 
-        {/* SEGUNDA */}
         <Text style={styles.clauseTitle}>SEGUNDA: OBJETO.-</Text>
-        <Text style={styles.subClause}>
-          {`Por el presente contrato, EL VENDEDOR transfiere en favor de EL COMPRADOR, a título de venta, el dominio, posesión y todos los derechos que le corresponden sobre el siguiente vehículo automotor:`}
+        <Text style={styles.paragraph}>
+          Por el presente contrato, {denomVend} transfiere en favor de {denomComp}, a título de venta, el dominio, posesión y todos los derechos que le corresponden sobre el siguiente vehículo automotor:
         </Text>
-        <Text style={styles.subClause}>{`PLACA: ${vehiculo.placa}   |   MARCA: ${vehiculo.marca}   |   MODELO: ${vehiculo.modelo}`}</Text>
-        <Text style={styles.subClause}>{`AÑO: ${vehiculo.anio}   |   COLOR: ${vehiculo.color}   |   SERVICIO: USO PARTICULAR`}</Text>
-        <Text style={styles.subClause}>{`NÚMERO DE MOTOR: ${vehiculo.motor}   |   NÚMERO DE CHASIS/VIN: ${vehiculo.chasis}`}</Text>
+        <Text style={styles.vehicleItem}>PLACA: {orBlank(vehiculo.placa)}</Text>
+        <Text style={styles.vehicleItem}>MARCA: {orBlank(vehiculo.marca)}</Text>
+        <Text style={styles.vehicleItem}>MODELO: {orBlank(vehiculo.modelo)}</Text>
+        <Text style={styles.vehicleItem}>TIPO: {orBlank(vehiculo.tipo)}</Text>
+        <Text style={styles.vehicleItem}>AÑO DE MODELO: {numberToWords(vehiculo.anio)} ({vehiculo.anio})</Text>
+        <Text style={styles.vehicleItem}>NÚMERO DE MOTOR: {orBlank(vehiculo.motor)}</Text>
+        <Text style={styles.vehicleItem}>NÚMERO DE CHASIS/VIN: {orBlank(vehiculo.chasis)}</Text>
+        <Text style={styles.vehicleItem}>COLOR: {orBlank(vehiculo.color)}</Text>
+        <Text style={styles.vehicleItem}>CILINDRAJE: {numberToWords(vehiculo.cilindraje)} ({vehiculo.cilindraje}) cc</Text>
+        <Text style={styles.vehicleItem}>CARROCERÍA: {orBlank(vehiculo.carroceria)}</Text>
+        <Text style={styles.vehicleItem}>CLASE: {orBlank(vehiculo.clase)}</Text>
+        <Text style={styles.vehicleItem}>PAÍS DE ORIGEN: {orBlank(vehiculo.pais)}</Text>
+        <Text style={styles.vehicleItem}>COMBUSTIBLE: {orBlank(vehiculo.combustible)}</Text>
+        <Text style={styles.vehicleItem}>NÚMERO DE PASAJEROS: {numberToWords(vehiculo.pasajeros)} ({vehiculo.pasajeros})</Text>
+        <Text style={styles.vehicleItem}>SERVICIO: {orBlank(vehiculo.servicio)}</Text>
 
-        {/* TERCERA */}
         <Text style={styles.clauseTitle}>TERCERA: PRECIO Y FORMA DE PAGO.-</Text>
-        <Text style={styles.subClause}>
-          {`3.1.- El precio de la presente compraventa es la suma de ${precioLetras}, valor que EL VENDEDOR declara haber recibido a su entera satisfacción por parte de EL COMPRADOR, otorgando el más completo y eficaz finiquito de pago.`}
-        </Text>
-        <Text style={styles.subClause}>
-          {`3.2.- Con la recepción del precio señalado, EL VENDEDOR se da por satisfecho y cancela toda obligación derivada de la presente compraventa.`}
-        </Text>
-
-        {/* CUARTA */}
-        <Text style={styles.clauseTitle}>CUARTA: ESTADO DEL VEHÍCULO Y GARANTÍAS.-</Text>
-        <Text style={styles.subClause}>
-          {`4.1.- EL VENDEDOR declara expresamente que el vehículo se encuentra libre de todo gravamen, hipoteca, prenda, embargo, prohibición de enajenar o cualquier otra limitación de dominio vigente.`}
-        </Text>
-        <Text style={styles.subClause}>
-          {`4.2.- EL VENDEDOR garantiza el saneamiento por evicción del bien vendido, comprometiéndose a responder ante EL COMPRADOR por cualquier reclamo de terceros sobre la propiedad o dominio del vehículo.`}
-        </Text>
-        <Text style={styles.subClause}>
-          {`4.3.- EL COMPRADOR declara conocer el estado físico y mecánico del vehículo y manifiesta su total conformidad, renunciando expresamente a todo reclamo por vicios redhibitorios o defectos ocultos.`}
-        </Text>
-
-        {/* QUINTA */}
-        <Text style={styles.clauseTitle}>QUINTA: GASTOS.-</Text>
         <Text style={styles.paragraph}>
-          {`Todos los gastos que origine la transferencia de dominio del vehículo, incluyendo derechos de matrícula, especies valoradas, impuestos y demás tributos establecidos por la ley, serán cubiertos en su totalidad por EL COMPRADOR.`}
+          3.1.- El precio de la presente compraventa es la suma de {precioLetras}, cantidad que {denomVend} declara haber recibido a su entera satisfacción mediante {formaPagoTexto} realizada por {denomComp}.
         </Text>
-
-        {/* SEXTA */}
-        <Text style={styles.clauseTitle}>SEXTA: JURISDICCIÓN Y COMPETENCIA.-</Text>
         <Text style={styles.paragraph}>
-          {`Para todos los efectos legales derivados del presente contrato, las partes se someten expresamente a los jueces competentes de la ciudad de Quito, renunciando a fuero especial que pudieren tener o corresponderles.`}
+          3.2.- Para fines de respaldo documental, las partes podrán incorporar al presente instrumento la fecha de pago [FECHA], la entidad financiera [COMPLETAR] y el comprobante No. [COMPLETAR].
         </Text>
-
-        {/* SÉPTIMA */}
-        <Text style={styles.clauseTitle}>SÉPTIMA: ACEPTACIÓN.-</Text>
         <Text style={styles.paragraph}>
-          {`Las partes libre y voluntariamente aceptan íntegramente el contenido del presente contrato, declarando que sus cláusulas han sido redactadas de común acuerdo y son expresión fiel de su voluntad. El presente instrumento se extiende en dos (2) ejemplares de igual tenor y valor, uno para cada parte.`}
+          3.3.- Con el pago del precio señalado, {denomVend} se da por {gVend.cancelado} y {gVend.satisfecho} de la obligación contraída por {denomComp}, otorgando el más amplio y eficaz finiquito de pago.
         </Text>
 
-        {/* OCTAVA */}
-        <Text style={styles.clauseTitle}>OCTAVA: CUANTÍA.-</Text>
+        <Text style={styles.clauseTitle}>CUARTA: TRADICIÓN Y TRANSFERENCIA DE DOMINIO.-</Text>
         <Text style={styles.paragraph}>
-          {`La cuantía de la presente compraventa asciende a la suma de ${precioLetras}.`}
+          4.1.- Con la suscripción del presente contrato y el pago total del precio convenido, {denomVend} transfiere y hace la tradición del dominio del vehículo a favor de {denomComp}.
         </Text>
-
         <Text style={styles.paragraph}>
-          {`En fe de lo cual, firman las partes en el lugar y fecha indicados en el encabezamiento del presente contrato.`}
+          4.2.- Las partes se obligan a suscribir y gestionar los documentos adicionales que resulten necesarios ante la autoridad de tránsito competente para perfeccionar el traspaso registral.
         </Text>
 
-        {/* SIGNATURES ROW 1: Vendedor + Cónyuge Vendedor */}
-        <View style={styles.signatures}>
-          <View style={styles.signatureBlock}>
-            <View style={styles.signatureLine}>
-              <Text style={styles.signatureName}>{vendedor.nombres.toUpperCase()}</Text>
-              <Text style={styles.signatureRole}>C.I. {vendedor.cedula}</Text>
-              <Text style={styles.signatureRole}>EL VENDEDOR</Text>
-            </View>
-          </View>
+        <Text style={styles.clauseTitle}>QUINTA: DECLARACIÓN DE GRAVÁMENES Y SANEAMIENTO.-</Text>
+        <Text style={styles.paragraph}>
+          5.1.- {denomVend} declara expresamente que el vehículo objeto de la presente compraventa se encuentra libre de gravámenes, prendas, reserva de dominio, prohibiciones de enajenar, medidas cautelares y demás limitaciones al dominio que afecten su transferencia.
+        </Text>
+        <Text style={styles.paragraph}>
+          5.2.- {denomVend} garantiza a {denomComp} el saneamiento por evicción del bien vendido, comprometiéndose a responder por cualquier reclamo de terceros sobre la propiedad del vehículo.
+        </Text>
 
-          {vendedorConyuge && (
+        <Text style={styles.clauseTitle}>SEXTA: ENTREGA MATERIAL DEL VEHÍCULO Y DOCUMENTOS.-</Text>
+        <Text style={styles.paragraph}>6.1.- La entrega material del vehículo se realizará el [FECHA], en [COMPLETAR].</Text>
+        <Text style={styles.paragraph}>6.2.- En el acto de entrega, la parte vendedora hará entrega a la parte compradora de las llaves, matrícula original, Certificado Único Vehicular y demás documentos habilitantes.</Text>
+
+        <Text style={styles.clauseTitle}>SÉPTIMA: RESPONSABILIDAD POSTERIOR A LA ENTREGA.-</Text>
+        <Text style={styles.paragraph}>7.1.- Desde la fecha y hora de entrega material del vehículo, {denomComp} asume toda responsabilidad administrativa, civil y de uso del automotor, incluyendo multas, infracciones, tasas, tributos y demás obligaciones posteriores.</Text>
+        <Text style={styles.paragraph}>7.2.- Las multas, obligaciones y responsabilidades generadas con anterioridad a la entrega material serán de cargo de {denomVend}, salvo pacto expreso en contrario.</Text>
+
+        <Text style={styles.clauseTitle}>OCTAVA: ESTADO FÍSICO Y MECÁNICO DEL VEHÍCULO.-</Text>
+        <Text style={styles.paragraph}>8.1.- {denomComp} declara conocer y aceptar el estado físico y mecánico actual del vehículo, luego de su revisión previa.</Text>
+        <Text style={styles.paragraph}>8.2.- {observacionNormalizada}</Text>
+
+        <Text style={styles.clauseTitle}>NOVENA: GASTOS.-</Text>
+        <Text style={styles.paragraph}>Todos los gastos que origine la transferencia de dominio del vehículo, tales como derechos de matrícula, especies valoradas, impuestos y demás tributos establecidos por la ley, serán cubiertos por {denomComp}, salvo aquellos que por disposición legal correspondan a {denomVend}.</Text>
+
+        <Text style={styles.clauseTitle}>DÉCIMA: PLAZO PARA REALIZAR LA TRANSFERENCIA DE DOMINIO.-</Text>
+        <Text style={styles.paragraph}>Las partes se obligan a realizar el trámite de transferencia de dominio ante la autoridad competente dentro del plazo de [PLAZO] días contados a partir de la fecha de suscripción del presente contrato.</Text>
+
+        <Text style={styles.clauseTitle}>DÉCIMA PRIMERA: JURISDICCIÓN Y COMPETENCIA.-</Text>
+        <Text style={styles.paragraph}>Para todos los efectos legales derivados del presente contrato, las partes se someten a los jueces competentes de la ciudad de Quito, renunciando expresamente al fuero especial que pudieren tener.</Text>
+
+        <Text style={styles.clauseTitle}>DÉCIMA SEGUNDA: ACEPTACIÓN Y RATIFICACIÓN.-</Text>
+        <Text style={styles.paragraph}>Las partes aceptan íntegramente las cláusulas del presente contrato, declarando que han sido redactadas de común acuerdo y que las mismas son expresión fiel de su voluntad. El presente contrato se extiende en dos (2) ejemplares de igual tenor y valor, uno para cada una de las partes.</Text>
+
+        <Text style={styles.clauseTitle}>DÉCIMA TERCERA: CUANTÍA.-</Text>
+        <Text style={styles.paragraph}>La cuantía de la presente compraventa asciende a la suma de {precioLetras}.</Text>
+
+        <Text style={styles.paragraph}>En fe de lo cual, firman las partes en el lugar y fecha indicados en el encabezamiento del presente contrato.</Text>
+
+        <View style={styles.signaturesSection}>
+          <View style={styles.signaturesRow}>
             <View style={styles.signatureBlock}>
               <View style={styles.signatureLine}>
-                <Text style={styles.signatureName}>{vendedor.conyuge!.nombres.toUpperCase()}</Text>
-                <Text style={styles.signatureRole}>C.I. {vendedor.conyuge!.cedula}</Text>
-                <Text style={styles.signatureRole}>CÓNYUGE DEL VENDEDOR</Text>
+                <Text style={styles.signatureName}>{orBlank(vendedor.nombres).toUpperCase()}</Text>
+                <Text style={styles.signatureRole}>C.I. {orBlank(vendedor.cedula)}</Text>
+                <Text style={styles.signatureRole}>{denomVend}</Text>
               </View>
             </View>
-          )}
-        </View>
-
-        {/* SIGNATURES ROW 2: Comprador + Cónyuge Comprador */}
-        <View style={styles.signatures}>
-          <View style={styles.signatureBlock}>
-            <View style={styles.signatureLine}>
-              <Text style={styles.signatureName}>{comprador.nombres.toUpperCase()}</Text>
-              <Text style={styles.signatureRole}>C.I. {comprador.cedula}</Text>
-              <Text style={styles.signatureRole}>EL COMPRADOR</Text>
-            </View>
+            {vendedorConConyuge ? (
+              <View style={styles.signatureBlock}>
+                <View style={styles.signatureLine}>
+                  <Text style={styles.signatureName}>{orBlank(vendedor.conyuge?.nombres).toUpperCase()}</Text>
+                  <Text style={styles.signatureRole}>C.I. {orBlank(vendedor.conyuge?.cedula)}</Text>
+                  <Text style={styles.signatureRole}>CÓNYUGE DE {denomVend}</Text>
+                </View>
+              </View>
+            ) : (
+              <View style={styles.signatureBlock} />
+            )}
           </View>
 
-          {compradorConyuge && (
+          <View style={styles.signaturesRow}>
             <View style={styles.signatureBlock}>
               <View style={styles.signatureLine}>
-                <Text style={styles.signatureName}>{comprador.conyuge!.nombres.toUpperCase()}</Text>
-                <Text style={styles.signatureRole}>C.I. {comprador.conyuge!.cedula}</Text>
-                <Text style={styles.signatureRole}>CÓNYUGE DEL COMPRADOR</Text>
+                <Text style={styles.signatureName}>{orBlank(comprador.nombres).toUpperCase()}</Text>
+                <Text style={styles.signatureRole}>C.I. {orBlank(comprador.cedula)}</Text>
+                <Text style={styles.signatureRole}>{denomComp}</Text>
               </View>
             </View>
-          )}
+            {compradorConConyuge ? (
+              <View style={styles.signatureBlock}>
+                <View style={styles.signatureLine}>
+                  <Text style={styles.signatureName}>{orBlank(comprador.conyuge?.nombres).toUpperCase()}</Text>
+                  <Text style={styles.signatureRole}>C.I. {orBlank(comprador.conyuge?.cedula)}</Text>
+                  <Text style={styles.signatureRole}>CÓNYUGE DE {denomComp}</Text>
+                </View>
+              </View>
+            ) : (
+              <View style={styles.signatureBlock} />
+            )}
+          </View>
         </View>
 
-        <Text style={styles.footer}>
-          Documento generado por Abogados Online Ecuador • www.abogadosonlineecuador.com
-        </Text>
+        <Text style={styles.footer}>{FOOTER_BRAND}{'\n'}{FOOTER_DISCLAIMER}</Text>
       </Page>
     </Document>
   )

@@ -19,6 +19,7 @@ interface ContratoGeneradoEmailProps {
   vehicleMarca: string
   vehicleModelo: string
   downloadUrl: string
+  documentFormat?: string
 }
 
 export const ContratoGeneradoEmail = ({
@@ -27,6 +28,7 @@ export const ContratoGeneradoEmail = ({
   vehicleMarca = 'CHEVROLET',
   vehicleModelo = 'SPARK GT',
   downloadUrl = 'https://abogadosonlineecuador.com/contratos/download',
+  documentFormat = 'Word (.docx)',
 }: ContratoGeneradoEmailProps) => {
   return (
     <Html>
@@ -70,7 +72,7 @@ export const ContratoGeneradoEmail = ({
             <Text style={stepText}>
               <strong>1. Descarga tu contrato</strong>
               <br />
-              Usa el botón de abajo para descargar tu contrato en PDF.
+              Usa el botón de abajo para descargar tu contrato en {documentFormat}.
             </Text>
 
             <Text style={stepText}>
@@ -97,7 +99,7 @@ export const ContratoGeneradoEmail = ({
           {/* CTA Button */}
           <Section style={buttonContainer}>
             <Button href={downloadUrl} style={button}>
-              Descargar Contrato PDF
+              Descargar Contrato {documentFormat}
             </Button>
             <Text style={downloadNote}>
               El link de descarga es válido por 7 días

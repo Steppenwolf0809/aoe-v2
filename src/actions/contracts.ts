@@ -1,4 +1,4 @@
-'use server'
+﻿'use server'
 
 import { createClient } from '@/lib/supabase/server'
 import { contratoVehicularSchema } from '@/lib/validations/contract'
@@ -10,17 +10,15 @@ type ActionResult<T> =
 
 export async function createContract(
   formData: unknown,
-  email?: string
+  email?: string,
 ): Promise<ActionResult<{ id: string }>> {
   try {
     const supabase = await createClient()
 
-    // Get user if authenticated
     const {
       data: { user },
     } = await supabase.auth.getUser()
 
-    // For anonymous contracts, email is required
     if (!user && !email) {
       return { success: false, error: 'Email es requerido para continuar' }
     }
@@ -33,8 +31,8 @@ export async function createContract(
     const { data, error } = await supabase
       .from('contracts')
       .insert({
-        user_id: user?.id || null, // Null for anonymous contracts
-        email: user ? null : email, // Only store email for anonymous contracts
+        user_id: user?.id || null,
+        email: user ? null : email,
         type: 'VEHICLE_CONTRACT',
         data: validated.data,
         status: 'DRAFT',
@@ -58,7 +56,7 @@ export async function createContract(
 }
 
 export async function getContract(
-  contractId: string
+  contractId: string,
 ): Promise<ActionResult<any>> {
   try {
     const supabase = await createClient()
@@ -105,7 +103,7 @@ export async function updateContractStatus(
     pdf_hash?: string
     download_token?: string
     download_token_expires_at?: string
-  }
+  },
 ): Promise<ActionResult<any>> {
   try {
     const supabase = await createClient()
@@ -142,12 +140,12 @@ export async function updateContractStatus(
 }
 
 /**
- * Claim an anonymous contract after authentication
- * Associates the contract with the authenticated user and generates PDF
+ * Claim an anonymous contract after authentication.
+ * Associates the contract with the authenticated user and prepares DOCX download.
  */
 export async function claimContract(
-  contractId: string
-): Promise<ActionResult<{ pdfUrl: string; downloadToken: string }>> {
+  contractId: string,
+): Promise<ActionResult<{ downloadToken: string }>> {
   try {
     const supabase = await createClient()
 
@@ -158,7 +156,6 @@ export async function claimContract(
       return { success: false, error: 'No autenticado' }
     }
 
-    // Get contract using admin client (bypass RLS for anonymous contracts)
     const { createAdminClient } = await import('@/lib/supabase/admin')
     const adminSupabase = createAdminClient()
 
@@ -172,12 +169,10 @@ export async function claimContract(
       return { success: false, error: 'Contrato no encontrado' }
     }
 
-    // Verify contract is anonymous
     if (contract.user_id) {
       return { success: false, error: 'Este contrato ya pertenece a un usuario' }
     }
 
-    // Verify contract is paid
     if (contract.status !== 'PAID') {
       return {
         success: false,
@@ -185,28 +180,26 @@ export async function claimContract(
       }
     }
 
-    // Associate contract with user
     await adminSupabase
       .from('contracts')
       .update({
         user_id: user.id,
-        email: null, // Remove email once associated with user
+        email: null,
       })
       .eq('id', contractId)
 
-    // Generate PDF
-    const { generateContractPdf } = await import('./pdf')
-    const pdfResult = await generateContractPdf(contractId)
+    const { prepareContractDocxDeliveryAdmin } = await import('./docx')
+    const docxResult = await prepareContractDocxDeliveryAdmin(contractId)
 
-    if (!pdfResult.success) {
+    if (!docxResult.success) {
       return {
         success: false,
-        error: `Contrato asociado pero fallo la generación del PDF: ${pdfResult.error}`,
+        error: `Contrato asociado pero falló la preparación del documento Word: ${docxResult.error}`,
       }
     }
 
     revalidatePath('/dashboard/contratos')
-    return { success: true, data: pdfResult.data }
+    return { success: true, data: docxResult.data }
   } catch (error) {
     console.error('[claimContract]', error)
     return {
