@@ -162,7 +162,13 @@ export async function generateContractDocx(
     }
 
     const raw = contract.data as Record<string, any>
-    const personaDefaults = { sexo: 'M', nacionalidad: 'ecuatoriana', tipoDocumento: 'cedula' }
+    const personaDefaults = {
+      sexo: 'M',
+      nacionalidad: 'ecuatoriana',
+      tipoDocumento: 'cedula',
+      esPersonaJuridica: false,
+      representanteLegal: { nombres: '', cedula: '', tipoDocumento: 'cedula' },
+    }
     const vehiculoDefaults = {
       tipo: '',
       cilindraje: 1,

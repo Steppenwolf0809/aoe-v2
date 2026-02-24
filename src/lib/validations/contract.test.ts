@@ -76,6 +76,22 @@ function validPersonaApoderado() {
   }
 }
 
+function validVendedorEmpresa() {
+  return {
+    ...validPersona(),
+    esPersonaJuridica: true,
+    cedula: '1790012345001',
+    nombres: 'COMPANIA EJEMPLO S.A.',
+    // Even if these are present, conyuge must not be required for juridical seller.
+    estadoCivil: 'casado' as const,
+    representanteLegal: {
+      nombres: 'Nayibe Patricia Garcia Cabarcas',
+      cedula: '1721690376',
+      tipoDocumento: 'cedula' as const,
+    },
+  }
+}
+
 // ============================================
 // vehiculoSchema
 // ============================================
@@ -550,6 +566,109 @@ describe('contratoVehicularSchema', () => {
     }
     expect(contratoVehicularSchema.safeParse(data).success).toBe(true)
   })
+
+  it('accepts contract with vendedor persona juridica without conyuge', () => {
+    const data = {
+      ...validContrato(),
+      vendedor: validVendedorEmpresa(),
+    }
+    expect(contratoVehicularSchema.safeParse(data).success).toBe(true)
+  })
+
+  it('rejects vendedor persona juridica without representante legal', () => {
+    const data = {
+      ...validContrato(),
+      vendedor: {
+        ...validVendedorEmpresa(),
+        representanteLegal: { nombres: '', cedula: '', tipoDocumento: 'cedula' as const },
+      },
+    }
+    expect(contratoVehicularSchema.safeParse(data).success).toBe(false)
+  })
+
+  // --- Casos por tipo de antecedente ---
+  it('accepts tipoAntecedente compraventa without herencia data', () => {
+    const data = {
+      ...validContrato(),
+      tipoAntecedente: 'compraventa' as const,
+      herencia: undefined,
+    }
+    expect(contratoVehicularSchema.safeParse(data).success).toBe(true)
+  })
+
+  it('rejects tipoAntecedente herencia when herencia data is missing', () => {
+    const data = {
+      ...validContrato(),
+      tipoAntecedente: 'herencia' as const,
+      herencia: undefined,
+    }
+    expect(contratoVehicularSchema.safeParse(data).success).toBe(false)
+  })
+
+  it('accepts tipoAntecedente herencia with valid herencia data', () => {
+    const data = {
+      ...validContrato(),
+      tipoAntecedente: 'herencia' as const,
+      herencia: {
+        causanteNombre: 'Carlos Maldonado',
+        causanteFechaFallecimiento: '2024-01-12',
+        posEfectivaNotaria: 'Notaria Octava de Quito',
+        posEfectivaFecha: '2024-03-02',
+        herederosLista: 'Ana Maldonado y Luis Maldonado',
+        parentesco: 'hijos',
+      },
+    }
+    expect(contratoVehicularSchema.safeParse(data).success).toBe(true)
+  })
+
+  it('accepts tipoAntecedente donacion without herencia data', () => {
+    const data = {
+      ...validContrato(),
+      tipoAntecedente: 'donacion' as const,
+      herencia: undefined,
+    }
+    expect(contratoVehicularSchema.safeParse(data).success).toBe(true)
+  })
+
+  it('accepts tipoAntecedente importacion without herencia data', () => {
+    const data = {
+      ...validContrato(),
+      tipoAntecedente: 'importacion' as const,
+      herencia: undefined,
+    }
+    expect(contratoVehicularSchema.safeParse(data).success).toBe(true)
+  })
+
+  // --- Observaciones ---
+  it('rejects when tieneObservaciones=true and observacionesTexto is missing', () => {
+    const data = {
+      ...validContrato(),
+      tieneObservaciones: true,
+      observacionesTexto: '',
+    }
+    expect(contratoVehicularSchema.safeParse(data).success).toBe(false)
+  })
+
+  it('accepts when tieneObservaciones=true and observacionesTexto is valid', () => {
+    const data = {
+      ...validContrato(),
+      tieneObservaciones: true,
+      observacionesTexto: 'Vehiculo con rayones leves en puerta posterior.',
+    }
+    expect(contratoVehicularSchema.safeParse(data).success).toBe(true)
+  })
+
+  // --- Comprador persona juridica (no permitido en este formulario) ---
+  it('rejects contract when comprador is persona juridica', () => {
+    const data = {
+      ...validContrato(),
+      comprador: {
+        ...validPersona(),
+        esPersonaJuridica: true,
+      },
+    }
+    expect(contratoVehicularSchema.safeParse(data).success).toBe(false)
+  })
 })
 
 // ============================================
@@ -656,6 +775,15 @@ describe('countFirmas', () => {
       vehiculo: validVehiculo(),
       comprador: validPersonaApoderado(),
       vendedor: validPersona(),
+    } as any
+    expect(countFirmas(data)).toBe(3)
+  })
+
+  it('returns 3 when vendedor is persona juridica (sin conyuge vendedor)', () => {
+    const data = {
+      vehiculo: validVehiculo(),
+      comprador: validPersona(),
+      vendedor: validVendedorEmpresa(),
     } as any
     expect(countFirmas(data)).toBe(3)
   })

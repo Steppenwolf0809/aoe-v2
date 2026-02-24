@@ -214,6 +214,29 @@ const MESES = [
   'diciembre',
 ]
 
+function formatInputDateForContract(value?: string): string {
+  const text = normalizeContractText(value)
+  if (!text) return ''
+  const isoMatch = text.match(/^(\d{4})-(\d{2})-(\d{2})$/)
+  if (!isoMatch) return text
+
+  const year = Number.parseInt(isoMatch[1], 10)
+  const month = Number.parseInt(isoMatch[2], 10)
+  const day = Number.parseInt(isoMatch[3], 10)
+  if (!Number.isFinite(year) || !Number.isFinite(month) || !Number.isFinite(day)) return text
+  if (month < 1 || month > 12 || day < 1 || day > 31) return text
+
+  return `${day} de ${MESES[month - 1]} de ${year}`
+}
+
+function orBlankDate(value?: string): string {
+  return formatInputDateForContract(value) || BLANK
+}
+
+function orMarkerDate(value: string | undefined, marker: string): string {
+  return formatInputDateForContract(value) || marker
+}
+
 function formatDate(): string {
   const now = new Date()
   const dia = now.getDate()
@@ -377,12 +400,25 @@ export async function generateContratoVehicularDocx(contrato: ContratoVehicular)
   const fechaTexto = formatDate()
 
   const compradorConConyuge = compradorIncludesConyuge(comprador)
-  const vendedorConConyuge = requiresConyuge(vendedor.estadoCivil) && !!vendedor.conyuge?.nombres
+  const isSellerCompany = vendedor.esPersonaJuridica === true
+  const vendedorConConyuge =
+    !isSellerCompany && requiresConyuge(vendedor.estadoCivil) && !!vendedor.conyuge?.nombres
 
   const gVend = resolverGenero(vendedor.sexo)
   const gComp = resolverGenero(comprador.sexo)
-  const denomVend = gVend.denominacionVendedor
+  const denomVend = isSellerCompany ? 'LA PARTE VENDEDORA' : gVend.denominacionVendedor
   const denomComp = gComp.denominacionComprador
+  const sellerWords = isSellerCompany
+    ? {
+      propietario: 'legítima propietaria',
+      cancelado: 'cancelada',
+      satisfecho: 'satisfecha',
+    }
+    : {
+      propietario: gVend.propietario,
+      cancelado: gVend.cancelado,
+      satisfecho: gVend.satisfecho,
+    }
 
   function buildCompareciente(
     persona: typeof vendedor,
@@ -420,7 +456,7 @@ export async function generateContratoVehicularDocx(contrato: ContratoVehicular)
         boldText(toUpper(persona.apoderado.nombres)),
         normalText(', portador de la cédula No. '),
         boldText(orBlank(persona.apoderado.cedula)),
-        normalText(`, según poder especial otorgado ante la ${orBlank(persona.apoderado.notariaPoder)} el ${orBlank(persona.apoderado.fechaPoder)}`),
+        normalText(`, según poder especial otorgado ante la ${orBlank(persona.apoderado.notariaPoder)} el ${orBlankDate(persona.apoderado.fechaPoder)}`),
       )
     } else {
       runs.push(normalText(', por sus propios y personales derechos'))
@@ -437,6 +473,30 @@ export async function generateContratoVehicularDocx(contrato: ContratoVehicular)
     return makeParagraph(runs, 200)
   }
 
+  function buildSellerCompareciente(): Paragraph {
+    if (!isSellerCompany) {
+      return buildCompareciente(vendedor, '1', denomVend, vendedorConConyuge)
+    }
+
+    const repTipo = vendedor.representanteLegal?.tipoDocumento ?? 'cedula'
+    const repDoc = vendedor.representanteLegal?.cedula ?? BLANK
+    const textoDocRep = buildTextoDocumento(repTipo, repDoc)
+
+    const runs: TextRun[] = [
+      normalText('1. Por una parte, la compañía '),
+      boldText(toUpper(vendedor.nombres)),
+      normalText(', con RUC No. '),
+      boldText(orBlank(vendedor.cedula)),
+      normalText(', legalmente representada por '),
+      boldText(toUpper(vendedor.representanteLegal?.nombres || BLANK)),
+      normalText(`, portador(a) de la ${textoDocRep}, quien comparece en calidad de representante legal, con domicilio en ${orBlank(vendedor.direccion)}, quien en adelante se denominará `),
+      boldText(`"${denomVend}"`),
+      normalText('; y,'),
+    ]
+
+    return makeParagraph(runs, 200)
+  }
+
   function buildAntecedentes(): Paragraph[] {
     const paragraphs: Paragraph[] = [clauseTitle('PRIMERA: ANTECEDENTES.-')]
     const hasCuv = Boolean(contrato.cuvNumero && contrato.cuvNumero.trim())
@@ -445,13 +505,13 @@ export async function generateContratoVehicularDocx(contrato: ContratoVehicular)
       if (hasCuv) {
         paragraphs.push(
           subClause(
-            `1.1.- ${denomVend} declara ser ${gVend.propietario} del vehículo que se describe en el presente contrato, según consta en el Certificado Único Vehicular No. ${orBlank(contrato.cuvNumero)}, emitido por la Agencia Nacional de Tránsito el ${orBlank(contrato.cuvFecha)}, habiendo adquirido la propiedad del mismo mediante transferencia de dominio inscrita el ${orMarker(contrato.fechaInscripcion, '[COMPLETAR]')}.`,
+            `1.1.- ${denomVend} declara ser ${sellerWords.propietario} del vehículo que se describe en el presente contrato, según consta en el Certificado Único Vehicular No. ${orBlank(contrato.cuvNumero)}, emitido por la Agencia Nacional de Tránsito el ${orBlank(contrato.cuvFecha)}, habiendo adquirido la propiedad del mismo mediante transferencia de dominio inscrita el ${orMarkerDate(contrato.fechaInscripcion, '[COMPLETAR]')}.`,
           ),
         )
       } else {
         paragraphs.push(
           subClause(
-            `1.1.- ${denomVend} declara ser ${gVend.propietario} del vehículo que se describe en el presente contrato, según consta en los registros de la Agencia Nacional de Tránsito, documento que será anexo al presente contrato.`,
+            `1.1.- ${denomVend} declara ser ${sellerWords.propietario} del vehículo que se describe en el presente contrato, según consta en los registros de la Agencia Nacional de Tránsito, documento que será anexo al presente contrato.`,
           ),
         )
       }
@@ -467,13 +527,13 @@ export async function generateContratoVehicularDocx(contrato: ContratoVehicular)
 
         paragraphs.push(
           subClause(
-            `1.1.- ${denomVend} declara(n) que mediante Acta Notarial de Posesión Efectiva otorgada ante la ${orBlank(h.posEfectivaNotaria)} con fecha ${orBlank(h.posEfectivaFecha)}, se concedió la posesión efectiva proindiviso de los bienes dejados por ${orBlank(h.causanteNombre)}, quien falleció el ${orBlank(h.causanteFechaFallecimiento)}, a favor de ${orBlank(h.herederosLista)} en calidad de ${orBlank(h.parentesco)}. Entre los bienes del causante se encuentra el vehículo descrito en este contrato${cuvText}.`,
+            `1.1.- ${denomVend} declara(n) que mediante Acta Notarial de Posesión Efectiva otorgada ante la ${orBlank(h.posEfectivaNotaria)} con fecha ${orBlankDate(h.posEfectivaFecha)}, se concedió la posesión efectiva proindiviso de los bienes dejados por ${orBlank(h.causanteNombre)}, quien falleció el ${orBlankDate(h.causanteFechaFallecimiento)}, a favor de ${orBlank(h.herederosLista)} en calidad de ${orBlank(h.parentesco)}. Entre los bienes del causante se encuentra el vehículo descrito en este contrato${cuvText}.`,
           ),
         )
       } else {
         paragraphs.push(
           subClause(
-            `1.1.- ${denomVend} declara ser ${gVend.propietario} del vehículo que se describe en el presente contrato, habiéndolo adquirido mediante posesión efectiva, según consta en los registros de la Agencia Nacional de Tránsito, documento que será anexo al presente contrato.`,
+            `1.1.- ${denomVend} declara ser ${sellerWords.propietario} del vehículo que se describe en el presente contrato, habiéndolo adquirido mediante posesión efectiva, según consta en los registros de la Agencia Nacional de Tránsito, documento que será anexo al presente contrato.`,
           ),
         )
       }
@@ -486,7 +546,7 @@ export async function generateContratoVehicularDocx(contrato: ContratoVehicular)
 
       paragraphs.push(
         subClause(
-          `1.1.- ${denomVend} declara ser ${gVend.propietario} del vehículo que se describe en el presente contrato, habiéndolo adquirido mediante escritura pública de donación${cuvText}.`,
+          `1.1.- ${denomVend} declara ser ${sellerWords.propietario} del vehículo que se describe en el presente contrato, habiéndolo adquirido mediante escritura pública de donación${cuvText}.`,
         ),
       )
     }
@@ -498,7 +558,7 @@ export async function generateContratoVehicularDocx(contrato: ContratoVehicular)
 
       paragraphs.push(
         subClause(
-          `1.1.- ${denomVend} declara ser ${gVend.propietario} del vehículo que se describe en el presente contrato, habiéndolo adquirido mediante importación directa debidamente nacionalizada${cuvText}.`,
+          `1.1.- ${denomVend} declara ser ${sellerWords.propietario} del vehículo que se describe en el presente contrato, habiéndolo adquirido mediante importación directa debidamente nacionalizada${cuvText}.`,
         ),
       )
     }
@@ -512,7 +572,7 @@ export async function generateContratoVehicularDocx(contrato: ContratoVehicular)
     if (contrato.matriculaVigencia && contrato.matriculaVigencia.trim()) {
       paragraphs.push(
         subClause(
-          `1.3.- ${denomVend} declara que el vehículo se encuentra con su matrícula vigente hasta el ${orBlank(contrato.matriculaVigencia)}, según los registros de la Agencia Nacional de Tránsito.`,
+          `1.3.- ${denomVend} declara que el vehículo se encuentra con su matrícula vigente hasta el ${orBlankDate(contrato.matriculaVigencia)}, según los registros de la Agencia Nacional de Tránsito.`,
         ),
       )
     } else {
@@ -580,7 +640,7 @@ export async function generateContratoVehicularDocx(contrato: ContratoVehicular)
       200,
     ),
 
-    buildCompareciente(vendedor, '1', denomVend, vendedorConConyuge),
+    buildSellerCompareciente(),
     buildCompareciente(comprador, '2', denomComp, compradorConConyuge),
 
     makeParagraph([
@@ -601,10 +661,10 @@ export async function generateContratoVehicularDocx(contrato: ContratoVehicular)
       `3.1.- El precio de la presente compraventa es la suma de ${precioLetras}, cantidad que ${denomVend} declara haber recibido a su entera satisfacción mediante ${formaPagoTexto} realizada por ${denomComp}.`,
     ),
     subClause(
-      `3.2.- Para fines de respaldo documental, las partes podrán incorporar al presente instrumento la fecha de pago ${orMarker(contrato.fechaPago, '[FECHA]')}, la entidad financiera ${orMarker(contrato.entidadFinancieraPago, '[COMPLETAR]')} y el comprobante No. ${orMarker(contrato.comprobantePago, '[COMPLETAR]')}.`,
+      `3.2.- Para fines de respaldo documental, las partes podrán incorporar al presente instrumento la fecha de pago ${orMarkerDate(contrato.fechaPago, '[FECHA]')}, la entidad financiera ${orMarker(contrato.entidadFinancieraPago, '[COMPLETAR]')} y el comprobante No. ${orMarker(contrato.comprobantePago, '[COMPLETAR]')}.`,
     ),
     subClause(
-      `3.3.- Con el pago del precio señalado, ${denomVend} se da por ${gVend.cancelado} y ${gVend.satisfecho} de la obligación contraída por ${denomComp}, otorgando el más amplio y eficaz finiquito de pago.`,
+      `3.3.- Con el pago del precio señalado, ${denomVend} se da por ${sellerWords.cancelado} y ${sellerWords.satisfecho} de la obligación contraída por ${denomComp}, otorgando el más amplio y eficaz finiquito de pago.`,
     ),
 
     clauseTitle('CUARTA: TRADICIÓN Y TRANSFERENCIA DE DOMINIO.-'),
@@ -625,7 +685,7 @@ export async function generateContratoVehicularDocx(contrato: ContratoVehicular)
 
     clauseTitle('SEXTA: ENTREGA MATERIAL DEL VEHÍCULO Y DOCUMENTOS.-'),
     subClause(
-      `6.1.- La entrega material del vehículo se realizará el ${orMarker(contrato.fechaEntrega, '[FECHA]')}, en ${orMarker(contrato.lugarEntrega, '[COMPLETAR]')}.`,
+      `6.1.- La entrega material del vehículo se realizará el ${orMarkerDate(contrato.fechaEntrega, '[FECHA]')}, en ${orMarker(contrato.lugarEntrega, '[COMPLETAR]')}.`,
     ),
     subClause(
       '6.2.- En el acto de entrega, la parte vendedora hará entrega a la parte compradora de las llaves, matrícula original, Certificado Único Vehicular y demás documentos habilitantes que reposen en su poder para la transferencia de dominio.',
@@ -731,9 +791,21 @@ export async function generateContratoVehicularDocx(contrato: ContratoVehicular)
     })
   }
 
-  const signatarios: Array<{ nombre: string; cedula: string; rol: string }> = [
-    { nombre: vendedor.nombres, cedula: vendedor.cedula, rol: denomVend },
-  ]
+  const signatarios: Array<{ nombre: string; cedula: string; rol: string }> = []
+
+  if (isSellerCompany) {
+    signatarios.push({
+      nombre: vendedor.representanteLegal?.nombres || BLANK,
+      cedula: vendedor.representanteLegal?.cedula || BLANK,
+      rol: `REPRESENTANTE LEGAL DE ${toUpper(vendedor.nombres)}`,
+    })
+  } else {
+    signatarios.push({
+      nombre: vendedor.nombres,
+      cedula: vendedor.cedula,
+      rol: denomVend,
+    })
+  }
 
   if (vendedorConConyuge && vendedor.conyuge?.nombres) {
     signatarios.push({

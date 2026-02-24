@@ -80,6 +80,8 @@ export function WizardForm() {
         tipoDocumento: 'cedula' as const,
         estadoCivil: '' as any,
         comparecencia: '' as any,
+        esPersonaJuridica: false,
+        representanteLegal: { nombres: '', cedula: '', tipoDocumento: 'cedula' as const },
         conyuge: { nombres: '', cedula: '', tipoDocumento: 'cedula' as const },
         apoderado: { nombres: '', cedula: '', notariaPoder: '', fechaPoder: '' },
       },

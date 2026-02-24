@@ -355,7 +355,7 @@ export function LegalFields({ prefix }: LegalFieldsProps) {
                 <Input
                   id={`${prefix}.apoderado.fechaPoder`}
                   label="Fecha del poder"
-                  placeholder="15 de enero de 2026"
+                  type="date"
                   error={
                     pe?.apoderado?.fechaPoder?.message as string | undefined
                   }

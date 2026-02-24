@@ -301,7 +301,7 @@ export function VehicleDataForm({ onCuvParsed }: VehicleDataFormProps) {
         <Input
           id="fechaPago"
           label="Fecha de pago (opcional)"
-          placeholder="23 de febrero de 2026"
+          type="date"
           hint="Si no se llena, el contrato mostrará [FECHA]"
           {...register('fechaPago')}
         />
@@ -322,7 +322,7 @@ export function VehicleDataForm({ onCuvParsed }: VehicleDataFormProps) {
         <Input
           id="fechaEntrega"
           label="Fecha de entrega (opcional)"
-          placeholder="24 de febrero de 2026"
+          type="date"
           hint="Si no se llena, el contrato mostrará [FECHA]"
           {...register('fechaEntrega')}
         />
@@ -399,7 +399,7 @@ export function VehicleDataForm({ onCuvParsed }: VehicleDataFormProps) {
           <Input
             id="fechaInscripcion"
             label="Fecha de inscripción (opcional)"
-            placeholder="15 de marzo de 2020"
+            type="date"
             hint="Fecha en que se inscribió a nombre del vendedor"
             {...register('fechaInscripcion')}
           />
@@ -408,7 +408,7 @@ export function VehicleDataForm({ onCuvParsed }: VehicleDataFormProps) {
         <Input
           id="matriculaVigencia"
           label="Vigencia de matrícula (opcional)"
-          placeholder="31 de diciembre de 2026"
+          type="date"
           {...register('matriculaVigencia')}
         />
       </div>
@@ -442,7 +442,7 @@ export function VehicleDataForm({ onCuvParsed }: VehicleDataFormProps) {
                 <Input
                   id="herencia.causanteFechaFallecimiento"
                   label="Fecha de fallecimiento"
-                  placeholder="15 de enero de 2023"
+                  type="date"
                   error={(errors as any)?.herencia?.causanteFechaFallecimiento?.message}
                   {...register('herencia.causanteFechaFallecimiento')}
                 />
@@ -456,7 +456,7 @@ export function VehicleDataForm({ onCuvParsed }: VehicleDataFormProps) {
                 <Input
                   id="herencia.posEfectivaFecha"
                   label="Fecha de posesión efectiva"
-                  placeholder="26 de septiembre de 2023"
+                  type="date"
                   error={(errors as any)?.herencia?.posEfectivaFecha?.message}
                   {...register('herencia.posEfectivaFecha')}
                 />

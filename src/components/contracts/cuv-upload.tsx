@@ -80,10 +80,26 @@ export function CuvUpload({ onCuvParsed }: CuvUploadProps) {
     if (data.tonelaje) setValue('vehiculo.tonelaje', data.tonelaje, { shouldValidate: true })
     if (data.cuvNumero) setValue('cuvNumero', data.cuvNumero, { shouldValidate: true })
     if (data.cuvFecha) setValue('cuvFecha', data.cuvFecha, { shouldValidate: true })
-    // Owner -> Seller (solo persona natural con cedula)
+    // Owner -> Seller
     if (data.tipoDocumentoPropietario === 'CED') {
+      setValue('vendedor.esPersonaJuridica', false, { shouldValidate: true })
       if (data.cedulaPropietario) {
         setValue('vendedor.cedula', data.cedulaPropietario, { shouldValidate: true })
+      }
+      if (data.nombresPropietario) {
+        setValue('vendedor.nombres', data.nombresPropietario, { shouldValidate: true })
+      }
+    }
+
+    if (data.tipoDocumentoPropietario === 'RUC') {
+      setValue('vendedor.esPersonaJuridica', true, { shouldValidate: true })
+      // Keep these values valid while legal-fields are hidden for juridical sellers
+      setValue('vendedor.tipoDocumento', 'cedula', { shouldValidate: false })
+      setValue('vendedor.comparecencia', 'propios_derechos', { shouldValidate: false })
+      setValue('vendedor.estadoCivil', 'soltero', { shouldValidate: false })
+      setValue('vendedor.sexo', 'M', { shouldValidate: false })
+      if (data.documentoPropietario) {
+        setValue('vendedor.cedula', data.documentoPropietario, { shouldValidate: true })
       }
       if (data.nombresPropietario) {
         setValue('vendedor.nombres', data.nombresPropietario, { shouldValidate: true })

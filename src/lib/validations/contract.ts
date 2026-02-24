@@ -102,6 +102,12 @@ export const apoderadoSchema = z.object({
   fechaPoder: z.string(),
 })
 
+export const representanteLegalSchema = z.object({
+  nombres: z.string(),
+  cedula: z.string(),
+  tipoDocumento: z.enum(TIPOS_DOCUMENTO).optional(),
+})
+
 /**
  * Base persona schema (shared structure).
  * Validation of conyuge requireness is done at the contract level
@@ -131,8 +137,53 @@ export const personaSchema = z.object({
   incluirConyuge: z.boolean().optional(),
   conyuge: conyugeSchema.optional(),
   apoderado: apoderadoSchema.optional(),
+  esPersonaJuridica: z.boolean().optional(),
+  representanteLegal: representanteLegalSchema.optional(),
 }).check((ctx) => {
   const data = ctx.value
+
+  if (data.esPersonaJuridica) {
+    if (!/^\d{13}$/.test(data.cedula)) {
+      ctx.issues.push({
+        code: 'custom',
+        message: 'RUC debe tener 13 digitos',
+        path: ['cedula'],
+        input: data.cedula,
+      })
+    }
+
+    if (!data.representanteLegal?.nombres || data.representanteLegal.nombres.length < 3) {
+      ctx.issues.push({
+        code: 'custom',
+        message: 'Nombre del representante legal requerido',
+        path: ['representanteLegal', 'nombres'],
+        input: data.representanteLegal?.nombres,
+      })
+    }
+
+    const repTipoDocumento = data.representanteLegal?.tipoDocumento ?? 'cedula'
+    const repDocumento = data.representanteLegal?.cedula ?? ''
+
+    if (repTipoDocumento === 'cedula') {
+      if (repDocumento.length !== 10) {
+        ctx.issues.push({
+          code: 'custom',
+          message: 'Cedula del representante legal debe tener 10 digitos',
+          path: ['representanteLegal', 'cedula'],
+          input: repDocumento,
+        })
+      }
+    } else if (repDocumento.length < 5) {
+      ctx.issues.push({
+        code: 'custom',
+        message: 'Numero de pasaporte del representante legal debe tener al menos 5 caracteres',
+        path: ['representanteLegal', 'cedula'],
+        input: repDocumento,
+      })
+    }
+
+    return
+  }
 
   // Validate documento based on tipoDocumento
   if (data.tipoDocumento === 'cedula') {
@@ -234,8 +285,19 @@ export const contratoVehicularSchema = z.object({
 }).check((ctx) => {
   const { vendedor, comprador } = ctx.value
 
+  if (comprador.esPersonaJuridica) {
+    ctx.issues.push({
+      code: 'custom',
+      message: 'La parte compradora debe registrarse como persona natural en este formulario',
+      path: ['comprador', 'esPersonaJuridica'],
+      input: comprador.esPersonaJuridica,
+    })
+  }
+
   // VENDEDOR: conyuge always required when casado/union_de_hecho
-  const vendedorNeedsConjuge = vendedor.estadoCivil === 'casado' || vendedor.estadoCivil === 'union_de_hecho'
+  const vendedorNeedsConjuge =
+    !vendedor.esPersonaJuridica &&
+    (vendedor.estadoCivil === 'casado' || vendedor.estadoCivil === 'union_de_hecho')
   if (vendedorNeedsConjuge) {
     if (!vendedor.conyuge?.nombres || vendedor.conyuge.nombres.length < 3) {
       ctx.issues.push({
@@ -328,7 +390,11 @@ export function countFirmas(data: ContratoVehicular): number {
   if (compradorIncludesConyuge(data.comprador)) {
     comparecientes++
   }
-  if (requiresConyuge(data.vendedor.estadoCivil) && data.vendedor.conyuge?.cedula) {
+  if (
+    !data.vendedor.esPersonaJuridica &&
+    requiresConyuge(data.vendedor.estadoCivil) &&
+    data.vendedor.conyuge?.cedula
+  ) {
     comparecientes++
   }
 

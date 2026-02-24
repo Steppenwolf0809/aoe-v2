@@ -26,6 +26,14 @@ interface SummaryStepProps {
   cuvWarnings?: CuvData | null
 }
 
+function formatUiDate(value?: string): string {
+  const text = value?.trim()
+  if (!text) return ''
+  const match = text.match(/^(\d{4})-(\d{2})-(\d{2})$/)
+  if (!match) return text
+  return `${match[3]}/${match[2]}/${match[1]}`
+}
+
 export function SummaryStep({
   data,
   acceptedTerms,
@@ -49,10 +57,9 @@ export function SummaryStep({
         </p>
       </div>
 
-      {/* Vehicle summary */}
       <SummarySection
         icon={<Car className="w-4 h-4 text-accent-primary" />}
-        title="Vehículo"
+        title="Vehiculo"
       >
         <SummaryRow label="Placa" value={data.vehiculo.placa} />
         <SummaryRow
@@ -63,13 +70,16 @@ export function SummaryStep({
         <SummaryRow label="Motor" value={data.vehiculo.motor} />
         <SummaryRow label="Chasis" value={data.vehiculo.chasis} />
         {data.vehiculo.tipo && <SummaryRow label="Tipo" value={data.vehiculo.tipo} />}
-        {data.vehiculo.cilindraje > 0 && <SummaryRow label="Cilindraje" value={`${data.vehiculo.cilindraje} cc`} />}
-        {data.vehiculo.combustible && <SummaryRow label="Combustible" value={data.vehiculo.combustible} />}
-        {data.vehiculo.servicio && <SummaryRow label="Servicio" value={data.vehiculo.servicio} />}
-        <SummaryRow
-          label="Avalúo"
-          value={formatCurrency(data.vehiculo.avaluo)}
-        />
+        {data.vehiculo.cilindraje > 0 && (
+          <SummaryRow label="Cilindraje" value={`${data.vehiculo.cilindraje} cc`} />
+        )}
+        {data.vehiculo.combustible && (
+          <SummaryRow label="Combustible" value={data.vehiculo.combustible} />
+        )}
+        {data.vehiculo.servicio && (
+          <SummaryRow label="Servicio" value={data.vehiculo.servicio} />
+        )}
+        <SummaryRow label="Avaluo" value={formatCurrency(data.vehiculo.avaluo)} />
         <SummaryRow
           label="Valor del contrato"
           value={formatCurrency(data.vehiculo.valorContrato)}
@@ -79,26 +89,37 @@ export function SummaryStep({
           label="Forma de pago"
           value={FORMAS_PAGO_LABELS[data.formaPago as FormaPago] ?? data.formaPago}
         />
-        {data.fechaPago && <SummaryRow label="Fecha de pago" value={data.fechaPago} />}
+        {data.fechaPago && (
+          <SummaryRow label="Fecha de pago" value={formatUiDate(data.fechaPago)} />
+        )}
         {data.entidadFinancieraPago && (
           <SummaryRow label="Entidad financiera" value={data.entidadFinancieraPago} />
         )}
         {data.comprobantePago && (
           <SummaryRow label="Comprobante" value={data.comprobantePago} />
         )}
-        {data.fechaEntrega && <SummaryRow label="Fecha de entrega" value={data.fechaEntrega} />}
-        {data.lugarEntrega && <SummaryRow label="Lugar de entrega" value={data.lugarEntrega} />}
+        {data.fechaEntrega && (
+          <SummaryRow label="Fecha de entrega" value={formatUiDate(data.fechaEntrega)} />
+        )}
+        {data.lugarEntrega && (
+          <SummaryRow label="Lugar de entrega" value={data.lugarEntrega} />
+        )}
         {data.plazoTransferenciaDias && (
-          <SummaryRow label="Plazo de transferencia" value={`${data.plazoTransferenciaDias} días`} />
+          <SummaryRow
+            label="Plazo de transferencia"
+            value={`${data.plazoTransferenciaDias} dias`}
+          />
         )}
         <SummaryRow
           label="Antecedente"
-          value={TIPOS_ANTECEDENTE_LABELS[data.tipoAntecedente as TipoAntecedente] ?? data.tipoAntecedente}
+          value={
+            TIPOS_ANTECEDENTE_LABELS[data.tipoAntecedente as TipoAntecedente] ??
+            data.tipoAntecedente
+          }
         />
         {data.cuvNumero && <SummaryRow label="CUV" value={data.cuvNumero} />}
       </SummarySection>
 
-      {/* Buyer summary */}
       <SummarySection
         icon={<UserCheck className="w-4 h-4 text-accent-success" />}
         title="Comprador"
@@ -106,15 +127,13 @@ export function SummaryStep({
         <PersonaSummary persona={data.comprador} />
       </SummarySection>
 
-      {/* Seller summary */}
       <SummarySection
         icon={<UserMinus className="w-4 h-4 text-accent-warning" />}
         title="Vendedor"
       >
-        <PersonaSummary persona={data.vendedor} />
+        <PersonaSummary persona={data.vendedor} isSeller />
       </SummarySection>
 
-      {/* Cost breakdown */}
       <SummarySection
         icon={<Receipt className="w-4 h-4 text-accent-primary" />}
         title="Costos estimados"
@@ -139,12 +158,12 @@ export function SummaryStep({
           />
         </div>
         <p className="text-xs text-text-muted mt-1">
-          * {numFirmas} certificaciones = {numFirmas - 1} compareciente{numFirmas - 1 > 1 ? 's' : ''} + 1 matricula.
-          El pago se procesar? cuando decida generar el contrato Word (.docx).
+          * {numFirmas} certificaciones = {numFirmas - 1} compareciente
+          {numFirmas - 1 > 1 ? 's' : ''} + 1 matricula.
+          El pago se procesara cuando decida generar el contrato Word (.docx).
         </p>
       </SummarySection>
 
-      {/* CUV Warnings */}
       {cuvWarnings &&
         (cuvWarnings.gravamenes.tiene ||
           cuvWarnings.bloqueos.tiene ||
@@ -157,8 +176,7 @@ export function SummaryStep({
               </h3>
             </div>
             <p className="text-xs text-text-secondary">
-              El CUV del vehiculo reporta las siguientes alertas. Verifique
-              antes de continuar.
+              El CUV del vehiculo reporta alertas. Verifica antes de continuar.
             </p>
             {cuvWarnings.gravamenes.tiene && (
               <div className="rounded-lg px-3 py-2 border border-accent-error/30 bg-accent-error/5">
@@ -193,7 +211,6 @@ export function SummaryStep({
           </div>
         )}
 
-      {/* Terms checkbox */}
       <label className="flex items-start gap-3 cursor-pointer group">
         <input
           type="checkbox"
@@ -217,18 +234,46 @@ export function SummaryStep({
   )
 }
 
-/* ----------------------------------------------------------------
-   PersonaSummary — Displays all persona data including legal fields
-   ---------------------------------------------------------------- */
-
 function PersonaSummary({
   persona,
+  isSeller = false,
 }: {
   persona: ContratoVehicular['comprador']
+  isSeller?: boolean
 }) {
+  if (isSeller && persona.esPersonaJuridica) {
+    return (
+      <>
+        <SummaryRow label="Tipo de vendedor" value="Persona juridica" />
+        <SummaryRow label="RUC" value={persona.cedula} />
+        <SummaryRow label="Razon social" value={persona.nombres} />
+        <SummaryRow label="Direccion" value={persona.direccion} />
+        <SummaryRow label="Telefono" value={persona.telefono} />
+        <SummaryRow label="Email" value={persona.email} />
+        <div className="border-t border-[var(--glass-border)]/50 pt-1.5 mt-1.5">
+          <SummaryRow
+            label="Representante legal"
+            value={persona.representanteLegal?.nombres || '[COMPLETAR]'}
+          />
+          <SummaryRow
+            label="Documento representante"
+            value={persona.representanteLegal?.cedula || '[COMPLETAR]'}
+          />
+          <SummaryRow
+            label="Tipo doc. representante"
+            value={
+              persona.representanteLegal?.tipoDocumento === 'pasaporte'
+                ? 'Pasaporte'
+                : 'Cedula'
+            }
+          />
+        </div>
+      </>
+    )
+  }
+
   const estadoCivilLabel =
-    ESTADOS_CIVILES_LABELS[persona.estadoCivil as EstadoCivil] ||
-    persona.estadoCivil
+    ESTADOS_CIVILES_LABELS[persona.estadoCivil as EstadoCivil] || persona.estadoCivil
   const comparecenciaLabel =
     persona.comparecencia === 'apoderado'
       ? 'Mediante apoderado'
@@ -240,12 +285,15 @@ function PersonaSummary({
   return (
     <>
       <SummaryRow label="Documento" value={persona.cedula} />
-      <SummaryRow label="Tipo doc." value={persona.tipoDocumento === 'pasaporte' ? 'Pasaporte' : 'Cédula'} />
+      <SummaryRow
+        label="Tipo doc."
+        value={persona.tipoDocumento === 'pasaporte' ? 'Pasaporte' : 'Cedula'}
+      />
       <SummaryRow label="Nombres" value={persona.nombres} />
       <SummaryRow label="Nacionalidad" value={persona.nacionalidad} />
       <SummaryRow label="Sexo" value={persona.sexo === 'F' ? 'Femenino' : 'Masculino'} />
-      <SummaryRow label="Dirección" value={persona.direccion} />
-      <SummaryRow label="Teléfono" value={persona.telefono} />
+      <SummaryRow label="Direccion" value={persona.direccion} />
+      <SummaryRow label="Telefono" value={persona.telefono} />
       <SummaryRow label="Email" value={persona.email} />
       <SummaryRow label="Estado civil" value={estadoCivilLabel} />
       <SummaryRow label="Comparecencia" value={comparecenciaLabel} />
@@ -253,37 +301,24 @@ function PersonaSummary({
       {showConyuge && persona.conyuge && (
         <div className="border-t border-[var(--glass-border)]/50 pt-1.5 mt-1.5">
           <SummaryRow label="Conyuge" value={persona.conyuge.nombres} />
-          <SummaryRow
-            label="Cedula conyuge"
-            value={persona.conyuge.cedula}
-          />
+          <SummaryRow label="Cedula conyuge" value={persona.conyuge.cedula} />
         </div>
       )}
 
       {showApoderado && persona.apoderado && (
         <div className="border-t border-[var(--glass-border)]/50 pt-1.5 mt-1.5">
           <SummaryRow label="Apoderado" value={persona.apoderado.nombres} />
-          <SummaryRow
-            label="Cedula apoderado"
-            value={persona.apoderado.cedula}
-          />
-          <SummaryRow
-            label="Notaria del poder"
-            value={persona.apoderado.notariaPoder}
-          />
+          <SummaryRow label="Cedula apoderado" value={persona.apoderado.cedula} />
+          <SummaryRow label="Notaria del poder" value={persona.apoderado.notariaPoder} />
           <SummaryRow
             label="Fecha del poder"
-            value={persona.apoderado.fechaPoder}
+            value={formatUiDate(persona.apoderado.fechaPoder)}
           />
         </div>
       )}
     </>
   )
 }
-
-/* ----------------------------------------------------------------
-   SummarySection & SummaryRow — Unchanged helper components
-   ---------------------------------------------------------------- */
 
 function SummarySection({
   icon,
@@ -319,9 +354,7 @@ function SummaryRow({
       <span className="text-text-secondary">{label}</span>
       <span
         className={cn(
-          highlight
-            ? 'font-semibold text-accent-primary'
-            : 'text-text-primary font-medium',
+          highlight ? 'font-semibold text-accent-primary' : 'text-text-primary font-medium',
         )}
       >
         {value}
