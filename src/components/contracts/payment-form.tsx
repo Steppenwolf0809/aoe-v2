@@ -4,7 +4,7 @@ import { useState, useEffect } from 'react'
 import { useRouter } from 'next/navigation'
 import { Card, CardContent } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
-import { ArrowRight, Mail, Loader2, CreditCard } from 'lucide-react'
+import { ArrowRight, Mail, Loader2, CreditCard, AlertTriangle } from 'lucide-react'
 import { formatCurrency } from '@/lib/utils'
 import { PRECIO_CONTRATO_BASICO } from '@/lib/formulas/vehicular'
 import { initiatePayment } from '@/actions/payments'
@@ -151,6 +151,12 @@ export function PaymentForm({ contractId, defaultEmail, initialError }: PaymentF
                         <p className="text-xs text-text-muted">
                             Recibirás un enlace para descargar tu contrato en este correo
                         </p>
+                        <div className="flex items-start gap-2 rounded-md border border-amber-500/30 bg-amber-500/10 p-2.5">
+                            <AlertTriangle className="w-4 h-4 mt-0.5 text-amber-600 shrink-0" />
+                            <p className="text-xs text-amber-700">
+                                Antes de continuar al pago, verifica toda la información del contrato (datos personales, vehículo, valores y datos del CUV).
+                            </p>
+                        </div>
                     </CardContent>
                 </Card>
 

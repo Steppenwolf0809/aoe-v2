@@ -96,6 +96,16 @@ export const ContratoGeneradoEmail = ({
             </Text>
           </Section>
 
+          <Section style={verificationBox}>
+            <Text style={verificationTitle}>Aviso importante</Text>
+            <Text style={verificationText}>
+              Antes de imprimir o firmar, verifica toda la informacion del
+              contrato: datos personales, datos del vehiculo, valores
+              economicos y campos provenientes del CUV. Si detectas errores,
+              corrige el archivo Word y luego imprime.
+            </Text>
+          </Section>
+
           {/* CTA Button */}
           <Section style={buttonContainer}>
             <Button href={downloadUrl} style={button}>
@@ -271,6 +281,28 @@ const stepText = {
   fontSize: '15px',
   lineHeight: '24px',
   margin: '0 0 20px',
+}
+
+const verificationBox = {
+  margin: '0 40px 24px',
+  padding: '14px 16px',
+  borderRadius: '8px',
+  border: '1px solid #f59e0b55',
+  backgroundColor: '#fffbeb',
+}
+
+const verificationTitle = {
+  color: '#92400e',
+  fontSize: '13px',
+  fontWeight: 'bold',
+  margin: '0 0 6px',
+}
+
+const verificationText = {
+  color: '#92400e',
+  fontSize: '13px',
+  lineHeight: '20px',
+  margin: '0',
 }
 
 const buttonContainer = {

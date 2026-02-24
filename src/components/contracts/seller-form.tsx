@@ -23,6 +23,8 @@ export function SellerForm() {
   const docPlaceholder = tipoDocumento === 'pasaporte' ? 'AB1234567' : '1712345678'
   const docHint = tipoDocumento === 'pasaporte' ? 'Letras y números' : '10 dígitos sin guiones'
   const docMaxLength = tipoDocumento === 'pasaporte' ? 20 : 10
+  const cuvSellerTooltip =
+    'Si cargaste un CUV, este dato puede haberse autocompletado. Verifica que coincida con el propietario registrado.'
 
   return (
     <div className="space-y-6">
@@ -54,6 +56,7 @@ export function SellerForm() {
           maxLength={docMaxLength}
           error={se?.cedula?.message}
           hint={docHint}
+          tooltip={cuvSellerTooltip}
           {...register('vendedor.cedula')}
         />
         <Input
@@ -61,6 +64,7 @@ export function SellerForm() {
           label="Nombres completos"
           placeholder="María Elena García Torres"
           error={se?.nombres?.message}
+          tooltip={cuvSellerTooltip}
           {...register('vendedor.nombres')}
         />
         <div className="sm:col-span-2">

@@ -271,6 +271,9 @@ export function CuvUpload({ onCuvParsed }: CuvUploadProps) {
                   <p className="text-sm font-medium text-text-primary">
                     {countFilledFields(parsedData)} datos extraidos del CUV
                   </p>
+                  <p className="text-xs text-text-muted mt-0.5">
+                    Revisa los campos autocompletados antes de continuar.
+                  </p>
                   <div className="flex items-center gap-2 mt-1">
                     <FileText className="w-3.5 h-3.5 text-text-muted" />
                     <p className="text-xs text-text-muted truncate">

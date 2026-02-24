@@ -75,6 +75,11 @@ function orBlank(value: string | undefined): string {
   return text || BLANK
 }
 
+function orMarker(value: string | undefined, marker: string): string {
+  const text = normalizeContractText(value)
+  return text || marker
+}
+
 function removeAccents(value: string): string {
   return value.normalize('NFD').replace(/[\u0300-\u036f]/g, '')
 }
@@ -440,7 +445,7 @@ export async function generateContratoVehicularDocx(contrato: ContratoVehicular)
       if (hasCuv) {
         paragraphs.push(
           subClause(
-            `1.1.- ${denomVend} declara ser ${gVend.propietario} del vehículo que se describe en el presente contrato, según consta en el Certificado Único Vehicular No. ${orBlank(contrato.cuvNumero)}, emitido por la Agencia Nacional de Tránsito el ${orBlank(contrato.cuvFecha)}, habiendo adquirido la propiedad del mismo mediante transferencia de dominio inscrita el ${orBlank(contrato.fechaInscripcion)}.`,
+            `1.1.- ${denomVend} declara ser ${gVend.propietario} del vehículo que se describe en el presente contrato, según consta en el Certificado Único Vehicular No. ${orBlank(contrato.cuvNumero)}, emitido por la Agencia Nacional de Tránsito el ${orBlank(contrato.cuvFecha)}, habiendo adquirido la propiedad del mismo mediante transferencia de dominio inscrita el ${orMarker(contrato.fechaInscripcion, '[COMPLETAR]')}.`,
           ),
         )
       } else {
@@ -596,7 +601,7 @@ export async function generateContratoVehicularDocx(contrato: ContratoVehicular)
       `3.1.- El precio de la presente compraventa es la suma de ${precioLetras}, cantidad que ${denomVend} declara haber recibido a su entera satisfacción mediante ${formaPagoTexto} realizada por ${denomComp}.`,
     ),
     subClause(
-      '3.2.- Para fines de respaldo documental, las partes podrán incorporar al presente instrumento la fecha de pago [FECHA], la entidad financiera [COMPLETAR] y el comprobante No. [COMPLETAR].',
+      `3.2.- Para fines de respaldo documental, las partes podrán incorporar al presente instrumento la fecha de pago ${orMarker(contrato.fechaPago, '[FECHA]')}, la entidad financiera ${orMarker(contrato.entidadFinancieraPago, '[COMPLETAR]')} y el comprobante No. ${orMarker(contrato.comprobantePago, '[COMPLETAR]')}.`,
     ),
     subClause(
       `3.3.- Con el pago del precio señalado, ${denomVend} se da por ${gVend.cancelado} y ${gVend.satisfecho} de la obligación contraída por ${denomComp}, otorgando el más amplio y eficaz finiquito de pago.`,
@@ -619,7 +624,9 @@ export async function generateContratoVehicularDocx(contrato: ContratoVehicular)
     ),
 
     clauseTitle('SEXTA: ENTREGA MATERIAL DEL VEHÍCULO Y DOCUMENTOS.-'),
-    subClause('6.1.- La entrega material del vehículo se realizará el [FECHA], en [COMPLETAR].'),
+    subClause(
+      `6.1.- La entrega material del vehículo se realizará el ${orMarker(contrato.fechaEntrega, '[FECHA]')}, en ${orMarker(contrato.lugarEntrega, '[COMPLETAR]')}.`,
+    ),
     subClause(
       '6.2.- En el acto de entrega, la parte vendedora hará entrega a la parte compradora de las llaves, matrícula original, Certificado Único Vehicular y demás documentos habilitantes que reposen en su poder para la transferencia de dominio.',
     ),
@@ -652,7 +659,7 @@ export async function generateContratoVehicularDocx(contrato: ContratoVehicular)
     clauseTitle('DÉCIMA: PLAZO PARA REALIZAR LA TRANSFERENCIA DE DOMINIO.-'),
     makeParagraph([
       normalText(
-        'Las partes se obligan a realizar el trámite de transferencia de dominio ante la autoridad competente dentro del plazo de [PLAZO] días contados a partir de la fecha de suscripción del presente contrato.',
+        `Las partes se obligan a realizar el trámite de transferencia de dominio ante la autoridad competente dentro del plazo de ${orMarker(contrato.plazoTransferenciaDias, '[PLAZO]')} días contados a partir de la fecha de suscripción del presente contrato.`,
       ),
     ]),
 
@@ -724,23 +731,58 @@ export async function generateContratoVehicularDocx(contrato: ContratoVehicular)
     })
   }
 
-  const sigRow1Cells = [
-    sigCell(vendedor.nombres, vendedor.cedula, denomVend),
-    vendedorConConyuge
-      ? sigCell(vendedor.conyuge!.nombres, orBlank(vendedor.conyuge!.cedula), `CÓNYUGE DE ${denomVend}`)
-      : emptyCell(),
+  const signatarios: Array<{ nombre: string; cedula: string; rol: string }> = [
+    { nombre: vendedor.nombres, cedula: vendedor.cedula, rol: denomVend },
   ]
 
-  const sigRow2Cells = [
-    sigCell(comprador.nombres, comprador.cedula, denomComp),
-    compradorConConyuge && comprador.conyuge?.nombres
-      ? sigCell(comprador.conyuge!.nombres, orBlank(comprador.conyuge!.cedula), `CÓNYUGE DE ${denomComp}`)
-      : emptyCell(),
-  ]
+  if (vendedorConConyuge && vendedor.conyuge?.nombres) {
+    signatarios.push({
+      nombre: vendedor.conyuge.nombres,
+      cedula: orBlank(vendedor.conyuge.cedula),
+      rol: `CÓNYUGE DE ${denomVend}`,
+    })
+  }
+
+  signatarios.push({
+    nombre: comprador.nombres,
+    cedula: comprador.cedula,
+    rol: denomComp,
+  })
+
+  if (compradorConConyuge && comprador.conyuge?.nombres) {
+    signatarios.push({
+      nombre: comprador.conyuge.nombres,
+      cedula: orBlank(comprador.conyuge.cedula),
+      rol: `CÓNYUGE DE ${denomComp}`,
+    })
+  }
+
+  const signatureRows: TableRow[] = []
+  for (let i = 0; i < signatarios.length; i += 2) {
+    const left = signatarios[i]
+    const right = signatarios[i + 1]
+
+    signatureRows.push(
+      new TableRow({
+        children: [
+          sigCell(left.nombre, left.cedula, left.rol),
+          right ? sigCell(right.nombre, right.cedula, right.rol) : emptyCell(),
+        ],
+      }),
+    )
+  }
 
   const sigTable = new Table({
     width: { size: 100, type: WidthType.PERCENTAGE },
-    rows: [new TableRow({ children: sigRow1Cells }), new TableRow({ children: sigRow2Cells })],
+    borders: {
+      top: { style: BorderStyle.NONE, size: 0, color: 'ffffff' },
+      bottom: { style: BorderStyle.NONE, size: 0, color: 'ffffff' },
+      left: { style: BorderStyle.NONE, size: 0, color: 'ffffff' },
+      right: { style: BorderStyle.NONE, size: 0, color: 'ffffff' },
+      insideHorizontal: { style: BorderStyle.NONE, size: 0, color: 'ffffff' },
+      insideVertical: { style: BorderStyle.NONE, size: 0, color: 'ffffff' },
+    },
+    rows: signatureRows,
   })
 
   const doc = new DocxDocument({

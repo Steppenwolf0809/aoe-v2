@@ -79,6 +79,18 @@ export function SummaryStep({
           label="Forma de pago"
           value={FORMAS_PAGO_LABELS[data.formaPago as FormaPago] ?? data.formaPago}
         />
+        {data.fechaPago && <SummaryRow label="Fecha de pago" value={data.fechaPago} />}
+        {data.entidadFinancieraPago && (
+          <SummaryRow label="Entidad financiera" value={data.entidadFinancieraPago} />
+        )}
+        {data.comprobantePago && (
+          <SummaryRow label="Comprobante" value={data.comprobantePago} />
+        )}
+        {data.fechaEntrega && <SummaryRow label="Fecha de entrega" value={data.fechaEntrega} />}
+        {data.lugarEntrega && <SummaryRow label="Lugar de entrega" value={data.lugarEntrega} />}
+        {data.plazoTransferenciaDias && (
+          <SummaryRow label="Plazo de transferencia" value={`${data.plazoTransferenciaDias} días`} />
+        )}
         <SummaryRow
           label="Antecedente"
           value={TIPOS_ANTECEDENTE_LABELS[data.tipoAntecedente as TipoAntecedente] ?? data.tipoAntecedente}

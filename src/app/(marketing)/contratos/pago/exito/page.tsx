@@ -187,6 +187,14 @@ export default async function PaymentSuccessPage({
               </div>
             ) : null}
 
+            <div className="flex items-start gap-2 rounded-lg border border-amber-500/30 bg-amber-500/10 p-3 text-xs text-amber-700">
+              <AlertTriangle className="w-4 h-4 mt-0.5 shrink-0" />
+              <span>
+                Verifica toda la informacion del contrato antes de imprimir y
+                firmar, especialmente los datos cargados desde el CUV.
+              </span>
+            </div>
+
             {/* Email confirmation */}
             {deliveryEmail && (
               <div className="flex items-center gap-3 text-sm text-text-secondary bg-bg-secondary/50 rounded-lg p-3">

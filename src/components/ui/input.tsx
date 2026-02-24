@@ -1,28 +1,57 @@
 import { forwardRef, useState, type InputHTMLAttributes } from 'react'
-import { Eye, EyeOff } from 'lucide-react'
+import { Eye, EyeOff, Info } from 'lucide-react'
 import { cn } from '@/lib/utils'
 
 interface InputProps extends InputHTMLAttributes<HTMLInputElement> {
   label?: string
   error?: string
   hint?: string
+  tooltip?: string
 }
 
 const Input = forwardRef<HTMLInputElement, InputProps>(
-  ({ className, label, error, hint, id, type = 'text', ...props }, ref) => {
+  ({ className, label, error, hint, tooltip, id, type = 'text', ...props }, ref) => {
     const [showPassword, setShowPassword] = useState(false)
     const isPasswordInput = type === 'password'
     const inputType = isPasswordInput ? (showPassword ? 'text' : 'password') : type
+    const describedBy = [
+      error && id ? `${id}-error` : null,
+      !error && hint && id ? `${id}-hint` : null,
+      tooltip && id ? `${id}-tooltip` : null,
+    ]
+      .filter(Boolean)
+      .join(' ') || undefined
 
     return (
       <div className="space-y-1.5">
         {label && (
-          <label
-            htmlFor={id}
-            className="block text-sm font-medium text-text-secondary"
-          >
-            {label}
-          </label>
+          <div className="flex items-center gap-1.5">
+            <label
+              htmlFor={id}
+              className="block text-sm font-medium text-text-secondary"
+            >
+              {label}
+            </label>
+            {tooltip && id && (
+              <span
+                tabIndex={0}
+                className="group relative inline-flex cursor-help focus:outline-none"
+                aria-label={`Ayuda: ${label}`}
+              >
+                <Info className="h-3.5 w-3.5 text-text-muted transition-colors group-hover:text-accent-primary group-focus:text-accent-primary" />
+                <span
+                  id={`${id}-tooltip`}
+                  role="tooltip"
+                  className={cn(
+                    'pointer-events-none absolute left-1/2 top-full z-20 mt-2 w-64 -translate-x-1/2 rounded-md border border-[var(--glass-border)] bg-bg-primary px-2.5 py-2 text-xs leading-5 text-text-secondary shadow-lg',
+                    'opacity-0 transition-opacity duration-150 group-hover:opacity-100 group-focus:opacity-100',
+                  )}
+                >
+                  {tooltip}
+                </span>
+              </span>
+            )}
+          </div>
         )}
         <div className="relative">
           <input
@@ -42,7 +71,7 @@ const Input = forwardRef<HTMLInputElement, InputProps>(
               className,
             )}
             aria-invalid={error ? 'true' : undefined}
-            aria-describedby={error ? `${id}-error` : hint ? `${id}-hint` : undefined}
+            aria-describedby={describedBy}
             {...props}
           />
           {isPasswordInput && (

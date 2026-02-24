@@ -177,6 +177,12 @@ export async function generateContractDocx(
     const contractDefaults = {
       tipoAntecedente: 'compraventa',
       formaPago: 'transferencia',
+      fechaPago: '',
+      entidadFinancieraPago: '',
+      comprobantePago: '',
+      fechaEntrega: '',
+      lugarEntrega: '',
+      plazoTransferenciaDias: '',
       tieneObservaciones: false,
       observacionesTexto: '',
       cuvNumero: '',

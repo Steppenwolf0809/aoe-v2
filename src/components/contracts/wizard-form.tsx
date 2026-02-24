@@ -1,6 +1,6 @@
 'use client'
 
-import { useState, useTransition } from 'react'
+import { useEffect, useRef, useState, useTransition } from 'react'
 import { useForm, FormProvider } from 'react-hook-form'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { motion, AnimatePresence } from 'framer-motion'
@@ -29,6 +29,7 @@ export function WizardForm() {
   const [serverError, setServerError] = useState<string | null>(null)
   const [acceptedTerms, setAcceptedTerms] = useState(false)
   const [cuvData, setCuvData] = useState<CuvData | null>(null)
+  const wizardRootRef = useRef<HTMLDivElement>(null)
   const router = useRouter()
 
   const methods = useForm<ContratoVehicular>({
@@ -88,6 +89,12 @@ export function WizardForm() {
       fechaInscripcion: '',
       matriculaVigencia: '',
       formaPago: 'transferencia' as const,
+      fechaPago: '',
+      entidadFinancieraPago: '',
+      comprobantePago: '',
+      fechaEntrega: '',
+      lugarEntrega: '',
+      plazoTransferenciaDias: '',
       tieneObservaciones: false,
       observacionesTexto: '',
     },
@@ -140,9 +147,13 @@ export function WizardForm() {
   const isLastStep = currentStep === STEPS.length - 1
   const isFirstStep = currentStep === 0
 
+  useEffect(() => {
+    wizardRootRef.current?.scrollIntoView({ behavior: 'smooth', block: 'start' })
+  }, [currentStep])
+
   return (
     <FormProvider {...methods}>
-      <div className="max-w-3xl mx-auto">
+      <div ref={wizardRootRef} className="max-w-3xl mx-auto">
         {/* Step Indicator */}
         <div className="mb-8">
           <StepIndicator currentStep={currentStep} steps={STEPS} />

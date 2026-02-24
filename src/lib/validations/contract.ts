@@ -221,6 +221,13 @@ export const contratoVehicularSchema = z.object({
   herencia: herenciaSchema.optional(),
   // New v2 fields — financiero
   formaPago: z.enum(FORMAS_PAGO),
+  fechaPago: z.string().optional(),
+  entidadFinancieraPago: z.string().optional(),
+  comprobantePago: z.string().optional(),
+  // New v2 fields — entrega y transferencia
+  fechaEntrega: z.string().optional(),
+  lugarEntrega: z.string().optional(),
+  plazoTransferenciaDias: z.string().optional(),
   // New v2 fields — observaciones
   tieneObservaciones: z.boolean(),
   observacionesTexto: z.string().optional(),

@@ -28,6 +28,11 @@ const expandVariants = {
   visible: { opacity: 1, height: 'auto' },
 } as const
 
+const CUV_FIELD_TOOLTIP =
+  'Si subiste el CUV, este campo se autocompleta. Verifica que coincida exactamente con el certificado y la matricula.'
+const CUV_META_TOOLTIP =
+  'Dato tomado del Certificado Unico Vehicular. Confirma numero y fecha de emision.'
+
 export function VehicleDataForm({ onCuvParsed }: VehicleDataFormProps) {
   const {
     register,
@@ -80,6 +85,7 @@ export function VehicleDataForm({ onCuvParsed }: VehicleDataFormProps) {
           label="Placa"
           placeholder="ABC-1234"
           error={ve?.placa?.message}
+          tooltip={CUV_FIELD_TOOLTIP}
           {...register('vehiculo.placa', {
             setValueAs: (v: string) => v.toUpperCase(),
           })}
@@ -89,6 +95,7 @@ export function VehicleDataForm({ onCuvParsed }: VehicleDataFormProps) {
           label="Marca"
           placeholder="Toyota, Chevrolet..."
           error={ve?.marca?.message}
+          tooltip={CUV_FIELD_TOOLTIP}
           {...register('vehiculo.marca')}
         />
         <Input
@@ -96,6 +103,7 @@ export function VehicleDataForm({ onCuvParsed }: VehicleDataFormProps) {
           label="Modelo"
           placeholder="Corolla, Aveo..."
           error={ve?.modelo?.message}
+          tooltip={CUV_FIELD_TOOLTIP}
           {...register('vehiculo.modelo')}
         />
         <Input
@@ -104,6 +112,7 @@ export function VehicleDataForm({ onCuvParsed }: VehicleDataFormProps) {
           type="number"
           placeholder="2024"
           error={ve?.anio?.message}
+          tooltip={CUV_FIELD_TOOLTIP}
           {...register('vehiculo.anio', { valueAsNumber: true })}
         />
         <Input
@@ -111,6 +120,7 @@ export function VehicleDataForm({ onCuvParsed }: VehicleDataFormProps) {
           label="Color"
           placeholder="Blanco, Negro..."
           error={ve?.color?.message}
+          tooltip={CUV_FIELD_TOOLTIP}
           {...register('vehiculo.color')}
         />
         <Input
@@ -118,6 +128,7 @@ export function VehicleDataForm({ onCuvParsed }: VehicleDataFormProps) {
           label="Número de motor"
           placeholder="Ej: 2NR-FKE1234567"
           error={ve?.motor?.message}
+          tooltip={CUV_FIELD_TOOLTIP}
           {...register('vehiculo.motor')}
         />
         <Input
@@ -125,6 +136,7 @@ export function VehicleDataForm({ onCuvParsed }: VehicleDataFormProps) {
           label="Número de chasis"
           placeholder="Ej: 9BR53ZEC2L1234567"
           error={ve?.chasis?.message}
+          tooltip={CUV_FIELD_TOOLTIP}
           {...register('vehiculo.chasis')}
         />
       </div>
@@ -147,6 +159,7 @@ export function VehicleDataForm({ onCuvParsed }: VehicleDataFormProps) {
           label="Tipo"
           placeholder="Automóvil, Camioneta, SUV..."
           error={ve?.tipo?.message}
+          tooltip={CUV_FIELD_TOOLTIP}
           {...register('vehiculo.tipo')}
         />
         <Input
@@ -155,6 +168,7 @@ export function VehicleDataForm({ onCuvParsed }: VehicleDataFormProps) {
           type="number"
           placeholder="1500"
           error={ve?.cilindraje?.message}
+          tooltip={CUV_FIELD_TOOLTIP}
           {...register('vehiculo.cilindraje', { valueAsNumber: true })}
         />
         <Input
@@ -162,6 +176,7 @@ export function VehicleDataForm({ onCuvParsed }: VehicleDataFormProps) {
           label="Carrocería"
           placeholder="Metálica, Fibra..."
           error={ve?.carroceria?.message}
+          tooltip={CUV_FIELD_TOOLTIP}
           {...register('vehiculo.carroceria')}
         />
         <Input
@@ -169,6 +184,7 @@ export function VehicleDataForm({ onCuvParsed }: VehicleDataFormProps) {
           label="Clase"
           placeholder="Automóvil, Camioneta..."
           error={ve?.clase?.message}
+          tooltip={CUV_FIELD_TOOLTIP}
           {...register('vehiculo.clase')}
         />
         <Input
@@ -176,6 +192,7 @@ export function VehicleDataForm({ onCuvParsed }: VehicleDataFormProps) {
           label="País de origen"
           placeholder="Japón, Corea, China..."
           error={ve?.pais?.message}
+          tooltip={CUV_FIELD_TOOLTIP}
           {...register('vehiculo.pais')}
         />
         <Input
@@ -183,6 +200,7 @@ export function VehicleDataForm({ onCuvParsed }: VehicleDataFormProps) {
           label="Combustible"
           placeholder="Gasolina, Diésel, Híbrido..."
           error={ve?.combustible?.message}
+          tooltip={CUV_FIELD_TOOLTIP}
           {...register('vehiculo.combustible')}
         />
         <Input
@@ -191,6 +209,7 @@ export function VehicleDataForm({ onCuvParsed }: VehicleDataFormProps) {
           type="number"
           placeholder="5"
           error={ve?.pasajeros?.message}
+          tooltip={CUV_FIELD_TOOLTIP}
           {...register('vehiculo.pasajeros', { valueAsNumber: true })}
         />
         <Input
@@ -198,6 +217,7 @@ export function VehicleDataForm({ onCuvParsed }: VehicleDataFormProps) {
           label="Servicio"
           placeholder="USO PARTICULAR"
           error={ve?.servicio?.message}
+          tooltip={CUV_FIELD_TOOLTIP}
           {...register('vehiculo.servicio')}
         />
         {/* Optional fields */}
@@ -205,6 +225,7 @@ export function VehicleDataForm({ onCuvParsed }: VehicleDataFormProps) {
           id="vehiculo.tonelaje"
           label="Tonelaje (opcional)"
           placeholder="0.75"
+          tooltip={CUV_FIELD_TOOLTIP}
           {...register('vehiculo.tonelaje')}
         />
       </div>
@@ -264,6 +285,63 @@ export function VehicleDataForm({ onCuvParsed }: VehicleDataFormProps) {
         </div>
       </div>
 
+      {/* Documentary support section (optional but recommended) */}
+      <div className="relative">
+        <div className="absolute inset-0 flex items-center">
+          <div className="w-full border-t border-[var(--glass-border)]" />
+        </div>
+        <div className="relative flex justify-center">
+          <span className="px-3 bg-[var(--glass-bg)] text-xs text-[var(--text-muted)]">
+            Respaldo documental (recomendado)
+          </span>
+        </div>
+      </div>
+
+      <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+        <Input
+          id="fechaPago"
+          label="Fecha de pago (opcional)"
+          placeholder="23 de febrero de 2026"
+          hint="Si no se llena, el contrato mostrará [FECHA]"
+          {...register('fechaPago')}
+        />
+        <Input
+          id="entidadFinancieraPago"
+          label="Entidad financiera (opcional)"
+          placeholder="Banco Pichincha"
+          hint="Si no se llena, el contrato mostrará [COMPLETAR]"
+          {...register('entidadFinancieraPago')}
+        />
+        <Input
+          id="comprobantePago"
+          label="No. de comprobante (opcional)"
+          placeholder="TRX-123456789"
+          hint="Si no se llena, el contrato mostrará [COMPLETAR]"
+          {...register('comprobantePago')}
+        />
+        <Input
+          id="fechaEntrega"
+          label="Fecha de entrega (opcional)"
+          placeholder="24 de febrero de 2026"
+          hint="Si no se llena, el contrato mostrará [FECHA]"
+          {...register('fechaEntrega')}
+        />
+        <Input
+          id="lugarEntrega"
+          label="Lugar de entrega (opcional)"
+          placeholder="Quito, Ecuador"
+          hint="Si no se llena, el contrato mostrará [COMPLETAR]"
+          {...register('lugarEntrega')}
+        />
+        <Input
+          id="plazoTransferenciaDias"
+          label="Plazo transferencia (días, opcional)"
+          placeholder="30"
+          hint="Si no se llena, el contrato mostrará [PLAZO]"
+          {...register('plazoTransferenciaDias')}
+        />
+      </div>
+
       {/* Antecedentes section */}
       <div className="relative">
         <div className="absolute inset-0 flex items-center">
@@ -306,12 +384,14 @@ export function VehicleDataForm({ onCuvParsed }: VehicleDataFormProps) {
           label="Número de CUV (opcional)"
           placeholder="CUV-2026-00123456"
           hint="Se llena automáticamente al subir el CUV"
+          tooltip={CUV_META_TOOLTIP}
           {...register('cuvNumero')}
         />
         <Input
           id="cuvFecha"
           label="Fecha de emisión CUV (opcional)"
           placeholder="09 de febrero de 2026"
+          tooltip={CUV_META_TOOLTIP}
           {...register('cuvFecha')}
         />
 
