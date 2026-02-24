@@ -361,14 +361,6 @@ function centeredBold(text: string): Paragraph {
   })
 }
 
-function centeredNormal(text: string, spacing = 100): Paragraph {
-  return new Paragraph({
-    children: [normalText(text)],
-    alignment: AlignmentType.CENTER,
-    spacing: { after: spacing },
-  })
-}
-
 function centeredSmall(text: string, spacing = 80): Paragraph {
   return new Paragraph({
     children: [smallText(text)],
@@ -624,9 +616,6 @@ export async function generateContratoVehicularDocx(contrato: ContratoVehicular)
   const observacionNormalizada = normalizeObservation(contrato.observacionesTexto, contrato.tieneObservaciones)
 
   const children: Paragraph[] = [
-    centeredBold('ABOGADOS ONLINE ECUADOR'),
-    centeredNormal('Servicio legal digital independiente | Quito, Ecuador'),
-    blankLine(160),
     centeredBold('CONTRATO DE COMPRAVENTA DE VEHÍCULO'),
     centeredBold(`CUANTÍA: USD$ ${precioFormato}`),
     blankLine(100),

@@ -35,11 +35,6 @@ const styles = StyleSheet.create({
     fontWeight: 700,
     marginBottom: 4,
   },
-  centeredSubtitle: {
-    textAlign: 'center',
-    marginBottom: 8,
-    color: '#334155',
-  },
   paragraph: {
     marginBottom: 7,
     textAlign: 'justify',
@@ -391,8 +386,6 @@ export function ContratoVehicularPdf({ contrato }: ContratoVehicularPdfProps) {
   return (
     <Document>
       <Page size="A4" style={styles.page}>
-        <Text style={styles.centeredTitle}>ABOGADOS ONLINE ECUADOR</Text>
-        <Text style={styles.centeredSubtitle}>Servicio legal digital independiente | Quito, Ecuador</Text>
         <Text style={styles.centeredTitle}>CONTRATO DE COMPRAVENTA DE VEHÍCULO</Text>
         <Text style={[styles.centeredTitle, { marginBottom: 10 }]}>CUANTÍA: USD$ {precioFormato}</Text>
 
