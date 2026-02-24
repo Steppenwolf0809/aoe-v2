@@ -17,7 +17,8 @@ README.md
 
 # Local services (not for Vercel)
 services/
-n8n/
+# Ignore only the root workflows folder, not nested app routes like src/app/api/webhooks/n8n
+/n8n/
 
 # Supabase local config
 /supabase/
