@@ -28,8 +28,11 @@ export const metadata: Metadata = {
     follow: true,
   },
   icons: {
-    icon: '/logo/favicon-32.png',
-    shortcut: '/logo/favicon-32.png',
+    icon: [
+      { url: '/favicon.ico', sizes: 'any' },
+      { url: '/logo/favicon-32.png', type: 'image/png', sizes: '33x33' },
+    ],
+    shortcut: '/favicon.ico',
     apple: '/logo/favicon-32.png',
   },
 }
