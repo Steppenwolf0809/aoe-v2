@@ -2,12 +2,41 @@ import { NextRequest, NextResponse } from 'next/server'
 import { createAdminClient } from '@/lib/supabase/admin'
 import { payphoneWebhookSchema, isPaymentApproved } from '@/lib/validations/payment'
 import { PRECIO_CONTRATO_BASICO } from '@/lib/formulas/vehicular'
+import {
+  parseBearerSecret,
+  resolveConfiguredPayPhoneWebhookSecrets,
+  validatePayPhoneWebhookAuth,
+} from '@/lib/payphone-webhook-auth'
 
 // PayPhone WAF blocks Vercel US IPs → run from São Paulo
 export const preferredRegion = 'gru1'
 
 export async function POST(request: NextRequest) {
   try {
+    const authResult = validatePayPhoneWebhookAuth({
+      nodeEnv: process.env.NODE_ENV,
+      configuredSecrets: resolveConfiguredPayPhoneWebhookSecrets(),
+      headerSecret:
+        request.headers.get('x-webhook-secret') ||
+        request.headers.get('x-payphone-secret'),
+      querySecret: request.nextUrl.searchParams.get('secret'),
+      bearerSecret: parseBearerSecret(request.headers.get('authorization')),
+    })
+
+    if (!authResult.ok) {
+      if (authResult.reason === 'missing_secret_config') {
+        console.error(
+          '[PayPhone Webhook] Missing webhook secret config in production. Configure PAYPHONE_WEBHOOK_SECRET (or N8N_WEBHOOK_SECRET / PAYPHONE_PROXY_SECRET).'
+        )
+        return NextResponse.json(
+          { error: 'Webhook misconfigured on server' },
+          { status: 503 }
+        )
+      }
+
+      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
+    }
+
     const body = await request.json()
     console.log('[PayPhone Webhook] Received:', body)
 

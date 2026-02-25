@@ -49,11 +49,15 @@
 Para recibir notificaciones automáticas de pagos completados:
 
 1. En Configuración > Webhooks
-2. Agrega la URL de tu webhook:
+2. Define un secreto en tu entorno:
+   ```env
+   PAYPHONE_WEBHOOK_SECRET=tu_secreto_webhook
    ```
-   https://tudominio.com/api/webhooks/payment
+3. Agrega la URL de tu webhook incluyendo el secreto:
    ```
-3. Selecciona los eventos:
+   https://tudominio.com/api/webhooks/payment?secret=tu_secreto_webhook
+   ```
+4. Selecciona los eventos:
    - ✅ Pago completado
    - ✅ Pago fallido
    - ✅ Pago cancelado
@@ -62,8 +66,8 @@ Para recibir notificaciones automáticas de pagos completados:
 
 En la configuración de PayPhone, asegúrate de que las URLs de respuesta están configuradas:
 
-- **URL de éxito**: `https://tudominio.com/dashboard/contratos/pago`
-- **URL de error**: `https://tudominio.com/dashboard/contratos/pago`
+- **URL de éxito**: `https://tudominio.com/contratos/pago/callback`
+- **URL de error**: `https://tudominio.com/contratos/pago/callback?cancelled=true`
 
 > **Nota:** PayPhone redirigirá al usuario a estas URLs después del pago.
 
@@ -85,6 +89,7 @@ Si despliegas en Vercel, también agrega las variables ahí:
 3. Agrega:
    - `PAYPHONE_TOKEN`
    - `PAYPHONE_STORE_ID`
+   - `PAYPHONE_WEBHOOK_SECRET` (si usarás `/api/webhooks/payment`)
 4. Selecciona los ambientes: Production, Preview, Development
 
 ## Comisiones de PayPhone

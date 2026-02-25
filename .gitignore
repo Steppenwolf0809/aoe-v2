@@ -60,6 +60,14 @@ docs/desktop.ini
 docs/reporteJasper*.pdf
 docs/presupuesto-escrituracion-*.pdf
 
+# Local generated contract artifacts (do not commit)
+docs/contracts/contrato-compraventa-*-corregido.md
+docs/contracts/contrato-compraventa-*.docx
+docs/contracts/reporteJasper(*).pdf
+
 # Saved HTML pages (offline reference docs)
 docs/setup/*.html
 docs/setup/*_files/
+
+# Local bot docs (WhatsApp drafts)
+docs/bot/

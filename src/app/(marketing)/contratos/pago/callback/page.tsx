@@ -18,7 +18,6 @@ interface PaymentCallbackPageProps {
     clientTransactionId?: string
     cancelled?: string
     // Legacy params (backward compat)
-    contractId?: string
     transactionId?: string
     transaction_id?: string
     payphone_id?: string
@@ -137,32 +136,7 @@ export default async function PaymentCallbackPage({
       console.log('[PayPhone Callback] Contract lookup result:', JSON.stringify({ contract, fetchError: fetchError?.message, totalFound: contracts?.length ?? 0 }))
 
       if (fetchError || !contract) {
-        // Fallback: try legacy contractId param
-        const legacyContractId = params.contractId
-        if (legacyContractId) {
-          const { data: legacyContract, error: legacyError } = await adminSupabase
-            .from('contracts')
-            .select('id, status')
-            .eq('id', legacyContractId)
-            .single()
-
-          if (!legacyError && legacyContract) {
-            await adminSupabase
-              .from('contracts')
-              .update({
-                status: 'PAID',
-                payment_id: statusResponse.transactionId,
-                amount: PRECIO_CONTRATO_BASICO,
-              })
-              .eq('id', legacyContractId)
-
-            redirectPath = await processPaymentAndPrepareDocx(legacyContractId)
-          } else {
-            errorMessage = 'Contrato no encontrado.'
-          }
-        } else {
-          errorMessage = 'Contrato no encontrado para esta transaccion.'
-        }
+        errorMessage = 'Contrato no encontrado para esta transaccion.'
       } else if ((contract.status === 'GENERATED' || contract.status === 'DOWNLOADED') && contract.download_token) {
         // Already processed and has valid token — redirect to success
         redirectPath = `/contratos/pago/exito?token=${contract.download_token}`
