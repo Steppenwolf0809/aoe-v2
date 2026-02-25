@@ -99,7 +99,7 @@ function StatCard({ stat, index }: { stat: StatItem; index: number }) {
    ---------------------------------------------------------------- */
 export function Stats() {
   return (
-    <section className="py-20 sm:py-24 px-4 sm:px-6 border-y border-slate-100 bg-slate-50/50">
+    <section className="hidden md:block py-20 sm:py-24 px-4 sm:px-6 border-y border-slate-100 bg-slate-50/50">
       <div className="max-w-6xl mx-auto">
         {/* Section header */}
         <motion.div
