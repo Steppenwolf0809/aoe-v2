@@ -2,6 +2,7 @@
 
 import { motion } from 'framer-motion'
 import { ArrowRight, Calendar, User } from 'lucide-react'
+import Image from 'next/image'
 import Link from 'next/link'
 import { Card, CardContent } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
@@ -22,7 +23,7 @@ interface BlogPost {
 
 const posts: BlogPost[] = [
   {
-    title: 'Cuanto cuesta escriturar una casa en Quito en 2026?',
+    title: '¿Cuánto cuesta escriturar una casa en Quito en 2026?',
     excerpt:
       'Guia completa con todos los gastos que debes considerar al escriturar un inmueble: aranceles notariales, impuestos municipales y registro de la propiedad.',
     date: '5 Feb 2026',
@@ -34,9 +35,9 @@ const posts: BlogPost[] = [
     overlay: 'from-slate-900/60 via-slate-900/20 to-transparent',
   },
   {
-    title: '5 errores al comprar un vehiculo usado en Ecuador',
+    title: '5 errores al comprar un vehículo usado en Ecuador',
     excerpt:
-      'Evita problemas legales al adquirir un vehiculo de segunda mano. Conoce los documentos que debes verificar antes de firmar.',
+      'Evita problemas legales al adquirir un vehículo de segunda mano. Conoce los documentos que debes verificar antes de firmar.',
     date: '1 Feb 2026',
     author: 'Jose Luis',
     category: 'Vehiculos',
@@ -46,7 +47,7 @@ const posts: BlogPost[] = [
     overlay: 'from-slate-900/65 via-slate-900/20 to-transparent',
   },
   {
-    title: 'Que es la plusvalia y como se calcula en Quito?',
+    title: '¿Qué es la plusvalía y cómo se calcula en Quito?',
     excerpt:
       'Entiende el impuesto de plusvalia, cuando aplica, como se calcula y las rebajas por tiempo de posesion del inmueble.',
     date: '28 Ene 2026',
@@ -96,7 +97,7 @@ export function BlogPreview() {
             Articulos y Recursos Legales
           </h2>
           <p className="text-slate-600 text-lg max-w-2xl mx-auto">
-            Informacion practica sobre tramites legales, impuestos y consejos para ecuatorianos.
+            Información práctica sobre trámites legales, impuestos y consejos para ecuatorianos.
           </p>
         </motion.div>
 
@@ -112,10 +113,12 @@ export function BlogPreview() {
               <Link href={`/blog/${post.slug}`} className="block h-full group">
                 <Card className="h-full overflow-hidden bg-white border-slate-200 shadow-sm hover:shadow-lg hover:-translate-y-1 transition-all duration-300 cursor-pointer">
                   <div className="h-44 relative overflow-hidden">
-                    <img
+                    <Image
                       src={post.image}
                       alt={`Imagen para ${post.title}`}
-                      className="h-full w-full object-cover transition-transform duration-500 group-hover:scale-105"
+                      fill
+                      sizes="(max-width: 768px) 100vw, 33vw"
+                      className="object-cover transition-transform duration-500 group-hover:scale-105"
                     />
                     <div className={`absolute inset-0 bg-gradient-to-t ${post.overlay}`} />
                     <div className="absolute top-4 left-4">

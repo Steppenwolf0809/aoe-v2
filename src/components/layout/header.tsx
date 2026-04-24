@@ -1,14 +1,14 @@
 'use client'
 
-import { motion, useScroll, useMotionValueEvent } from 'framer-motion'
+import { motion, useMotionValueEvent, useScroll } from 'framer-motion'
+import { Calendar, FileText, Menu } from 'lucide-react'
 import Link from 'next/link'
-import Image from 'next/image'
 import { useState } from 'react'
-import { Menu, Calendar, FileText } from 'lucide-react'
-import { Button } from '@/components/ui/button'
 import { Badge } from '@/components/ui/badge'
+import { Button } from '@/components/ui/button'
 import { NAV_LINKS } from '@/lib/constants'
 import { MobileMenu } from './mobile-menu'
+import { Wordmark } from './wordmark'
 
 export function Header() {
   const [scrolled, setScrolled] = useState(false)
@@ -22,34 +22,25 @@ export function Header() {
   return (
     <>
       <motion.header
-        className="fixed top-0 left-0 right-0 z-50 transition-all duration-300 border-b"
+        className="fixed left-0 right-0 top-0 z-50 border-b transition-all duration-300"
         style={{
-          backgroundColor: scrolled ? 'rgba(255, 255, 255, 0.9)' : 'transparent',
-          backdropFilter: scrolled ? 'blur(16px)' : 'none',
-          WebkitBackdropFilter: scrolled ? 'blur(16px)' : 'none',
-          borderColor: scrolled ? 'rgba(15, 23, 42, 0.06)' : 'transparent',
+          backgroundColor: scrolled ? 'rgba(255, 255, 255, 0.92)' : 'rgba(255, 255, 255, 0.96)',
+          backdropFilter: 'blur(16px)',
+          WebkitBackdropFilter: 'blur(16px)',
+          borderColor: scrolled ? 'rgba(15, 23, 42, 0.08)' : 'rgba(15, 23, 42, 0.04)',
         }}
       >
-        <nav className="max-w-7xl mx-auto px-4 sm:px-6 h-16 flex items-center justify-between">
-          {/* Logo */}
-          <Link href="/" className="flex items-center shrink-0">
-            <Image
-              src="/logo/logo-horizontal.svg"
-              alt="Abogados Online Ecuador"
-              width={240}
-              height={60}
-              className="h-12 md:h-14 w-auto"
-              priority
-            />
+        <nav className="mx-auto flex h-16 max-w-7xl items-center justify-between px-4 sm:px-6">
+          <Link href="/" className="flex shrink-0 items-center" aria-label="Abogados Online Ecuador">
+            <Wordmark />
           </Link>
 
-          {/* Desktop Navigation */}
-          <div className="hidden md:flex items-center gap-1">
+          <div className="hidden items-center gap-1 md:flex">
             {NAV_LINKS.map((link) => (
               <Link
                 key={link.href}
                 href={link.href}
-                className="relative px-3 py-2 text-sm text-text-secondary hover:text-text-primary transition-colors duration-200 rounded-[var(--radius-sm)] hover:bg-slate-100"
+                className="relative rounded-[var(--radius-sm)] px-3 py-2 text-sm text-text-secondary transition-colors duration-200 hover:bg-slate-100 hover:text-text-primary"
               >
                 <span className="flex items-center gap-1.5">
                   {link.label}
@@ -63,32 +54,32 @@ export function Header() {
             ))}
           </div>
 
-          {/* Right side */}
           <div className="flex items-center gap-3">
             <Link
               href="/iniciar-sesion"
-              className="hidden sm:inline-flex text-sm text-text-secondary hover:text-text-primary transition-colors duration-200"
+              className="hidden text-sm text-text-secondary transition-colors duration-200 hover:text-text-primary sm:inline-flex"
             >
-              Iniciar Sesion
+              Iniciar Sesión
             </Link>
             <Link href="/contratos/vehicular" className="hidden sm:inline-flex">
-              <Button size="sm" className="bg-accent-primary hover:bg-accent-primary-hover text-white">
-                <FileText className="w-4 h-4" />
+              <Button size="sm" className="bg-accent-primary text-white hover:bg-accent-primary-hover">
+                <FileText className="h-4 w-4" />
                 Generar Contrato
               </Button>
             </Link>
             <Link href="/contacto" className="hidden xl:inline-flex">
               <Button size="sm" variant="outline">
-                <Calendar className="w-4 h-4" />
+                <Calendar className="h-4 w-4" />
                 Agendar Cita
               </Button>
             </Link>
             <button
+              type="button"
               onClick={() => setMobileOpen(true)}
-              className="md:hidden p-2 text-text-secondary hover:text-text-primary hover:bg-slate-100 rounded-[var(--radius-sm)] transition-colors duration-200 cursor-pointer"
-              aria-label="Abrir menu"
+              className="cursor-pointer rounded-[var(--radius-sm)] p-2 text-text-secondary transition-colors duration-200 hover:bg-slate-100 hover:text-text-primary md:hidden"
+              aria-label="Abrir menú"
             >
-              <Menu className="w-5 h-5" />
+              <Menu className="h-5 w-5" />
             </button>
           </div>
         </nav>

@@ -2,7 +2,7 @@ import type { Metadata } from 'next'
 import { SITE_NAME, SITE_URL, SITE_DESCRIPTION } from '@/lib/constants'
 import { Hero } from '@/components/landing/hero'
 import { Stats } from '@/components/landing/stats'
-import { Narrative } from '@/components/landing/narrative'
+import { DebtEvaluatorPreview } from '@/components/landing/debt-evaluator-preview'
 import { Features } from '@/components/landing/features'
 import { CalculatorPreview } from '@/components/landing/calculator-preview'
 import { Testimonials } from '@/components/landing/testimonials'
@@ -14,26 +14,25 @@ import { FaqSchema } from '@/components/seo/faq-schema'
 import { Header } from '@/components/layout/header'
 import { Footer } from '@/components/layout/footer'
 
-/* ----------------------------------------------------------------
-   SEO Metadata — generateMetadata per PROMPT 06
-   ---------------------------------------------------------------- */
 export const metadata: Metadata = {
-  title: `${SITE_NAME} | Servicios Notariales y Legales en Quito`,
+  title: `${SITE_NAME} | Notaría Digital y Negociación de Deudas`,
   description:
-    'Genera contratos vehiculares válidos legalmente, calcula costos notariales y simplifica tus trámites legales en Ecuador. Rápido, seguro y confiable.',
+    'Soluciones legales ágiles para trámites notariales, calculadoras jurídicas y negociación de deudas en Ecuador. Tecnología legal con 12 años de experiencia.',
   keywords: [
     'abogados online ecuador',
+    'negociación de deudas ecuador',
+    'deudas en mora ecuador',
+    'blindaje judicial ecuador',
+    'notaria digital ecuador',
     'contratos vehiculares',
     'calculadora notarial',
-    'servicios notariales quito',
-    'compra venta vehicular',
-    'aranceles notariales ecuador',
-    'registro de la propiedad',
+    'trámites notariales ecuador',
+    'escrituras ecuador',
   ],
   openGraph: {
-    title: `${SITE_NAME} | Servicios Notariales y Legales en Quito`,
+    title: `${SITE_NAME} | Notaría Digital y Negociación de Deudas`,
     description:
-      'Genera contratos vehiculares válidos legalmente, calcula costos notariales y simplifica tus trámites legales en Ecuador.',
+      'Plataforma legal para trámites notariales, calculadoras jurídicas y negociación extrajudicial con blindaje judicial.',
     url: SITE_URL,
     siteName: SITE_NAME,
     locale: 'es_EC',
@@ -41,53 +40,46 @@ export const metadata: Metadata = {
   },
   twitter: {
     card: 'summary_large_image',
-    title: `${SITE_NAME} | Servicios Notariales y Legales en Quito`,
+    title: `${SITE_NAME} | Notaría Digital y Negociación de Deudas`,
     description:
-      'Genera contratos vehiculares válidos legalmente, calcula costos notariales y simplifica tus trámites legales en Ecuador.',
+      'Soluciones legales ágiles para trámites notariales y crisis de deuda en Ecuador.',
   },
   alternates: {
     canonical: SITE_URL,
   },
 }
 
-/* ----------------------------------------------------------------
-   FAQ data for schema + component
-   ---------------------------------------------------------------- */
 const faqs = [
   {
-    question: '¿Son válidos legalmente los contratos generados?',
+    question: '¿La evaluación de deuda tiene costo?',
     answer:
-      'Sí, todos los contratos generados cumplen con la legislación ecuatoriana vigente y son válidos para su uso en notarías. Nuestros documentos están respaldados por 12+ años de experiencia notarial en Quito.',
+      'La evaluación inicial desde la home es gratuita y genera un PDF de pre-diagnóstico. Una asesoría personalizada o una estrategia de negociación se cotiza después de revisar el caso.',
   },
   {
-    question: '¿Cómo funciona la calculadora notarial?',
+    question: '¿Pueden garantizar que eliminarán mi deuda?',
     answer:
-      'Nuestras calculadoras utilizan las tablas oficiales del Consejo de la Judicatura y las tarifas municipales vigentes para calcular aranceles notariales de forma precisa. Solo necesitas ingresar el valor del inmueble o vehículo y obtendrás un estimado detallado.',
+      'No prometemos eliminar deudas ni detener procesos de forma garantizada. Evaluamos documentos, riesgo y capacidad de pago para proponer una negociación o defensa responsable.',
   },
   {
-    question: '¿Cuánto tiempo toma generar un contrato?',
+    question: '¿Qué pasa si ya recibí una notificación de cobro?',
     answer:
-      'El proceso completo toma entre 5 y 10 minutos. Solo necesitas llenar el formulario con los datos requeridos, realizar el pago y recibirás tu contrato por correo electrónico listo para imprimir y firmar.',
+      'Debes guardar la notificacion, revisar fechas y evitar firmar acuerdos sin entender sus efectos. El evaluador ayuda a ordenar la informacion para una primera estrategia.',
   },
   {
-    question: '¿Qué métodos de pago aceptan?',
+    question: '¿La negociación es extrajudicial o también hay defensa judicial?',
     answer:
-      'Aceptamos tarjetas de crédito y débito a través de nuestra pasarela de pago segura. También puedes realizar transferencias bancarias. Todos los pagos están protegidos con encriptación de última generación.',
+      'La oferta se plantea como Negociación Extrajudicial con Blindaje Judicial: buscamos acuerdo, pero revisamos documentos y plazos por si el conflicto escala.',
   },
   {
-    question: '¿Puedo modificar un contrato después de generarlo?',
+    question: '¿Qué necesito para empezar un trámite notarial?',
     answer:
-      'Sí, con el plan Profesional puedes solicitar modificaciones ilimitadas a tus contratos. Para el plan básico, puedes generar un nuevo contrato con los datos corregidos a un precio reducido.',
+      'Depende del acto, pero normalmente necesitas datos de las partes, documentos de identidad y antecedentes del bien o contrato. Puedes iniciar en servicios o calcular costos antes de avanzar.',
   },
 ]
 
-/* ----------------------------------------------------------------
-   Home Page
-   ---------------------------------------------------------------- */
 export default function HomePage() {
   return (
     <>
-      {/* JSON-LD Structured Data */}
       <JsonLd
         data={{
           '@context': 'https://schema.org',
@@ -126,9 +118,27 @@ export default function HomePage() {
                 '@type': 'Offer',
                 itemOffered: {
                   '@type': 'Service',
+                  name: 'Tramites Notariales Digitales',
+                  description:
+                    'Orientación y preparación de escrituras, poderes, certificaciones y documentos notariales.',
+                },
+              },
+              {
+                '@type': 'Offer',
+                itemOffered: {
+                  '@type': 'Service',
                   name: 'Calculadoras Notariales',
                   description:
                     'Cálculo de aranceles notariales y de registro de la propiedad.',
+                },
+              },
+              {
+                '@type': 'Offer',
+                itemOffered: {
+                  '@type': 'Service',
+                  name: 'Negociación de Deudas',
+                  description:
+                    'Evaluación inicial de riesgo, negociación extrajudicial y preparación de blindaje judicial.',
                 },
               },
             ],
@@ -141,7 +151,7 @@ export default function HomePage() {
       <main className="pt-16">
         <Hero />
         <Stats />
-        <Narrative />
+        <DebtEvaluatorPreview />
         <Features />
         <CalculatorPreview />
         <Testimonials />

@@ -1,20 +1,17 @@
 'use client'
 
 import { motion } from 'framer-motion'
+import { ArrowRight, Building, Calculator, FileSignature, Star } from 'lucide-react'
 import Link from 'next/link'
-import { ArrowRight, Calculator, Building, FileSignature, Star } from 'lucide-react'
+import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
 import { Card, CardContent } from '@/components/ui/card'
-import { Badge } from '@/components/ui/badge'
 
-/* ----------------------------------------------------------------
-   Calculator cards — 3 featured cards per PROMPT 06
-   ---------------------------------------------------------------- */
 const calculators = [
   {
     title: 'Presupuestador Inmobiliario',
     description:
-      'Calcula el costo TOTAL de comprar o vender un inmueble: notaría, alcabalas, registro y consejo provincial en un solo clic.',
+      'Calcula el costo total de comprar o vender un inmueble: notaria, alcabalas, registro y consejo provincial.',
     icon: Calculator,
     href: '/calculadoras/inmuebles',
     featured: true,
@@ -23,7 +20,7 @@ const calculators = [
   {
     title: 'Calculadora Notarial',
     description:
-      'Calcula los aranceles notariales según las tablas oficiales del Consejo de la Judicatura. Incluye IVA.',
+      'Calcula aranceles notariales segun tablas oficiales del Consejo de la Judicatura. Incluye IVA.',
     icon: Building,
     href: '/calculadoras/notarial',
     featured: false,
@@ -32,17 +29,14 @@ const calculators = [
   {
     title: 'Impuestos Municipales',
     description:
-      'Calcula alcabalas, plusvalía y utilidad para transferencias de dominio en el Municipio de Quito.',
+      'Calcula alcabalas, plusvalia y utilidad para transferencias de dominio en el Municipio de Quito.',
     icon: FileSignature,
     href: '/calculadoras/alcabalas',
     featured: false,
-    gradient: 'from-purple-500 to-pink-500',
+    gradient: 'from-slate-600 to-blue-500',
   },
 ]
 
-/* ----------------------------------------------------------------
-   Stagger variants
-   ---------------------------------------------------------------- */
 const containerVariants = {
   hidden: {},
   visible: {
@@ -59,43 +53,35 @@ const cardVariants = {
   },
 }
 
-/* ----------------------------------------------------------------
-   Calculator Preview Section
-   ---------------------------------------------------------------- */
 export function CalculatorPreview() {
   return (
-    <section className="py-20 sm:py-28 px-4 sm:px-6 bg-bg-secondary relative overflow-hidden">
-      {/* Subtle background accent */}
-      <div className="absolute top-0 left-1/2 -translate-x-1/2 w-[600px] h-[300px] bg-accent-primary/[0.04] rounded-full blur-[100px] pointer-events-none" />
-
-      <div className="relative z-10 max-w-7xl mx-auto">
-        {/* Section header */}
+    <section className="relative overflow-hidden bg-bg-secondary px-4 py-20 sm:px-6 sm:py-28">
+      <div className="relative z-10 mx-auto max-w-7xl">
         <motion.div
           initial={{ opacity: 0, y: 20 }}
           whileInView={{ opacity: 1, y: 0 }}
           viewport={{ once: true, margin: '-80px' }}
           transition={{ duration: 0.5 }}
-          className="text-center mb-14"
+          className="mb-14 text-center"
         >
           <Badge variant="success" size="md" className="mb-4">
             100% Gratuito
           </Badge>
-          <h2 className="text-3xl sm:text-4xl font-bold text-text-primary mb-4">
-            Calculadora de Valor de Escrituras
+          <h2 className="mb-4 text-3xl font-bold text-text-primary sm:text-4xl">
+            Calcula una referencia antes de iniciar tu trámite
           </h2>
-          <p className="text-text-secondary text-lg max-w-2xl mx-auto">
-            Herramientas gratuitas para calcular costos notariales, impuestos
-            municipales y aranceles de registro antes de tu trámite.
+          <p className="mx-auto max-w-2xl text-lg text-text-secondary">
+            Las calculadoras siguen como utilidad notarial: estiman costos, impuestos
+            y aranceles antes de avanzar con documentos o asesoría.
           </p>
         </motion.div>
 
-        {/* 3 Calculator cards */}
         <motion.div
           variants={containerVariants}
           initial="hidden"
           whileInView="visible"
           viewport={{ once: true, margin: '-60px' }}
-          className="grid grid-cols-1 md:grid-cols-3 gap-5"
+          className="grid grid-cols-1 gap-5 md:grid-cols-3"
         >
           {calculators.map((calc) => {
             const Icon = calc.icon
@@ -103,51 +89,41 @@ export function CalculatorPreview() {
               <motion.div key={calc.title} variants={cardVariants}>
                 <Link href={calc.href} className="block h-full">
                   <Card
-                    className={`h-full p-6 relative overflow-hidden cursor-pointer group transition-all duration-200 ${
+                    className={`group relative h-full cursor-pointer overflow-hidden p-6 transition-all duration-200 ${
                       calc.featured
-                        ? 'border-accent-primary/30 hover:border-accent-primary/50 bg-accent-primary/[0.04] hover:bg-accent-primary/[0.08]'
-                        : 'hover:bg-bg-tertiary hover:border-[var(--glass-border-hover)]'
+                        ? 'border-accent-primary/30 bg-accent-primary/[0.04] hover:border-accent-primary/50 hover:bg-accent-primary/[0.08]'
+                        : 'hover:border-[var(--glass-border-hover)] hover:bg-bg-tertiary'
                     }`}
                   >
-                    {/* Featured badge */}
                     {calc.featured && (
-                      <div className="absolute top-4 right-4">
+                      <div className="absolute right-4 top-4">
                         <Badge variant="info" size="sm" className="gap-1">
-                          <Star className="w-3 h-3" />
+                          <Star className="h-3 w-3" />
                           Recomendado
                         </Badge>
                       </div>
                     )}
 
-                    {/* Ambient glow for featured */}
-                    {calc.featured && (
-                      <div className="absolute -top-24 -right-24 w-48 h-48 rounded-full blur-3xl bg-accent-primary/10 group-hover:bg-accent-primary/15 transition-colors" />
-                    )}
-
-                    <CardContent className="p-0 relative z-10">
-                      {/* Icon */}
+                    <CardContent className="relative z-10 p-0">
                       <div
-                        className={`w-12 h-12 rounded-xl bg-gradient-to-br ${calc.gradient} flex items-center justify-center mb-5 ${
+                        className={`mb-5 flex h-12 w-12 items-center justify-center rounded-[var(--radius-sm)] bg-gradient-to-br ${calc.gradient} ${
                           calc.featured ? 'shadow-glow-blue' : ''
-                        } group-hover:scale-110 transition-transform duration-200`}
+                        } transition-transform duration-200 group-hover:scale-105`}
                       >
-                        <Icon className="w-6 h-6 text-white" />
+                        <Icon className="h-6 w-6 text-white" />
                       </div>
 
-                      {/* Title */}
-                      <h3 className="text-lg font-semibold text-text-primary mb-2 group-hover:text-accent-primary transition-colors duration-200">
+                      <h3 className="mb-2 text-lg font-semibold text-text-primary transition-colors duration-200 group-hover:text-accent-primary">
                         {calc.title}
                       </h3>
 
-                      {/* Description */}
-                      <p className="text-sm text-text-secondary leading-relaxed mb-5">
+                      <p className="mb-5 text-sm leading-relaxed text-text-secondary">
                         {calc.description}
                       </p>
 
-                      {/* Link */}
-                      <span className="inline-flex items-center gap-1.5 text-sm font-medium text-accent-primary group-hover:gap-2.5 transition-all duration-200">
+                      <span className="inline-flex items-center gap-1.5 text-sm font-medium text-accent-primary transition-all duration-200 group-hover:gap-2.5">
                         Calcular ahora
-                        <ArrowRight className="w-4 h-4" />
+                        <ArrowRight className="h-4 w-4" />
                       </span>
                     </CardContent>
                   </Card>
@@ -157,18 +133,17 @@ export function CalculatorPreview() {
           })}
         </motion.div>
 
-        {/* Bottom CTA */}
         <motion.div
           initial={{ opacity: 0, y: 16 }}
           whileInView={{ opacity: 1, y: 0 }}
           viewport={{ once: true }}
           transition={{ duration: 0.4, delay: 0.3 }}
-          className="text-center mt-12"
+          className="mt-12 text-center"
         >
           <Link href="/calculadoras">
             <Button variant="outline" size="lg">
               Ver todas las calculadoras
-              <ArrowRight className="w-4 h-4" />
+              <ArrowRight className="h-4 w-4" />
             </Button>
           </Link>
         </motion.div>

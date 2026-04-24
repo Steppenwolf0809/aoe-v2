@@ -1,293 +1,250 @@
 'use client'
 
 import { motion } from 'framer-motion'
-import { ArrowRight, Bot, Calculator, FileCheck2, FileText, ShieldCheck } from 'lucide-react'
+import {
+  ArrowRight,
+  BadgeCheck,
+  Calculator,
+  FileCheck2,
+  Fingerprint,
+  MessageSquareText,
+  Route,
+  ShieldCheck,
+  Sparkles,
+} from 'lucide-react'
 import Link from 'next/link'
-import { Button } from '@/components/ui/button'
 import { Badge } from '@/components/ui/badge'
+import { Button } from '@/components/ui/button'
 
-/* ----------------------------------------------------------------
-   Hero visual - vertical legal pipeline
-   ---------------------------------------------------------------- */
-/* ----------------------------------------------------------------
-   Hero visual - Stitch-designed Pipeline
-   ---------------------------------------------------------------- */
-const pipelineSteps = [
+const intentCards = [
   {
-    id: 'scan',
-    title: 'Recepción de Datos',
-    status: 'Verificando requisitos...',
-    icon: Bot,
-    side: 'right',
-    progress: 65,
-  },
-  {
-    id: 'process',
-    title: 'Revisión Legal',
-    status: 'Validando normativa...',
-    icon: ShieldCheck,
-    side: 'left',
-    progress: 80,
-  },
-  {
-    id: 'complete',
-    title: 'Listo para Firma',
-    status: 'Aprobado',
+    eyebrow: 'Ruta notarial',
+    title: 'Resolver un trámite',
+    description: 'Escrituras, poderes, contratos, requisitos y calculadoras para avanzar sin vueltas.',
+    cta: 'Ir a Notaría Digital',
+    href: '/servicios',
     icon: FileCheck2,
-    side: 'right',
-    progress: 100,
+    tone: 'cyan',
+    button: 'bg-sky-300 text-slate-950 hover:bg-sky-200',
+  },
+  {
+    eyebrow: 'Ruta financiera',
+    title: 'Contener una deuda',
+    description: 'Mora, llamadas, cartas, riesgo de juicio y negociación con blindaje judicial.',
+    cta: 'Evaluar mi deuda',
+    href: '#evaluador-deudas',
+    icon: ShieldCheck,
+    tone: 'rose',
+    button: 'bg-rose-400 text-white hover:bg-rose-300',
   },
 ]
 
-function PipelineFlowVisual() {
+const proofPoints = [
+  { value: '12 años', label: 'experiencia jurídica' },
+  { value: 'EC', label: 'criterio local' },
+  { value: 'PDF', label: 'pre-diagnóstico' },
+]
+
+function IntentCard({ card }: { card: (typeof intentCards)[number] }) {
+  const Icon = card.icon
+  const isDebt = card.tone === 'rose'
+
   return (
-    <div className="relative w-full max-w-lg mx-auto h-[600px] flex items-center justify-center font-sans">
-
-      {/* Main Container with Stitch-style Glass and Grid */}
-      <div className="relative w-full h-full bg-[#f6f8f7]/80 backdrop-blur-xl border border-[#10b77f]/10 rounded-3xl shadow-2xl p-6 flex flex-col items-center overflow-hidden">
-
-        {/* Background Grid Pattern */}
+    <motion.div
+      className="group relative overflow-hidden rounded-[20px] border border-white/10 bg-white/[0.045] p-4 shadow-[inset_0_1px_0_rgba(255,255,255,0.08)] transition-colors duration-300 hover:bg-white/[0.065] sm:p-5"
+      whileHover={{ y: -3 }}
+      transition={{ type: 'spring', stiffness: 180, damping: 22 }}
+    >
+      <div
+        className={`absolute inset-y-4 left-0 w-1 rounded-r-full ${isDebt ? 'bg-rose-300' : 'bg-sky-300'}`}
+        aria-hidden="true"
+      />
+      <div className="flex items-start gap-4">
         <div
-          className="absolute inset-0 opacity-30 pointer-events-none"
-          style={{
-            backgroundImage: `linear-gradient(rgba(16, 183, 127, 0.05) 1px, transparent 1px), linear-gradient(90deg, rgba(16, 183, 127, 0.05) 1px, transparent 1px)`,
-            backgroundSize: '40px 40px'
-          }}
-        />
-
-        {/* Ambient Glows */}
-        <div className="absolute top-[-10%] right-[-5%] w-[300px] h-[300px] bg-[#10b77f]/10 rounded-full blur-[80px] pointer-events-none" />
-        <div className="absolute bottom-[-10%] left-[-5%] w-[300px] h-[300px] bg-[#10b77f]/5 rounded-full blur-[80px] pointer-events-none" />
-
-        {/* Header */}
-        <div className="relative z-10 w-full flex items-center justify-between border-b border-[#10b77f]/10 pb-4 mb-4">
-          <div className="flex items-center gap-2 px-3 py-1 rounded-full bg-[#10b77f]/10 border border-[#10b77f]/20">
-            <span className="relative flex h-2 w-2">
-              <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-[#10b77f] opacity-75" />
-              <span className="relative inline-flex h-2 w-2 rounded-full bg-[#10b77f]" />
-            </span>
-            <span className="text-[10px] font-bold text-[#10b77f] uppercase tracking-wider">
-              Trámite en Curso
-            </span>
-          </div>
-          <Badge variant="outline" className="bg-white/50 border-slate-200 text-slate-500">
-            v2.4
-          </Badge>
+          className={`flex h-11 w-11 shrink-0 items-center justify-center rounded-2xl border ${
+            isDebt
+              ? 'border-rose-200/20 bg-rose-300/10 text-rose-100'
+              : 'border-sky-200/20 bg-sky-300/10 text-sky-100'
+          }`}
+        >
+          <Icon className="h-5 w-5" />
         </div>
-
-        {/* Pipeline Area */}
-        <div className="relative z-10 flex-1 w-full flex justify-center">
-
-          {/* Central Line */}
-          <div className="absolute top-0 bottom-0 w-[2px] bg-gradient-to-b from-transparent via-[#10b77f]/30 to-transparent">
-            {/* Moving Orb */}
-            <motion.div
-              className="absolute w-3 h-3 bg-[#10b77f] rounded-full shadow-[0_0_10px_#10b77f] left-1/2 -translate-x-1/2"
-              initial={{ top: '10%', opacity: 0 }}
-              animate={{ top: '90%', opacity: [0, 1, 1, 0] }}
-              transition={{
-                duration: 4,
-                repeat: Infinity,
-                ease: "easeInOut"
-              }}
-            />
-          </div>
-
-          {/* Cards Container */}
-          <div className="w-full flex flex-col justify-around py-4">
-            {pipelineSteps.map((step, index) => (
-              <div key={step.id} className="relative w-full h-24 flex items-center justify-center">
-
-                {/* Center Node */}
-                <div className="absolute left-1/2 -translate-x-1/2 w-4 h-4 bg-white border-2 border-[#10b77f]/30 rounded-full z-20 flex items-center justify-center">
-                  <motion.div
-                    className="w-2 h-2 bg-[#10b77f] rounded-full"
-                    initial={{ scale: 0 }}
-                    animate={{ scale: [0, 1, 0] }}
-                    transition={{ duration: 0.5, delay: index * 1.3 + 0.5, repeat: Infinity, repeatDelay: 3.5 }}
-                  />
-                </div>
-
-                {/* Card */}
-                <motion.div
-                  className={`absolute w-40 sm:w-48 p-3 rounded-xl border border-[#10b77f]/10 bg-white/60 backdrop-blur-md shadow-lg flex flex-col gap-2 ${step.side === 'left' ? 'right-[55%] text-right items-end' : 'left-[55%] text-left items-start'}`}
-                  initial={{ opacity: 0, x: step.side === 'left' ? -20 : 20 }}
-                  animate={{ opacity: 1, x: 0 }}
-                  transition={{ delay: 0.2 + (index * 0.2) }}
-                >
-                  <div className="flex items-center gap-2 text-[#10b77f]">
-                    <step.icon className="w-4 h-4" />
-                    <span className="text-xs font-bold uppercase tracking-wider">Etapa 0{index + 1}</span>
-                  </div>
-                  <div>
-                    <p className="text-sm font-bold text-slate-800 leading-none">{step.title}</p>
-                    <p className="text-[10px] text-slate-500 uppercase mt-1">{step.status}</p>
-                  </div>
-                  {/* Progress Bar */}
-                  <div className="w-full h-1 bg-slate-200 rounded-full overflow-hidden mt-1">
-                    <motion.div
-                      className="h-full bg-[#10b77f]"
-                      initial={{ width: 0 }}
-                      animate={{ width: `${step.progress}%` }}
-                      transition={{ duration: 1.5, delay: 0.5 + (index * 0.5), repeat: Infinity, repeatDelay: 2 }}
-                    />
-                  </div>
-                </motion.div>
-
-              </div>
-            ))}
-          </div>
-
-          {/* Floating Tags */}
-
-
-          <motion.div
-            className="absolute bottom-[20%] left-[5%] bg-white/80 backdrop-blur-sm px-3 py-1.5 rounded-full border border-[#10b77f]/20 shadow-sm flex items-center gap-1.5"
-            animate={{ y: [0, 10, 0] }}
-            transition={{ duration: 5, repeat: Infinity, ease: "easeInOut" }}
-          >
-            <ShieldCheck className="w-3 h-3 text-[#10b77f]" />
-            <span className="text-[10px] font-bold text-slate-600">100% Fiable</span>
-          </motion.div>
-
-        </div>
-
-        {/* Footer Stats */}
-        <div className="relative z-10 w-full grid grid-cols-3 gap-2 border-t border-[#10b77f]/10 pt-4 mt-auto text-center">
-          <div>
-            <p className="text-lg font-bold text-[#10b77f]">24/7</p>
-            <p className="text-[9px] uppercase tracking-widest text-slate-500 font-bold">Disponibilidad</p>
-          </div>
-          <div>
-            <p className="text-lg font-bold text-[#10b77f]">100%</p>
-            <p className="text-[9px] uppercase tracking-widest text-slate-500 font-bold">Validez Legal</p>
-          </div>
-          <div>
-            <p className="text-lg font-bold text-[#10b77f]">Total</p>
-            <p className="text-[9px] uppercase tracking-widest text-slate-500 font-bold">Seguridad</p>
-          </div>
+        <div className="min-w-0">
+          <p className="text-[11px] font-semibold uppercase tracking-[0.22em] text-slate-500">
+            {card.eyebrow}
+          </p>
+          <h2 className="mt-2 text-lg font-semibold tracking-tight text-white">{card.title}</h2>
+          <p className="mt-2 text-sm leading-relaxed text-slate-400">{card.description}</p>
         </div>
       </div>
-    </div>
+
+      <Button
+        asChild
+        size="md"
+        className={`mt-5 min-h-11 h-auto w-full rounded-2xl px-4 py-3 text-sm font-semibold shadow-none transition-transform active:translate-y-px ${card.button}`}
+      >
+        <Link href={card.href}>
+          {card.cta}
+          <ArrowRight className="h-4 w-4" />
+        </Link>
+      </Button>
+    </motion.div>
   )
 }
 
-/* ----------------------------------------------------------------
-   Hero Section
-   ---------------------------------------------------------------- */
+function LegalSignalPanel() {
+  return (
+    <motion.div
+      className="relative mx-auto w-full max-w-xl overflow-hidden rounded-[28px] border border-white/10 bg-[#0b1020]/90 p-4 shadow-[0_36px_110px_-64px_rgba(15,23,42,0.95),inset_0_1px_0_rgba(255,255,255,0.08)]"
+    >
+      <div
+        className="absolute inset-0 opacity-60"
+        style={{
+          background:
+            'radial-gradient(circle at 18% 18%, rgba(125,211,252,0.18), transparent 28%), radial-gradient(circle at 82% 4%, rgba(251,113,133,0.14), transparent 30%)',
+        }}
+        aria-hidden="true"
+      />
+      <div
+        className="absolute inset-0 opacity-[0.13]"
+        style={{
+          backgroundImage:
+            'linear-gradient(rgba(255,255,255,0.9) 1px, transparent 1px), linear-gradient(90deg, rgba(255,255,255,0.9) 1px, transparent 1px)',
+          backgroundSize: '34px 34px',
+        }}
+        aria-hidden="true"
+      />
+
+      <div className="relative rounded-[22px] border border-white/10 bg-slate-950/65">
+        <div className="flex items-center justify-between border-b border-white/10 px-4 py-3">
+          <div className="flex items-center gap-2">
+            <span className="h-2.5 w-2.5 rounded-full bg-emerald-300" />
+            <span className="text-xs font-semibold uppercase tracking-[0.18em] text-slate-300">
+              Legal OS
+            </span>
+          </div>
+          <span className="rounded-full border border-white/10 px-3 py-1 font-mono text-[11px] text-slate-400">
+            AOE-EC
+          </span>
+        </div>
+
+        <div className="grid gap-4 p-4 lg:grid-cols-[1fr_0.82fr]">
+          <div className="space-y-3">
+            {[
+              { label: 'Entrada', value: 'Necesidad legal detectada', icon: Fingerprint },
+              { label: 'Ruta', value: 'Notaría o deuda', icon: Route },
+              { label: 'Salida', value: 'Documento, estrategia o llamada', icon: MessageSquareText },
+            ].map((item, index) => {
+              const Icon = item.icon
+
+              return (
+                <div key={item.label} className="relative rounded-2xl border border-white/10 bg-white/[0.04] p-4">
+                  {index < 2 && (
+                    <span className="absolute -bottom-3 left-8 h-3 w-px bg-white/15" aria-hidden="true" />
+                  )}
+                  <div className="flex items-start gap-3">
+                    <div className="grid h-9 w-9 shrink-0 place-items-center rounded-xl bg-white/10 text-slate-200">
+                      <Icon className="h-4 w-4" />
+                    </div>
+                    <div>
+                      <p className="font-mono text-[11px] uppercase tracking-[0.18em] text-slate-500">
+                        {item.label}
+                      </p>
+                      <p className="mt-1 text-sm font-semibold leading-snug text-white">{item.value}</p>
+                    </div>
+                  </div>
+                </div>
+              )
+            })}
+          </div>
+
+          <div className="grid content-between gap-3">
+            <div className="rounded-2xl border border-sky-200/15 bg-sky-300/10 p-4">
+              <p className="font-mono text-[11px] uppercase tracking-[0.18em] text-sky-100/70">
+                Trámite
+              </p>
+              <p className="mt-2 text-3xl font-semibold tracking-tight text-white">08m</p>
+              <p className="mt-1 text-xs leading-relaxed text-slate-400">inicio guiado</p>
+            </div>
+            <div className="rounded-2xl border border-rose-200/15 bg-rose-300/10 p-4">
+              <p className="font-mono text-[11px] uppercase tracking-[0.18em] text-rose-100/70">
+                Deuda
+              </p>
+              <p className="mt-2 text-3xl font-semibold tracking-tight text-white">15q</p>
+              <p className="mt-1 text-xs leading-relaxed text-slate-400">pre-diagnóstico</p>
+            </div>
+          </div>
+        </div>
+
+        <div className="grid grid-cols-3 border-t border-white/10">
+          {proofPoints.map((point) => (
+            <div key={point.label} className="border-r border-white/10 p-4 last:border-r-0">
+              <p className="text-sm font-semibold text-white">{point.value}</p>
+              <p className="mt-1 text-[10px] uppercase leading-snug tracking-[0.14em] text-slate-500">
+                {point.label}
+              </p>
+            </div>
+          ))}
+        </div>
+      </div>
+    </motion.div>
+  )
+}
+
 export function Hero() {
   return (
-    <section className="relative min-h-[calc(100vh-4rem)] flex items-center overflow-hidden">
+    <section className="relative overflow-hidden bg-[#080b13]">
       <div
         className="absolute inset-0"
         style={{
           background:
-            'radial-gradient(ellipse 68% 50% at 18% 8%, rgba(2,64,137,0.13) 0%, transparent 68%), radial-gradient(ellipse 50% 42% at 84% 72%, rgba(15,23,42,0.08) 0%, transparent 70%), linear-gradient(165deg, #f8fbff 0%, #eef3fa 46%, #ffffff 100%)',
+            'linear-gradient(115deg, rgba(14,165,233,0.18) 0%, rgba(8,11,19,0) 36%), linear-gradient(248deg, rgba(244,63,94,0.15) 0%, rgba(8,11,19,0) 32%), linear-gradient(180deg, #080b13 0%, #0d1324 100%)',
         }}
+        aria-hidden="true"
       />
+      <div className="absolute inset-x-0 top-0 h-px bg-gradient-to-r from-transparent via-white/20 to-transparent" aria-hidden="true" />
 
-      <div
-        className="absolute inset-0 opacity-[0.35]"
-        style={{
-          backgroundImage:
-            'linear-gradient(rgba(15,23,42,0.035) 1px, transparent 1px), linear-gradient(90deg, rgba(15,23,42,0.035) 1px, transparent 1px)',
-          backgroundSize: '56px 56px',
-        }}
-      />
-
-      <div className="absolute top-20 left-[12%] h-72 w-72 rounded-full bg-accent-primary/[0.1] blur-[100px] pointer-events-none" />
-      <div className="absolute bottom-16 right-[12%] h-64 w-64 rounded-full bg-cyan-400/[0.09] blur-[80px] pointer-events-none" />
-
-      <div className="relative z-10 w-full max-w-7xl mx-auto px-4 sm:px-6 pt-10 pb-16 lg:pt-16 lg:pb-24">
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 lg:gap-16 items-center">
-          <div>
-            <motion.div
-              initial={{ opacity: 0, y: 20 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.5 }}
-            >
-              <div className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-white/90 border border-slate-200 shadow-sm mb-6 backdrop-blur-sm">
-                <span className="relative flex h-2 w-2">
-                  <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-accent-success/75 opacity-75" />
-                  <span className="relative inline-flex rounded-full h-2 w-2 bg-accent-success" />
-                </span>
-                <span className="text-xs font-medium text-text-secondary">
-                  Servicios Notariales & Legales en Quito
-                </span>
-              </div>
-            </motion.div>
-
-            <motion.h1
-              initial={{ opacity: 0, y: 20 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.5, delay: 0.1 }}
-              className="text-4xl sm:text-5xl lg:text-6xl font-bold text-text-primary leading-[1.1] tracking-tight mb-6"
-            >
-              Tus trámites notariales,{' '}
-              <motion.span
-                className="inline-block bg-[linear-gradient(110deg,#024089,45%,#60a5fa,55%,#024089)] bg-[length:200%_100%] bg-clip-text text-transparent"
-                animate={{ backgroundPosition: ["200% 0", "-200% 0"] }}
-                transition={{ repeat: Infinity, duration: 4, ease: "linear" }}
-              >
-                rápidos y seguros en Quito
-              </motion.span>
-            </motion.h1>
-
-            <motion.p
-              initial={{ opacity: 0, y: 20 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.5, delay: 0.2 }}
-              className="text-lg text-text-secondary leading-relaxed max-w-lg mb-10"
-            >
-              Genera contratos válidos en línea o gestiona tus trámites físicos directamente en Quito.
-              Combinamos tecnología legal con la experiencia de una notaría tradicional.
-            </motion.p>
-
-            <motion.div
-              initial={{ opacity: 0, y: 20 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.5, delay: 0.3 }}
-              className="flex flex-col sm:flex-row gap-3"
-            >
-              <Link href="/contratos/vehicular">
-                <Button
-                  size="lg"
-                  className="bg-accent-primary hover:bg-accent-primary-hover text-white shadow-lg shadow-accent-primary/25"
-                >
-                  <FileText className="w-4 h-4 mr-2" />
-                  Generar Contrato
-                  <ArrowRight className="w-4 h-4 ml-2" />
-                </Button>
-              </Link>
-              <Link href="/calculadoras">
-                <Button
-                  size="lg"
-                  variant="outline"
-                  className="border-slate-300 text-slate-700 hover:bg-slate-50"
-                >
-                  <Calculator className="w-4 h-4 mr-2" />
-                  Calcular Costos
-                  <Badge variant="info" size="sm" className="ml-2 border-none">
-                    Gratis
-                  </Badge>
-                </Button>
-              </Link>
-              <Link href="/servicios">
-                <Button
-                  size="lg"
-                  variant="ghost"
-                  className="text-text-secondary hover:text-text-primary hover:bg-slate-100"
-                >
-                  Ver Servicios
-                </Button>
-              </Link>
-            </motion.div>
+      <div className="relative z-10 mx-auto grid min-h-[calc(100dvh-4rem)] max-w-7xl grid-cols-1 items-center gap-10 px-4 py-12 sm:px-6 lg:grid-cols-[0.92fr_1.08fr] lg:gap-14 lg:py-16">
+        <div>
+          <div className="mb-5 inline-flex items-center gap-2 rounded-full border border-white/10 bg-white/[0.05] px-3 py-1.5 text-xs font-medium text-slate-300 shadow-[inset_0_1px_0_rgba(255,255,255,0.08)]">
+            <Sparkles className="h-3.5 w-3.5 text-sky-200" />
+            Plataforma legal crítica
+            <span className="h-1 w-1 rounded-full bg-slate-500" />
+            Ecuador
           </div>
 
-          <div className="relative w-full max-w-xl mx-auto lg:max-w-none">
-            <PipelineFlowVisual />
+          <h1 className="max-w-3xl text-[2.65rem] font-semibold leading-[0.98] tracking-[-0.055em] text-white sm:text-6xl lg:text-7xl">
+            Legal OS para trámites y crisis de deuda.
+          </h1>
+
+          <p className="mt-6 max-w-2xl text-base leading-8 text-slate-300 sm:text-lg">
+            Dos rutas claras: notaría digital para avanzar documentos y negociación de deudas
+            con blindaje judicial cuando la presión ya no puede esperar.
+          </p>
+
+          <div className="mt-6 flex flex-wrap gap-2">
+            <Badge className="border-white/10 bg-white/10 text-slate-200">
+              <BadgeCheck className="mr-1 h-3.5 w-3.5" />
+              Ecuador
+            </Badge>
+            <Badge className="border-white/10 bg-white/10 text-slate-200">
+              <ShieldCheck className="mr-1 h-3.5 w-3.5" />
+              Método jurídico
+            </Badge>
+            <Badge className="border-white/10 bg-white/10 text-slate-200">
+              <Calculator className="mr-1 h-3.5 w-3.5" />
+              Calculadoras reales
+            </Badge>
+          </div>
+
+          <div className="mt-8 grid grid-cols-1 gap-4 md:grid-cols-2">
+            {intentCards.map((card) => (
+              <IntentCard key={card.title} card={card} />
+            ))}
           </div>
         </div>
+
+        <LegalSignalPanel />
       </div>
     </section>
   )

@@ -1,12 +1,12 @@
 'use client'
 
-import { motion, AnimatePresence } from 'framer-motion'
+import { AnimatePresence, motion } from 'framer-motion'
+import { Calendar, FileText, X } from 'lucide-react'
 import Link from 'next/link'
-import Image from 'next/image'
-import { X, Calendar, FileText } from 'lucide-react'
-import { Button } from '@/components/ui/button'
 import { Badge } from '@/components/ui/badge'
+import { Button } from '@/components/ui/button'
 import { NAV_LINKS } from '@/lib/constants'
+import { Wordmark } from './wordmark'
 
 interface MobileMenuProps {
   isOpen: boolean
@@ -30,7 +30,6 @@ export function MobileMenu({ isOpen, onClose }: MobileMenuProps) {
     <AnimatePresence>
       {isOpen && (
         <>
-          {/* Overlay */}
           <motion.div
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
@@ -40,33 +39,25 @@ export function MobileMenu({ isOpen, onClose }: MobileMenuProps) {
             onClick={onClose}
           />
 
-          {/* Panel */}
           <motion.div
             variants={panelVariants}
             initial="hidden"
             animate="visible"
             exit="exit"
-            className="fixed right-0 top-0 bottom-0 z-50 w-80 max-w-[85vw] bg-bg-secondary border-l border-[var(--glass-border)] flex flex-col md:hidden"
+            className="fixed bottom-0 right-0 top-0 z-50 flex w-80 max-w-[85vw] flex-col border-l border-[var(--glass-border)] bg-bg-secondary md:hidden"
           >
-            {/* Panel header */}
-            <div className="flex items-center justify-between p-5 border-b border-[var(--glass-border)]">
-              <Image
-                src="/logo/logo-horizontal.svg"
-                alt="Abogados Online Ecuador"
-                width={140}
-                height={32}
-                className="h-6 w-auto brightness-0 invert"
-              />
+            <div className="flex items-center justify-between border-b border-[var(--glass-border)] p-5">
+              <Wordmark compact />
               <button
+                type="button"
                 onClick={onClose}
-                className="p-2 text-text-muted hover:text-text-primary hover:bg-bg-tertiary rounded-[var(--radius-sm)] transition-colors duration-200 cursor-pointer"
+                className="cursor-pointer rounded-[var(--radius-sm)] p-2 text-text-muted transition-colors duration-200 hover:bg-bg-tertiary hover:text-text-primary"
                 aria-label="Cerrar menu"
               >
-                <X className="w-5 h-5" />
+                <X className="h-5 w-5" />
               </button>
             </div>
 
-            {/* Navigation links */}
             <nav className="flex-1 overflow-y-auto p-4">
               <div className="space-y-1">
                 {NAV_LINKS.map((link, i) => (
@@ -79,7 +70,7 @@ export function MobileMenu({ isOpen, onClose }: MobileMenuProps) {
                     <Link
                       href={link.href}
                       onClick={onClose}
-                      className="flex items-center justify-between px-4 py-3 rounded-[var(--radius-md)] text-text-secondary hover:text-text-primary hover:bg-bg-tertiary transition-all duration-200"
+                      className="flex items-center justify-between rounded-[var(--radius-md)] px-4 py-3 text-text-secondary transition-all duration-200 hover:bg-bg-tertiary hover:text-text-primary"
                     >
                       <span>{link.label}</span>
                       {link.badge && (
@@ -93,22 +84,21 @@ export function MobileMenu({ isOpen, onClose }: MobileMenuProps) {
               </div>
             </nav>
 
-            {/* Bottom actions */}
-            <div className="p-4 space-y-3 border-t border-[var(--glass-border)]">
+            <div className="space-y-3 border-t border-[var(--glass-border)] p-4">
               <Link href="/iniciar-sesion" onClick={onClose}>
                 <Button variant="outline" className="w-full">
                   Iniciar Sesion
                 </Button>
               </Link>
-              <Link href="/contratos/vehicular" onClick={onClose} className="block mt-3">
+              <Link href="/contratos/vehicular" onClick={onClose} className="mt-3 block">
                 <Button className="w-full">
-                  <FileText className="w-4 h-4" />
+                  <FileText className="h-4 w-4" />
                   Generar Contrato
                 </Button>
               </Link>
-              <Link href="/contacto" onClick={onClose} className="block mt-3">
+              <Link href="/contacto" onClick={onClose} className="mt-3 block">
                 <Button variant="outline" className="w-full">
-                  <Calendar className="w-4 h-4" />
+                  <Calendar className="h-4 w-4" />
                   Agendar Cita
                 </Button>
               </Link>

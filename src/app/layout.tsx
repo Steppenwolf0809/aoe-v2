@@ -1,12 +1,18 @@
 import { SpeedInsights } from "@vercel/speed-insights/next"
 import { Analytics } from "@vercel/analytics/react"
 import type { Metadata } from 'next'
-import { Inter } from 'next/font/google'
+import { Geist, Geist_Mono } from 'next/font/google'
 import { WhatsAppFloatButton } from '@/components/layout/whatsapp-float-button'
 import './globals.css'
 
-const inter = Inter({
-  variable: '--font-inter',
+const geistSans = Geist({
+  variable: '--font-geist-sans',
+  subsets: ['latin'],
+  display: 'swap',
+})
+
+const geistMono = Geist_Mono({
+  variable: '--font-geist-mono',
   subsets: ['latin'],
   display: 'swap',
 })
@@ -17,7 +23,7 @@ export const metadata: Metadata = {
     template: '%s | Abogados Online Ecuador',
   },
   description:
-    'Plataforma legal tecnologica para generacion de contratos vehiculares, calculadoras notariales y servicios legales en Ecuador. Rapido, seguro y confiable.',
+    'Plataforma legal tecnológica para generación de contratos vehiculares, calculadoras notariales y servicios legales en Ecuador. Rápido, seguro y confiable.',
   metadataBase: new URL(process.env.NEXT_PUBLIC_APP_URL || 'https://abogadosonlineecuador.com'),
   openGraph: {
     type: 'website',
@@ -44,7 +50,7 @@ export default function RootLayout({
   children: React.ReactNode
 }>) {
   return (
-    <html lang="es" className={inter.variable}>
+    <html lang="es" className={`${geistSans.variable} ${geistMono.variable}`}>
       <body className="antialiased">
         {children}
         <WhatsAppFloatButton />

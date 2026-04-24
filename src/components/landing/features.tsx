@@ -1,77 +1,82 @@
 'use client'
 
-import { useEffect, useRef } from 'react'
 import { motion } from 'framer-motion'
 import {
-  FileText,
-  Car,
-  Handshake,
-  Scale,
-  Home,
-  Plane,
   ArrowRight,
+  Calculator,
+  FileCheck2,
+  Handshake,
+  MessageCircleWarning,
+  Scale,
+  ShieldCheck,
 } from 'lucide-react'
 import Link from 'next/link'
-import { Card, CardContent } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
+import { Card, CardContent } from '@/components/ui/card'
 
-/* ----------------------------------------------------------------
-   Service definitions — 6 cards per PROMPT 06
-   ---------------------------------------------------------------- */
-const services = [
+const intentGroups = [
   {
-    title: 'Generación de Documentos',
-    description:
-      'Genera contratos y documentos legales personalizados en minutos. Válidos para cualquier notaría de Quito y Ecuador.',
-    icon: FileText,
-    gradient: 'from-blue-600/20 to-indigo-600/20',
-    href: '/servicios',
+    title: 'Resolver una crisis financiera',
+    description: 'Para mora, llamadas de cobro, cartas, acuerdos pendientes o riesgo judicial.',
+    href: '#evaluador-deudas',
+    cta: 'Evaluar mi caso',
+    icon: ShieldCheck,
+    accent: 'text-rose-600',
+    dot: 'bg-rose-600',
+    surface: 'border-rose-200 bg-rose-50',
+    items: ['Negociación de deuda', 'Blindaje judicial', 'Preparación documental para acuerdo'],
   },
   {
-    title: 'Compraventas',
-    description:
-      'Contratos de compra-venta vehicular y de bienes. Listos para firmar en notaría. Asesoría incluida.',
-    icon: Car,
-    gradient: 'from-slate-600/20 to-gray-600/20',
+    title: 'Completar un trámite notarial',
+    description: 'Para formalizar actos, preparar documentos y llegar con requisitos claros.',
     href: '/servicios',
+    cta: 'Iniciar trámite',
+    icon: FileCheck2,
+    accent: 'text-blue-700',
+    dot: 'bg-blue-700',
+    surface: 'border-blue-200 bg-blue-50',
+    items: ['Escrituras', 'Poderes', 'Certificaciones', 'Contratos'],
   },
   {
-    title: 'Promesas de Compraventa',
-    description:
-      'Promesas de compra-venta de inmuebles con cláusulas de garantía y condiciones suspensivas.',
-    icon: Handshake,
-    gradient: 'from-indigo-500/20 to-blue-500/20',
-    href: '/servicios',
-  },
-  {
-    title: 'Poderes',
-    description:
-      'Poderes generales y especiales para uso en bancos, instituciones públicas y privadas de Quito.',
-    icon: Scale,
-    gradient: 'from-slate-500/20 to-zinc-500/20',
-    href: '/servicios',
-  },
-  {
-    title: 'Posesiones Efectivas',
-    description:
-      'Trámite de posesión efectiva de bienes hereditarios. Asesoría completa del proceso.',
-    icon: Home,
-    gradient: 'from-blue-500/20 to-slate-500/20',
-    href: '/servicios',
-  },
-  {
-    title: 'Salidas del País',
-    description:
-      'Autorizaciones de viaje para menores de edad. Documento notarial con validez migratoria.',
-    icon: Plane,
-    gradient: 'from-sky-600/20 to-blue-600/20',
-    href: '/servicios',
+    title: 'Calcular, aprender o prepararte',
+    description: 'Para estimar costos, comparar escenarios y tomar decisiones con menos friccion.',
+    href: '/calculadoras',
+    cta: 'Calcular ahora',
+    icon: Calculator,
+    accent: 'text-emerald-700',
+    dot: 'bg-emerald-700',
+    surface: 'border-emerald-200 bg-emerald-50',
+    items: ['Calculadoras notariales', 'Guias legales', 'Presupuestador inmobiliario'],
   },
 ]
 
-/* ----------------------------------------------------------------
-   Stagger variants for viewport animation
-   ---------------------------------------------------------------- */
+const serviceCards = [
+  {
+    title: 'Negociación de Deuda',
+    description: 'Diagnóstico guiado, estrategia de contención y preparación para negociar con método.',
+    icon: Handshake,
+    href: '#evaluador-deudas',
+  },
+  {
+    title: 'Tramites Notariales Digitales',
+    description: 'Escrituras, poderes, certificaciones y documentos con criterio legal ecuatoriano.',
+    icon: FileCheck2,
+    href: '/servicios',
+  },
+  {
+    title: 'Calculadora de Escrituras',
+    description: 'Referencia de costos notariales e inmobiliarios antes de iniciar el trámite.',
+    icon: Calculator,
+    href: '/calculadoras/inmuebles',
+  },
+  {
+    title: 'Asesoria Legal Urgente',
+    description: 'Orientacion para decisiones sensibles cuando necesitas claridad y siguiente paso.',
+    icon: MessageCircleWarning,
+    href: '/contacto',
+  },
+]
+
 const containerVariants = {
   hidden: {},
   visible: {
@@ -82,7 +87,7 @@ const containerVariants = {
 }
 
 const cardVariants = {
-  hidden: { opacity: 0, y: 24 },
+  hidden: { opacity: 0, y: 22 },
   visible: {
     opacity: 1,
     y: 0,
@@ -90,248 +95,102 @@ const cardVariants = {
   },
 }
 
-interface Star {
-  x: number
-  y: number
-  radius: number
-  opacity: number
-  twinkleOffset: number
-  twinkleSpeed: number
-  driftOffset: number
-  driftAmount: number
-}
-
-function createStars(width: number, height: number, count: number): Star[] {
-  return Array.from({ length: count }, () => ({
-    x: Math.random() * width,
-    y: Math.random() * height,
-    radius: Math.random() * 1.8 + 0.4,
-    opacity: Math.random() * 0.45 + 0.2,
-    twinkleOffset: Math.random() * Math.PI * 2,
-    twinkleSpeed: Math.random() * 1.7 + 0.7,
-    driftOffset: Math.random() * Math.PI * 2,
-    driftAmount: Math.random() * 1.8 + 0.4,
-  }))
-}
-
-function InteractiveStarsBackground() {
-  const canvasRef = useRef<HTMLCanvasElement | null>(null)
-
-  useEffect(() => {
-    const canvas = canvasRef.current
-    if (!canvas) return
-
-    const reducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches
-    const ctx = canvas.getContext('2d')
-    if (!ctx) return
-
-    const cursor = { x: -1000, y: -1000, active: false }
-    const pointerRadius = 120
-    const pointerPush = 15
-    const deviceScale = Math.min(window.devicePixelRatio || 1, 2)
-    let stars: Star[] = []
-    let width = 0
-    let height = 0
-    let frameId = 0
-
-    const setCanvasSize = () => {
-      const parent = canvas.parentElement
-      if (!parent) return
-
-      const rect = parent.getBoundingClientRect()
-      width = Math.max(rect.width, 1)
-      height = Math.max(rect.height, 1)
-
-      canvas.width = Math.floor(width * deviceScale)
-      canvas.height = Math.floor(height * deviceScale)
-      canvas.style.width = `${width}px`
-      canvas.style.height = `${height}px`
-      ctx.setTransform(deviceScale, 0, 0, deviceScale, 0, 0)
-
-      const starCount = width < 640 ? 64 : 140
-      stars = createStars(width, height, starCount)
-    }
-
-    const onPointerMove = (event: PointerEvent) => {
-      const rect = canvas.getBoundingClientRect()
-      const inside =
-        event.clientX >= rect.left &&
-        event.clientX <= rect.right &&
-        event.clientY >= rect.top &&
-        event.clientY <= rect.bottom
-
-      if (!inside) {
-        cursor.active = false
-        return
-      }
-
-      cursor.x = event.clientX - rect.left
-      cursor.y = event.clientY - rect.top
-      cursor.active = true
-    }
-
-    const onPointerLeave = () => {
-      cursor.active = false
-    }
-
-    const render = (time: number) => {
-      ctx.clearRect(0, 0, width, height)
-
-      for (const star of stars) {
-        const twinkle = 0.55 + 0.45 * Math.sin(time * 0.0012 * star.twinkleSpeed + star.twinkleOffset)
-        const driftX = Math.sin(time * 0.00018 + star.driftOffset) * star.driftAmount
-        const driftY = Math.cos(time * 0.00014 + star.driftOffset) * star.driftAmount * 0.75
-
-        let pushX = 0
-        let pushY = 0
-
-        if (cursor.active) {
-          const dx = star.x - cursor.x
-          const dy = star.y - cursor.y
-          const distance = Math.hypot(dx, dy)
-
-          if (distance < pointerRadius && distance > 0.001) {
-            const force = (pointerRadius - distance) / pointerRadius
-            pushX = (dx / distance) * force * pointerPush
-            pushY = (dy / distance) * force * pointerPush
-          }
-        }
-
-        const drawX = star.x + driftX + pushX
-        const drawY = star.y + driftY + pushY
-        const alpha = star.opacity * twinkle
-
-        ctx.beginPath()
-        ctx.fillStyle = `rgba(255, 255, 255, ${alpha})`
-        ctx.arc(drawX, drawY, star.radius, 0, Math.PI * 2)
-        ctx.fill()
-      }
-
-      if (!reducedMotion) {
-        frameId = window.requestAnimationFrame(render)
-      }
-    }
-
-    setCanvasSize()
-    window.addEventListener('resize', setCanvasSize)
-    window.addEventListener('pointermove', onPointerMove)
-    window.addEventListener('pointerleave', onPointerLeave)
-    render(performance.now())
-
-    if (!reducedMotion) {
-      frameId = window.requestAnimationFrame(render)
-    }
-
-    return () => {
-      window.removeEventListener('resize', setCanvasSize)
-      window.removeEventListener('pointermove', onPointerMove)
-      window.removeEventListener('pointerleave', onPointerLeave)
-      if (frameId) {
-        window.cancelAnimationFrame(frameId)
-      }
-    }
-  }, [])
-
-  return (
-    <canvas
-      ref={canvasRef}
-      className="absolute inset-0 pointer-events-none opacity-70"
-      aria-hidden="true"
-    />
-  )
-}
-
-/* ----------------------------------------------------------------
-   Features / Servicios Section
-   ---------------------------------------------------------------- */
 export function Features() {
   return (
-    <section className="py-20 sm:py-28 px-4 sm:px-6 bg-[#024089] relative overflow-hidden">
-      <InteractiveStarsBackground />
-      <div className="absolute inset-0 bg-gradient-to-b from-blue-900/5 via-transparent to-slate-950/15 pointer-events-none" />
+    <section className="relative overflow-hidden bg-[#f5f7fb] px-4 py-20 sm:px-6 sm:py-28">
+      <div className="absolute inset-x-0 top-0 h-px bg-gradient-to-r from-transparent via-slate-300 to-transparent" aria-hidden="true" />
 
-      <div className="max-w-7xl mx-auto relative z-10">
-        {/* Section header */}
+      <div className="relative z-10 mx-auto max-w-7xl">
         <motion.div
           initial={{ opacity: 0, y: 20 }}
           whileInView={{ opacity: 1, y: 0 }}
           viewport={{ once: true, margin: '-80px' }}
           transition={{ duration: 0.5 }}
-          className="text-center mb-14"
+          className="mx-auto mb-14 max-w-3xl text-center"
         >
-          <h2 className="text-3xl sm:text-4xl font-bold text-white mb-4">
-            Soluciones Legales a su Alcance
+          <div className="mb-4 inline-flex items-center gap-2 rounded-full border border-slate-200 bg-white px-3 py-1.5 text-xs font-semibold text-slate-600 shadow-sm">
+            <Scale className="h-4 w-4 text-slate-500" />
+            Soluciones por intencion
+          </div>
+          <h2 className="text-3xl font-bold leading-tight text-slate-950 sm:text-4xl">
+            Elige el camino legal segun lo que necesitas resolver hoy.
           </h2>
-          <p className="text-blue-100 text-lg max-w-2xl mx-auto">
-            Todo lo que necesitas para tus trámites legales en un solo lugar.
-            Servicio profesional con respaldo de 12+ años de experiencia.
+          <p className="mt-4 text-base leading-relaxed text-slate-600 sm:text-lg">
+            La plataforma separa trámites, deuda y preparación para que no tengas que traducir
+            un problema urgente a una lista genérica de servicios.
           </p>
         </motion.div>
 
-        {/* Cards grid — 3 cols on lg, 2 on md, 1 on mobile */}
         <motion.div
           variants={containerVariants}
           initial="hidden"
           whileInView="visible"
           viewport={{ once: true, margin: '-60px' }}
-          className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5"
+          className="grid grid-cols-1 gap-5 lg:grid-cols-3"
         >
-          {services.map((service) => {
+          {intentGroups.map((group) => {
+            const Icon = group.icon
+
+            return (
+              <motion.div key={group.title} variants={cardVariants}>
+                <Card className={`h-full border ${group.surface} shadow-sm`}>
+                  <CardContent className="flex h-full flex-col p-6">
+                    <div className="mb-5 flex h-12 w-12 items-center justify-center rounded-[var(--radius-sm)] bg-white shadow-sm">
+                      <Icon className={`h-6 w-6 ${group.accent}`} />
+                    </div>
+                    <h3 className="text-xl font-semibold leading-snug text-slate-950">{group.title}</h3>
+                    <p className="mt-3 text-sm leading-relaxed text-slate-600">{group.description}</p>
+                    <ul className="mt-6 space-y-3">
+                      {group.items.map((item) => (
+                        <li key={item} className="flex items-start gap-3 text-sm text-slate-700">
+                          <span className={`mt-1.5 h-1.5 w-1.5 shrink-0 rounded-full ${group.dot}`} />
+                          {item}
+                        </li>
+                      ))}
+                    </ul>
+                    <Button asChild variant="outline" className="mt-7 w-full border-slate-300 bg-white text-slate-900 hover:bg-slate-50">
+                      <Link href={group.href}>
+                        {group.cta}
+                        <ArrowRight className="h-4 w-4" />
+                      </Link>
+                    </Button>
+                  </CardContent>
+                </Card>
+              </motion.div>
+            )
+          })}
+        </motion.div>
+
+        <motion.div
+          variants={containerVariants}
+          initial="hidden"
+          whileInView="visible"
+          viewport={{ once: true, margin: '-60px' }}
+          className="mt-8 grid grid-cols-1 gap-4 md:grid-cols-2 lg:grid-cols-4"
+        >
+          {serviceCards.map((service) => {
             const Icon = service.icon
+
             return (
               <motion.div key={service.title} variants={cardVariants}>
-                <Link href={service.href} className="block h-full">
-                  <Card className="h-full p-6 bg-white/5 border-white/10 backdrop-blur-sm shadow-sm hover:bg-white/10 hover:border-white/20 hover:-translate-y-1 transition-all duration-300 cursor-pointer group relative overflow-hidden">
-                    {/* Ambient gradient blob */}
-                    <div
-                      className={`absolute -top-20 -right-20 w-40 h-40 rounded-full blur-3xl bg-gradient-to-br ${service.gradient} opacity-0 group-hover:opacity-20 transition-opacity duration-300`}
-                    />
-                    <CardContent className="p-0 relative z-10">
-                      {/* Icon */}
-                      <div
-                        className={`w-12 h-12 rounded-xl bg-white/10 flex items-center justify-center mb-4 group-hover:scale-110 transition-transform duration-200`}
-                      >
-                        <Icon className="w-6 h-6 text-white" />
+                <Link href={service.href} className="group block h-full">
+                  <Card className="h-full border-slate-200 bg-white shadow-sm transition-all duration-200 hover:-translate-y-1 hover:border-slate-300 hover:shadow-md">
+                    <CardContent className="p-5">
+                      <div className="mb-4 flex h-11 w-11 items-center justify-center rounded-[var(--radius-sm)] bg-slate-100 text-slate-700 transition-colors group-hover:bg-slate-950 group-hover:text-white">
+                        <Icon className="h-5 w-5" />
                       </div>
-
-                      {/* Title */}
-                      <h3 className="text-lg font-bold text-white mb-2 group-hover:text-blue-200 transition-colors duration-200">
-                        {service.title}
-                      </h3>
-
-                      {/* Description */}
-                      <p className="text-sm text-blue-100 leading-relaxed mb-4">
-                        {service.description}
-                      </p>
-
-                      {/* Link indicator */}
-                      <span className="inline-flex items-center gap-1.5 text-sm font-medium text-white/70 group-hover:text-white transition-colors duration-200">
-                        Saber más
-                        <ArrowRight className="w-3.5 h-3.5 group-hover:translate-x-1 transition-transform duration-200" />
+                      <h3 className="text-base font-semibold leading-snug text-slate-950">{service.title}</h3>
+                      <p className="mt-2 text-sm leading-relaxed text-slate-600">{service.description}</p>
+                      <span className="mt-4 inline-flex items-center gap-1.5 text-sm font-medium text-slate-900">
+                        Ver opcion
+                        <ArrowRight className="h-4 w-4 transition-transform group-hover:translate-x-1" />
                       </span>
                     </CardContent>
                   </Card>
                 </Link>
               </motion.div>
-
             )
           })}
-        </motion.div>
-
-        {/* Bottom CTA */}
-        <motion.div
-          initial={{ opacity: 0, y: 16 }}
-          whileInView={{ opacity: 1, y: 0 }}
-          viewport={{ once: true }}
-          transition={{ duration: 0.4, delay: 0.3 }}
-          className="text-center mt-12"
-        >
-          <Link href="/servicios">
-            <Button variant="outline" size="lg" className="border-blue-300 text-blue-100 hover:bg-white hover:text-blue-900 border-opacity-50 hover:border-opacity-100">
-              Ver todos nuestros servicios
-              <ArrowRight className="w-4 h-4 ml-2" />
-            </Button>
-          </Link>
         </motion.div>
       </div>
     </section>

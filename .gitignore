@@ -50,6 +50,7 @@ coverage/
 # Local agent/workspace artifacts
 .claude/worktrees/
 .tmp/
+output/
 nul
 
 # Windows explorer metadata

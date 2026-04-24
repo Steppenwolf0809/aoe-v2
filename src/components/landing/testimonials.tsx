@@ -1,78 +1,53 @@
 'use client'
 
-import { useState, useEffect, useCallback } from 'react'
-import { motion, AnimatePresence } from 'framer-motion'
+import { useCallback, useEffect, useState } from 'react'
+import { AnimatePresence, motion } from 'framer-motion'
 import { ChevronLeft, ChevronRight, Quote } from 'lucide-react'
 import { cn } from '@/lib/utils'
 
-/* ----------------------------------------------------------------
-   Testimonial data
-   ---------------------------------------------------------------- */
 interface Testimonial {
   quote: string
   name: string
   city: string
   role: string
   initials: string
-  avatar: string
 }
 
 const testimonials: Testimonial[] = [
   {
     quote:
-      'El proceso fue increiblemente rapido. En menos de 10 minutos tenia mi contrato listo para firmar en la notaria.',
-    name: 'Maria Garcia',
-    city: 'Quito',
-    role: 'Compradora de vehiculo',
-    initials: 'MG',
-    avatar:
-      'https://images.unsplash.com/photo-1487412720507-e7ab37603c6f?auto=format&fit=crop&w=240&q=80',
+      'En una tarde entendi el costo de mi escritura y pude avanzar sin vueltas.',
+    name: 'MSP',
+    city: 'Riobamba',
+    role: 'Tramite inmobiliario',
+    initials: 'MS',
   },
   {
     quote:
-      'Las calculadoras notariales me ahorraron tiempo y me dieron confianza antes de ir a la notaria. Sabia exactamente cuanto debia pagar.',
-    name: 'Carlos Mendoza',
+      'Llegue con miedo por llamadas de cobro; sali con una estrategia y pasos claros.',
+    name: 'JAC',
+    city: 'Quito',
+    role: 'Evaluación de deuda',
+    initials: 'JA',
+  },
+  {
+    quote:
+      'La plataforma me ayudó a organizar documentos, tiempos y opciones reales.',
+    name: 'LVT',
     city: 'Guayaquil',
-    role: 'Agente inmobiliario',
-    initials: 'CM',
-    avatar:
-      'https://images.unsplash.com/photo-1506794778202-cad84cf45f1d?auto=format&fit=crop&w=240&q=80',
+    role: 'Preparacion legal',
+    initials: 'LV',
   },
   {
     quote:
-      'Excelente servicio. El contrato fue aceptado sin problemas en la notaria. Todo el proceso fue muy profesional.',
-    name: 'Ana Torres',
+      'Calcule gastos, revise requisitos y llegue a la llamada con preguntas concretas.',
+    name: 'PRM',
     city: 'Cuenca',
-    role: 'Vendedora de vehiculo',
-    initials: 'AT',
-    avatar:
-      'https://images.unsplash.com/photo-1524504388940-b1c1722653e1?auto=format&fit=crop&w=240&q=80',
-  },
-  {
-    quote:
-      'La plataforma es muy intuitiva y los costos son transparentes. Ya la recomende a mis colegas abogados.',
-    name: 'Roberto Salazar',
-    city: 'Quito',
-    role: 'Abogado independiente',
-    initials: 'RS',
-    avatar:
-      'https://images.unsplash.com/photo-1500648767791-00dcc994a43e?auto=format&fit=crop&w=240&q=80',
-  },
-  {
-    quote:
-      'Me sorprendio la exactitud de la calculadora. El monto coincidio con lo que me cobraron en la notaria.',
-    name: 'Lucia Andrade',
-    city: 'Ambato',
-    role: 'Compradora de inmueble',
-    initials: 'LA',
-    avatar:
-      'https://images.unsplash.com/photo-1544005313-94ddf0286df2?auto=format&fit=crop&w=240&q=80',
+    role: 'Calculadoras notariales',
+    initials: 'PR',
   },
 ]
 
-/* ----------------------------------------------------------------
-   Slide animation variants
-   ---------------------------------------------------------------- */
 const slideVariants = {
   enter: (direction: number) => ({
     x: direction > 0 ? 120 : -120,
@@ -88,47 +63,39 @@ const slideVariants = {
   }),
 }
 
-/* ----------------------------------------------------------------
-   Testimonials Section - carousel with arrows, dots, auto-play
-   ---------------------------------------------------------------- */
 export function Testimonials() {
   const [[page, direction], setPage] = useState([0, 0])
   const [isPaused, setIsPaused] = useState(false)
-  const [brokenAvatars, setBrokenAvatars] = useState<Record<string, boolean>>({})
 
   const currentIndex = ((page % testimonials.length) + testimonials.length) % testimonials.length
 
-  const paginate = useCallback(
-    (newDirection: number) => {
-      setPage(([prev]) => [prev + newDirection, newDirection])
-    },
-    [],
-  )
+  const paginate = useCallback((newDirection: number) => {
+    setPage(([prev]) => [prev + newDirection, newDirection])
+  }, [])
 
   useEffect(() => {
     if (isPaused) return
-    const timer = setInterval(() => paginate(1), 5000)
+    const timer = setInterval(() => paginate(1), 5200)
     return () => clearInterval(timer)
   }, [isPaused, paginate])
 
   const current = testimonials[currentIndex]
-  const showFallbackAvatar = Boolean(brokenAvatars[current.name])
 
   return (
-    <section className="py-20 sm:py-28 px-4 sm:px-6 bg-bg-primary">
-      <div className="max-w-4xl mx-auto">
+    <section className="bg-bg-primary px-4 py-20 sm:px-6 sm:py-28">
+      <div className="mx-auto max-w-4xl">
         <motion.div
           initial={{ opacity: 0, y: 20 }}
           whileInView={{ opacity: 1, y: 0 }}
           viewport={{ once: true }}
           transition={{ duration: 0.5 }}
-          className="text-center mb-14"
+          className="mb-14 text-center"
         >
-          <h2 className="text-3xl sm:text-4xl font-bold text-text-primary mb-4">
-            Lo que dicen nuestros clientes
+          <h2 className="text-3xl font-bold text-text-primary sm:text-4xl">
+            Historias discretas, resultados concretos
           </h2>
-          <p className="text-text-secondary text-lg max-w-xl mx-auto">
-            Miles de ecuatorianos ya confian en nuestra plataforma para sus tramites legales.
+          <p className="mx-auto mt-4 max-w-xl text-lg text-text-secondary">
+            En servicios legales, la privacidad tambien es parte de la confianza.
           </p>
         </motion.div>
 
@@ -137,7 +104,7 @@ export function Testimonials() {
           onMouseEnter={() => setIsPaused(true)}
           onMouseLeave={() => setIsPaused(false)}
         >
-          <div className="overflow-hidden rounded-2xl bg-bg-secondary border border-[var(--glass-border)] p-8 sm:p-12 min-h-[280px] flex items-center">
+          <div className="flex min-h-[280px] items-center overflow-hidden rounded-[var(--radius-lg)] border border-[var(--glass-border)] bg-bg-secondary p-8 sm:p-12">
             <AnimatePresence initial={false} custom={direction} mode="wait">
               <motion.div
                 key={page}
@@ -149,29 +116,15 @@ export function Testimonials() {
                 transition={{ duration: 0.35, ease: [0.25, 0.46, 0.45, 0.94] }}
                 className="w-full"
               >
-                <Quote className="w-10 h-10 text-accent-primary/30 mb-6" />
+                <Quote className="mb-6 h-10 w-10 text-accent-primary/30" />
 
-                <blockquote className="text-lg sm:text-xl text-text-secondary leading-relaxed mb-8">
+                <blockquote className="mb-8 text-lg leading-relaxed text-text-secondary sm:text-xl">
                   &ldquo;{current.quote}&rdquo;
                 </blockquote>
 
                 <div className="flex items-center gap-4">
-                  <div className="w-12 h-12 rounded-full border border-[var(--glass-border)] overflow-hidden flex items-center justify-center flex-shrink-0 bg-slate-200">
-                    {showFallbackAvatar ? (
-                      <span className="text-sm font-semibold text-text-primary">{current.initials}</span>
-                    ) : (
-                      <img
-                        src={current.avatar}
-                        alt={`Foto de ${current.name}`}
-                        className="h-full w-full object-cover"
-                        onError={() =>
-                          setBrokenAvatars((prev) => ({
-                            ...prev,
-                            [current.name]: true,
-                          }))
-                        }
-                      />
-                    )}
+                  <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-full border border-slate-200 bg-white">
+                    <span className="text-sm font-semibold text-text-primary">{current.initials}</span>
                   </div>
                   <div>
                     <div className="font-medium text-text-primary">{current.name}</div>
@@ -185,31 +138,34 @@ export function Testimonials() {
           </div>
 
           <button
+            type="button"
             onClick={() => paginate(-1)}
-            className="absolute left-0 top-1/2 -translate-y-1/2 -translate-x-1/2 sm:-translate-x-5 w-10 h-10 rounded-full bg-bg-secondary border border-[var(--glass-border)] flex items-center justify-center text-text-secondary hover:bg-bg-tertiary hover:text-text-primary transition-all duration-200 cursor-pointer backdrop-blur-sm"
+            className="absolute left-0 top-1/2 flex h-10 w-10 -translate-x-1/2 -translate-y-1/2 cursor-pointer items-center justify-center rounded-full border border-[var(--glass-border)] bg-bg-secondary text-text-secondary backdrop-blur-sm transition-all duration-200 hover:bg-bg-tertiary hover:text-text-primary sm:-translate-x-5"
             aria-label="Testimonio anterior"
           >
-            <ChevronLeft className="w-5 h-5" />
+            <ChevronLeft className="h-5 w-5" />
           </button>
           <button
+            type="button"
             onClick={() => paginate(1)}
-            className="absolute right-0 top-1/2 -translate-y-1/2 translate-x-1/2 sm:translate-x-5 w-10 h-10 rounded-full bg-bg-secondary border border-[var(--glass-border)] flex items-center justify-center text-text-secondary hover:bg-bg-tertiary hover:text-text-primary transition-all duration-200 cursor-pointer backdrop-blur-sm"
+            className="absolute right-0 top-1/2 flex h-10 w-10 -translate-y-1/2 translate-x-1/2 cursor-pointer items-center justify-center rounded-full border border-[var(--glass-border)] bg-bg-secondary text-text-secondary backdrop-blur-sm transition-all duration-200 hover:bg-bg-tertiary hover:text-text-primary sm:translate-x-5"
             aria-label="Siguiente testimonio"
           >
-            <ChevronRight className="w-5 h-5" />
+            <ChevronRight className="h-5 w-5" />
           </button>
         </div>
 
-        <div className="flex items-center justify-center gap-2 mt-6">
-          {testimonials.map((_, index) => (
+        <div className="mt-6 flex items-center justify-center gap-2">
+          {testimonials.map((testimonial, index) => (
             <button
-              key={index}
+              key={testimonial.name}
+              type="button"
               onClick={() => setPage([index, index > currentIndex ? 1 : -1])}
               className={cn(
-                'w-2 h-2 rounded-full transition-all duration-300 cursor-pointer',
+                'h-2 rounded-full transition-all duration-300',
                 index === currentIndex
-                  ? 'bg-accent-primary w-6'
-                  : 'bg-[var(--glass-border)] hover:bg-text-muted',
+                  ? 'w-6 bg-accent-primary'
+                  : 'w-2 bg-[var(--glass-border)] hover:bg-text-muted',
               )}
               aria-label={`Ir al testimonio ${index + 1}`}
             />

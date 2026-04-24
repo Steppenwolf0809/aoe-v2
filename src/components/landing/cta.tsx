@@ -1,65 +1,77 @@
 'use client'
 
 import { motion } from 'framer-motion'
-import { Calculator, MessageCircle } from 'lucide-react'
+import { ArrowRight, FileCheck2, ShieldCheck } from 'lucide-react'
 import Link from 'next/link'
 import { Button } from '@/components/ui/button'
-import { Badge } from '@/components/ui/badge'
 
-/* ----------------------------------------------------------------
-   CTA Final Section — per PROMPT 07 spec
-   "¿Listo para simplificar sus trámites legales?"
-   Buttons: "Calcular Costos" + "Contactar Ahora"
-   ---------------------------------------------------------------- */
+const ctaPaths = [
+  {
+    title: 'Quiero iniciar un trámite notarial',
+    description: 'Escrituras, poderes, contratos, certificaciones y calculadoras para preparar costos.',
+    href: '/servicios',
+    cta: 'Realizar Tramite Notarial',
+    icon: FileCheck2,
+    className: 'border-blue-200 bg-blue-50 text-blue-800',
+  },
+  {
+    title: 'Necesito negociar una deuda',
+    description: 'Completa el evaluador, descarga tu pre-diagnóstico y activa la estrategia legal.',
+    href: '#evaluador-deudas',
+    cta: 'Negociar mi Deuda Ahora',
+    icon: ShieldCheck,
+    className: 'border-rose-200 bg-rose-50 text-rose-800',
+  },
+]
+
 export function CTA() {
   return (
-    <section className="py-20 sm:py-28 px-4 sm:px-6">
-      <div className="max-w-4xl mx-auto">
+    <section className="bg-white px-4 py-20 sm:px-6 sm:py-28">
+      <div className="mx-auto max-w-5xl">
         <motion.div
           initial={{ opacity: 0, y: 24 }}
           whileInView={{ opacity: 1, y: 0 }}
           viewport={{ once: true, margin: '-60px' }}
           transition={{ duration: 0.6, ease: [0.25, 0.46, 0.45, 0.94] as const }}
-          className="relative overflow-hidden rounded-2xl border border-[var(--glass-border)]"
+          className="text-center"
         >
-          {/* Gradient background */}
-          <div
-            className="absolute inset-0"
-            style={{
-              background:
-                'radial-gradient(ellipse 80% 100% at 50% 100%, rgba(59,130,246,0.08) 0%, transparent 60%), radial-gradient(ellipse 60% 80% at 80% 0%, rgba(139,92,246,0.06) 0%, transparent 50%), var(--bg-secondary)',
-            }}
-          />
-
-          {/* Content */}
-          <div className="relative z-10 p-10 sm:p-16 text-center">
-            <h2 className="text-3xl sm:text-4xl lg:text-5xl font-bold text-text-primary mb-5 leading-tight">
-              ¿Listo para simplificar sus trámites legales?
-            </h2>
-            <p className="text-text-secondary text-lg sm:text-xl mb-10 max-w-2xl mx-auto leading-relaxed">
-              Calcula tus costos notariales en segundos o habla con nuestro equipo de asesores legales.
-            </p>
-
-            {/* CTA buttons */}
-            <div className="flex flex-col sm:flex-row gap-4 justify-center">
-              <Link href="/calculadoras">
-                <Button size="lg">
-                  <Calculator className="w-5 h-5" />
-                  Calcular Costos
-                  <Badge variant="success" size="sm" className="ml-1">
-                    Gratis
-                  </Badge>
-                </Button>
-              </Link>
-              <Link href="/contacto">
-                <Button variant="outline" size="lg">
-                  <MessageCircle className="w-5 h-5" />
-                  Contactar Ahora
-                </Button>
-              </Link>
-            </div>
-          </div>
+          <h2 className="text-3xl font-bold leading-tight text-slate-950 sm:text-4xl lg:text-5xl">
+            ¿Qué necesitas resolver primero?
+          </h2>
+          <p className="mx-auto mt-4 max-w-2xl text-base leading-relaxed text-slate-600 sm:text-lg">
+            Abogados Online Ecuador separa cada ruta para que avances con claridad:
+            formalizar un trámite o contener una crisis financiera.
+          </p>
         </motion.div>
+
+        <div className="mt-10 grid grid-cols-1 gap-5 md:grid-cols-2">
+          {ctaPaths.map((path, index) => {
+            const Icon = path.icon
+
+            return (
+              <motion.div
+                key={path.title}
+                initial={{ opacity: 0, y: 22 }}
+                whileInView={{ opacity: 1, y: 0 }}
+                viewport={{ once: true, margin: '-60px' }}
+                transition={{ duration: 0.45, delay: index * 0.08 }}
+                className={`rounded-[var(--radius-lg)] border p-6 ${path.className}`}
+              >
+                <div className="mb-5 flex h-12 w-12 items-center justify-center rounded-[var(--radius-sm)] bg-white">
+                  <Icon className="h-6 w-6" />
+                </div>
+                <h3 className="text-xl font-semibold leading-snug text-slate-950">{path.title}</h3>
+                <p className="mt-3 text-sm leading-relaxed text-slate-700">{path.description}</p>
+                <Button asChild size="lg" className="mt-6 w-full bg-slate-950 text-white hover:bg-slate-800">
+                  <Link href={path.href}>
+                    {path.cta}
+                    <ArrowRight className="h-4 w-4" />
+                  </Link>
+                </Button>
+              </motion.div>
+            )
+          })}
+        </div>
       </div>
     </section>
   )
