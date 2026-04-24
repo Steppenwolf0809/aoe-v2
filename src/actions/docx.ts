@@ -1,19 +1,15 @@
 ﻿'use server'
 
 import crypto from 'crypto'
-import { Resend } from 'resend'
 import { createAdminClient } from '@/lib/supabase/admin'
 import { contratoVehicularSchema } from '@/lib/validations/contract'
 import { generateContratoVehicularDocx } from '@/lib/docx/contrato-vehicular-docx'
 import { ContratoGeneradoEmail } from '@/emails/contrato-generado'
+import { getResendClient } from '@/lib/email/resend'
 
 type ActionResult<T> =
   | { success: true; data: T }
   | { success: false; error: string }
-
-const resend = process.env.RESEND_API_KEY
-  ? new Resend(process.env.RESEND_API_KEY)
-  : null
 
 function buildDocxDownloadUrl(contractId: string, downloadToken: string): string {
   const appUrl = (process.env.NEXT_PUBLIC_APP_URL || 'https://abogadosonlineecuador.com').replace(/\/+$/, '')
@@ -30,6 +26,7 @@ async function maybeSendDocxReadyEmail(
   contractId: string,
   downloadToken: string,
 ): Promise<void> {
+  const resend = getResendClient()
   if (!resend) return
 
   const deliveryEmail = contract.delivery_email || contract.email

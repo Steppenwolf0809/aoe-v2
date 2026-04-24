@@ -3,9 +3,7 @@
 import { z } from 'zod'
 import { createClient } from '@/lib/supabase/server'
 import { notifyN8NLead } from '@/lib/n8n'
-import { Resend } from 'resend'
-
-const resend = new Resend(process.env.RESEND_API_KEY)
+import { getEmailFrom, getEmailReplyTo, getResendClient } from '@/lib/email/resend'
 
 const contactFormSchema = z.object({
   name: z.string().min(2, { message: 'El nombre debe tener al menos 2 caracteres' }),
@@ -92,12 +90,15 @@ export async function submitContactForm(
 
     let emailSent = true
     try {
+      const resend = getResendClient()
+      if (!resend) {
+        throw new Error('RESEND_API_KEY is not configured')
+      }
+
       await resend.emails.send({
-        from:
-          process.env.EMAIL_FROM ||
-          'Abogados Online Ecuador <noreply@abogadosonlineecuador.com>',
+        from: getEmailFrom(),
         replyTo: email,
-        to: process.env.EMAIL_REPLY_TO || 'info@abogadosonlineecuador.com',
+        to: getEmailReplyTo(),
         subject: `Nuevo contacto: ${serviceType}`,
         html: `
           <h2>Nuevo mensaje de contacto</h2>

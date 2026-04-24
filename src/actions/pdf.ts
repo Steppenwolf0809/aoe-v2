@@ -8,14 +8,12 @@ import { ContratoVehicularPdf } from '@/lib/pdf/contrato-vehicular'
 import { uploadContractPdf, getContractSignedUrl } from '@/lib/storage'
 import { sha256 } from '@/lib/hash'
 import { ContratoGeneradoEmail } from '@/emails/contrato-generado'
-import { Resend } from 'resend'
+import { getResendClient } from '@/lib/email/resend'
 import crypto from 'crypto'
 
 type ActionResult<T> =
   | { success: true; data: T }
   | { success: false; error: string }
-
-const resend = new Resend(process.env.RESEND_API_KEY)
 
 /**
  * Generate contract PDF, upload to storage, and send email
@@ -80,6 +78,11 @@ export async function generateContractPdf(
     // Send email with PDF attachment
     if (user.email && process.env.RESEND_API_KEY) {
       try {
+        const resend = getResendClient()
+        if (!resend) {
+          throw new Error('RESEND_API_KEY is not configured')
+        }
+
         const vehicleData = contract.data.vehiculo
         const clientName = contract.data.partes.comprador.nombres
 
@@ -209,6 +212,11 @@ export async function generateContractPdfAdmin(
     const deliveryEmail = contract.delivery_email || contract.email
     if (deliveryEmail && process.env.RESEND_API_KEY) {
       try {
+        const resend = getResendClient()
+        if (!resend) {
+          throw new Error('RESEND_API_KEY is not configured')
+        }
+
         const contractData = contract.data as Record<string, any>
         const vehicleData = contractData?.vehiculo || contractData?.partes?.vehiculo
         const clientName =

@@ -3,12 +3,10 @@
 import { createClient } from '@/lib/supabase/server'
 import { leadCaptureSchema, calculatorSessionSchema } from '@/lib/validations/leads'
 import type { LeadCaptureInput, CalculatorSessionInput } from '@/lib/validations/leads'
-import { Resend } from 'resend'
 import { render } from '@react-email/render'
 import { WelcomeEmail } from '@/emails/welcome-email'
 import { notifyN8NLead } from '@/lib/n8n'
-
-const resend = new Resend(process.env.RESEND_API_KEY)
+import { getEmailFrom, getEmailReplyTo, getResendClient } from '@/lib/email/resend'
 
 interface CaptureLeadOptions {
   sendWelcomeEmail?: boolean
@@ -55,15 +53,18 @@ export async function captureLead(
     if (options.sendWelcomeEmail ?? true) {
       // --- Envío del Email de Bienvenida ---
       try {
+        const resend = getResendClient()
+        if (!resend) {
+          throw new Error('RESEND_API_KEY is not configured')
+        }
+
         const emailHtml = await render(
           <WelcomeEmail clientName={parsed.data.name || 'Cliente'} />
         )
 
         await resend.emails.send({
-          from:
-            process.env.EMAIL_FROM ||
-            'Abogados Online Ecuador <noreply@abogadosonlineecuador.com>',
-          replyTo: process.env.EMAIL_REPLY_TO || 'info@abogadosonlineecuador.com',
+          from: getEmailFrom(),
+          replyTo: getEmailReplyTo(),
           to: parsed.data.email,
           subject: '¡Bienvenido a Abogados Online Ecuador! 🚀',
           html: emailHtml,

@@ -1,17 +1,12 @@
 'use server';
 
-import { Resend } from 'resend';
 import { renderToBuffer } from '@react-pdf/renderer';
 import { render } from '@react-email/render';
 import { PresupuestoDetalladoEmail } from '@/emails/presupuesto-detallado';
 import { PresupuestoDetallado } from '@/lib/pdf/generate-presupuesto';
 import { ChecklistEscrituracion } from '@/lib/pdf/checklist-escrituracion';
 import { Guia5Errores } from '@/lib/pdf/guia-5-errores';
-
-const resend = new Resend(process.env.RESEND_API_KEY);
-const emailFrom =
-  process.env.EMAIL_FROM || 'Abogados Online Ecuador <noreply@abogadosonlineecuador.com>';
-const emailReplyTo = process.env.EMAIL_REPLY_TO || 'info@abogadosonlineecuador.com';
+import { getEmailFrom, getEmailReplyTo, getResendClient } from '@/lib/email/resend';
 
 interface SendPresupuestoParams {
   clientName: string;
@@ -40,6 +35,11 @@ interface SendLeadMagnetParams {
  */
 export async function sendPresupuestoDetallado(params: SendPresupuestoParams) {
   try {
+    const resend = getResendClient();
+    if (!resend) {
+      throw new Error('RESEND_API_KEY is not configured');
+    }
+
     // 1. Generar PDF del presupuesto
     const pdfData = {
       clientName: params.clientName,
@@ -73,8 +73,8 @@ export async function sendPresupuestoDetallado(params: SendPresupuestoParams) {
 
     // 3. Enviar email con Resend
     const result = await resend.emails.send({
-      from: emailFrom,
-      replyTo: emailReplyTo,
+      from: getEmailFrom(),
+      replyTo: getEmailReplyTo(),
       to: params.clientEmail,
       subject: `Tu presupuesto de escrituración está listo - ${params.clientName}`,
       html: emailHtml,
@@ -115,6 +115,11 @@ export async function sendPresupuestoDetallado(params: SendPresupuestoParams) {
  */
 export async function sendLeadMagnet(params: SendLeadMagnetParams) {
   try {
+    const resend = getResendClient();
+    if (!resend) {
+      throw new Error('RESEND_API_KEY is not configured');
+    }
+
     let pdfBuffer: Buffer;
     let subject: string;
     let pdfFilename: string;
@@ -219,8 +224,8 @@ export async function sendLeadMagnet(params: SendLeadMagnetParams) {
 
     // 3. Enviar email con Resend
     const result = await resend.emails.send({
-      from: emailFrom,
-      replyTo: emailReplyTo,
+      from: getEmailFrom(),
+      replyTo: getEmailReplyTo(),
       to: params.clientEmail,
       subject: subject,
       html: emailHtml,
