@@ -236,6 +236,17 @@ body {
   box-shadow: 0 0 0 2px rgba(59, 130, 246, 0.2);
 }
 
+.hero-dashboard-shell {
+  transform: none;
+}
+
+@media (min-width: 1024px) {
+  .hero-dashboard-shell {
+    transform: perspective(1100px) rotateY(-13deg) rotateX(4deg) rotateZ(-1.2deg) scale(0.92);
+    transform-origin: center left;
+  }
+}
+
 /* ================================================================
    Bento Grid
    ================================================================ */

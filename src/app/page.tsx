@@ -1,6 +1,6 @@
 import type { Metadata } from 'next'
 import { SITE_NAME, SITE_URL, SITE_DESCRIPTION } from '@/lib/constants'
-import { Hero } from '@/components/landing/hero'
+import { HeroSection } from '@/components/landing/HeroSection'
 import { Stats } from '@/components/landing/stats'
 import { DebtEvaluatorPreview } from '@/components/landing/debt-evaluator-preview'
 import { Features } from '@/components/landing/features'
@@ -149,10 +149,10 @@ export default function HomePage() {
 
       <Header />
       <main className="pt-16">
-        <Hero />
+        <HeroSection />
+        <Features />
         <Stats />
         <DebtEvaluatorPreview />
-        <Features />
         <CalculatorPreview />
         <Testimonials />
         <BlogPreview />

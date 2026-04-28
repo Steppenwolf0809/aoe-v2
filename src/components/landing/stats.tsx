@@ -29,9 +29,9 @@ const stats: StatItem[] = [
     gradient: 'from-slate-600/20 to-gray-600/20',
   },
   {
-    value: 2,
+    value: 4,
     suffix: '',
-    label: 'Rutas legales principales',
+    label: 'Soluciones legales clave',
     icon: ShieldCheck,
     gradient: 'from-rose-500/20 to-blue-500/20',
   },
