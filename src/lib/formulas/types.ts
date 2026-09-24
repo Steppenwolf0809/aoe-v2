@@ -152,10 +152,3 @@ export interface ResultadoRegistro {
   arancelFinal: number
   excedeMaximo: boolean
 }
-
-// ============================================
-// CONSTANTES COMPARTIDAS
-// ============================================
-
-export const SBU_2026 = 482
-export const IVA_RATE = 0.15

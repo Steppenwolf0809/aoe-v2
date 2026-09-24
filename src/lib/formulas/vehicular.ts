@@ -11,7 +11,7 @@
  * 4. Servicio AOE (precio del contrato generado)
  */
 
-import { SBU_2026, IVA_RATE } from './types'
+import { SBU_2026, IVA_RATE } from './notarial'
 
 // ============================================
 // CONSTANTES
