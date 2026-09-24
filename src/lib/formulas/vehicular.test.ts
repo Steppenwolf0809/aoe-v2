@@ -5,7 +5,7 @@ import {
   TASA_TRANSFERENCIA_VEHICULAR,
   PRECIO_CONTRATO_BASICO,
 } from './vehicular'
-import { SBU_2026, IVA_RATE } from './types'
+import { SBU_2026, IVA_RATE } from './notarial'
 
 // ============================================
 // CALCULO BASICO

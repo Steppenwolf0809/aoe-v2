@@ -480,7 +480,8 @@ export const TARIFAS_ITEMS_ADICIONALES: Record<
 // ============================================
 
 function buscarEnTabla(monto: number, tabla: RangoTarifa[]): RangoTarifa | undefined {
-  return tabla.find((r) => monto >= r.desde && monto <= r.hasta)
+  if (monto < 0) return undefined
+  return tabla.find((r) => monto <= r.hasta)
 }
 
 function calcularExcedente(monto: number, limite: number, baseUSD: number, factor: number): number {
@@ -561,7 +562,7 @@ export function calcularTramiteNotarial(
 
   switch (tramite) {
     case 'TRANSFERENCIA_DOMINIO': {
-      if (cuantia >= EXCEDENTE_TABLA_1.desde) {
+      if (cuantia > EXCEDENTE_TABLA_1.base_desde) {
         costoBase = calcularExcedente(
           cuantia,
           EXCEDENTE_TABLA_1.base_desde,
@@ -584,7 +585,7 @@ export function calcularTramiteNotarial(
     }
 
     case 'PROMESA_COMPRAVENTA': {
-      if (cuantia >= EXCEDENTE_TABLA_2.desde) {
+      if (cuantia > EXCEDENTE_TABLA_2.base_desde) {
         costoBase = calcularExcedente(
           cuantia,
           EXCEDENTE_TABLA_2.base_desde,
@@ -603,7 +604,7 @@ export function calcularTramiteNotarial(
     }
 
     case 'HIPOTECA': {
-      if (cuantia >= EXCEDENTE_TABLA_3.desde) {
+      if (cuantia > EXCEDENTE_TABLA_3.base_desde) {
         costoBase = calcularExcedente(
           cuantia,
           EXCEDENTE_TABLA_3.base_desde,
@@ -622,7 +623,7 @@ export function calcularTramiteNotarial(
     }
 
     case 'CONSTITUCION_CIA': {
-      const escala = EXCEDENTES_TABLA_7.find((e) => cuantia >= e.desde)
+      const escala = EXCEDENTES_TABLA_7.find((e) => cuantia > e.base_desde)
       if (escala) {
         costoBase = calcularExcedente(cuantia, escala.base_desde, valorSBU(escala.base_sbu), escala.factor)
         detalles.push(`Art. 43 - Tabla 7 (Excedente sobre $${escala.base_desde.toLocaleString()})`)

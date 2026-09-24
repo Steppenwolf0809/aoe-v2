@@ -21,7 +21,7 @@ export function ConsejoProvincialCalculatorWidget() {
   // Modo completo: ingresa datos del inmueble
   const [valorTransferencia, setValorTransferencia] = useState(100000)
   const [avaluoCatastral, setAvaluoCatastral] = useState(95000)
-  const [mesesTranscurridos, setMesesTranscurridos] = useState(24)
+  const [mesesTranscurridos, setMesesTranscurridos] = useState(60)
 
   const [resultado, setResultado] = useState<
     ReturnType<typeof calcularConsejoProvincial> | null
@@ -196,7 +196,7 @@ export function ConsejoProvincialCalculatorWidget() {
             <div className="text-center">
               <p className="text-sm text-text-secondary mb-2">Contribución al Consejo Provincial</p>
               <div className="text-5xl font-bold text-text-primary">
-                $<AnimatedCounter value={resultado.total} duration={0.8} />
+                $<AnimatedCounter value={resultado.total} />
               </div>
             </div>
 
@@ -226,7 +226,7 @@ export function ConsejoProvincialCalculatorWidget() {
             <div className="text-center">
               <p className="text-sm text-text-secondary mb-2">Total Impuestos Municipales</p>
               <div className="text-5xl font-bold text-text-primary">
-                $<AnimatedCounter value={resultadoCompleto.totalImpuestos} duration={0.8} />
+                $<AnimatedCounter value={resultadoCompleto.totalImpuestos} />
               </div>
             </div>
           </Card>

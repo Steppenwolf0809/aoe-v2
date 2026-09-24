@@ -12,6 +12,8 @@ import {
 } from 'lucide-react'
 import { VehicularCalculatorWidget } from '@/components/calculators/vehicular-widget'
 import { JsonLd } from '@/components/seo/json-ld'
+import { PORCENTAJE_FIRMA } from '@/lib/formulas/vehicular'
+import { SBU_2026 } from '@/lib/formulas/notarial'
 
 export const metadata: Metadata = {
   title: 'Cotizador Vehicular Ecuador 2026 | Contrato Compraventa Vehículos',
@@ -67,7 +69,7 @@ const faqs = [
   {
     question: '¿Cuántas firmas necesito en mi contrato?',
     answer:
-      'Lo más común es que el contrato requiera 2 firmas: una del comprador y una del vendedor. Sin embargo, si alguna de las partes está casada bajo el régimen de sociedad conyugal, también debe firmar el cónyuge, aumentando a 4 firmas. Cada firma adicional incrementa el costo notarial en $14.46 + IVA. Nuestra calculadora te permite elegir entre 2 o 4 firmas.',
+      `Lo más común es que el contrato requiera 2 firmas: una del comprador y una del vendedor. Sin embargo, si alguna de las partes está casada bajo el régimen de sociedad conyugal, también debe firmar el cónyuge, aumentando a 4 firmas. Cada firma adicional incrementa el costo notarial en $${(SBU_2026 * PORCENTAJE_FIRMA).toFixed(2)} + IVA. Nuestra calculadora te permite elegir entre 2 o 4 firmas.`,
   },
 ]
 

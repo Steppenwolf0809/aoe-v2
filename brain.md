@@ -761,12 +761,14 @@ RESPONSIVE:
 > **Principio:** Las calculadoras no son herramientas técnicas, son **Lead Magnets**.
 
 ### Estructura de Archivos (Backend)
-Toda la lógica de cálculo está desacoplada de la UI en `src/lib/calculators/`:
-- `inmobiliario.ts`: Agregador de impuestos + notaría + registro. Separa "Gastos de Terceros" de "Honorarios AOE".
+Toda la lógica de cálculo está desacoplada de la UI en `src/lib/formulas/` (funciones puras con tests; la usan widgets, bot y API). `src/lib/calculators/` se eliminó (2026-09-24, código muerto duplicado):
+- `notarial.ts`: Tablas del Reglamento Notarial (desde `src/lib/tariffs/notarial-ecuador-2026.json`) + tarifas fijas en % SBU (poderes, divorcios, etc.) + ítems adicionales. SBU e IVA salen de aquí.
+- `municipal.ts`: Impuestos de Quito (Alcabala, Plusvalía/Utilidad) con rebajas por tiempo.
+- `consejo-provincial.ts`: 10 % de la alcabala + $1,80.
+- `registro.ts`: Aranceles del Registro de la Propiedad (tope $500).
+- `inmobiliario.ts`: Agregador comprador/vendedor. Notaría, registro y alcabala sobre el mayor entre precio y avalúo.
 - `vehicular.ts`: Cotizador de contratos. Notaría basada SOLO en firmas + Impuestos fiscales (1%).
-- `municipal.ts`: Impuestos de Quito (Alcabala, Plusvalía) con rebajas por tiempo.
-- `registro.ts`: Aranceles del Registro de la Propiedad.
-- `servicios-menores.ts`: Tarifas fijas para poderes, divorcios, etc.
+- `cotizar.ts`: Costos de terceros por tipo de trámite (sin honorarios ni plusvalía). Lo expone `GET /api/cotizar` (ver `docs/api-cotizar.md`).
 
 ### Estrategia de UI & Lead Capture
 1. **Muro de Valor:** El usuario ve resultados parciales (impuestos/gastos externos) GRATIS.

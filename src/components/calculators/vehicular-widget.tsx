@@ -5,8 +5,9 @@ import { Calculator, Car, AlertCircle, FileText, Plus, Trash2, Copy, FileSignatu
 import { Button } from '@/components/ui/button'
 import { Card } from '@/components/ui/card'
 import { Slider } from '@/components/ui/slider'
-import { calcularCotizacionVehicular } from '@/lib/formulas/vehicular'
+import { calcularCotizacionVehicular, PORCENTAJE_FIRMA } from '@/lib/formulas/vehicular'
 import { ResultadoVehicular } from '@/lib/formulas/vehicular'
+import { SBU_2026 } from '@/lib/formulas/notarial'
 import { AnimatedCounter } from './animated-counter'
 import { CalculatorLeadCTA } from './calculator-lead-cta'
 
@@ -123,7 +124,7 @@ export function VehicularCalculatorWidget() {
           />
         </div>
         <p className="text-xs text-[var(--text-secondary)]">
-          Comprador, vendedor, cónyuges, herederos, etc. • 3% SBU = $14.46 por firma
+          Comprador, vendedor, cónyuges, herederos, etc. • {PORCENTAJE_FIRMA * 100}% SBU = ${(SBU_2026 * PORCENTAJE_FIRMA).toFixed(2)} por firma
         </p>
       </div>
 
@@ -270,7 +271,7 @@ export function VehicularCalculatorWidget() {
               <div className="text-center">
                 <p className="text-sm text-text-secondary mb-2">Costo Total Estimado</p>
                 <div className="text-5xl font-bold text-text-primary">
-                  $<AnimatedCounter value={granTotal} duration={0.8} />
+                  $<AnimatedCounter value={granTotal} />
                 </div>
                 <p className="text-xs text-[var(--text-muted)] mt-2">
                   {itemsAdicionales.length > 0

@@ -101,7 +101,7 @@ export function RegistroCalculatorWidget() {
             <div className="text-center">
               <p className="text-sm text-text-secondary mb-2">Arancel de Inscripción</p>
               <div className="text-5xl font-bold text-text-primary">
-                $<AnimatedCounter value={resultado.arancelFinal} duration={0.8} />
+                $<AnimatedCounter value={resultado.arancelFinal} />
               </div>
               {resultado.excedeMaximo && (
                 <p className="text-xs text-amber-400 mt-2">
