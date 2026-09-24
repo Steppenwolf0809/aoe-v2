@@ -1,6 +1,8 @@
 import { describe, it, expect } from 'vitest'
 import tariffCatalog from '@/lib/tariffs/notarial-ecuador-2026.json'
 import { calcularTramiteNotarial, SBU_2026, type TipoTramite } from './notarial'
+import { calcularArancelRegistro } from './registro'
+import { calcularAlcabalaYConsejoProvincial, calcularConsejoProvincial } from './consejo-provincial'
 
 type Regla = { min: number; max: number | null; tarifa_sbu?: number; tipo: string }
 const reglas = (id: string) =>
@@ -53,5 +55,40 @@ describe.each(TABLAS)('Notaría %s: límites de cada rango', (tablaId, tramite) 
     it(`$${regla.max + 0.005} (entre X y X,01) no da $0: usa el rango siguiente`, () => {
       expect(calcularTramiteNotarial(tramite, regla.max! + 0.005).subtotal).toBeCloseTo(esperadoSiguiente, 2)
     })
+  })
+})
+
+describe('Registro: casos y límites', () => {
+  it.each([
+    [3000, 22],
+    [3000.005, 30], // hueco X–X,01
+    [3000.01, 30],
+    [40000, 200],
+    [40000.01, 250], // salto reportado, no corregido: $100 + 0,5 % × (valor − 10.000)
+    [85000, 475],
+    [90000, 500],
+    [90000.01, 500], // tope
+    [250000, 500],
+  ])('$%s → $%s', (valor, esperado) => {
+    expect(calcularArancelRegistro(valor).arancelFinal).toBe(esperado)
+  })
+
+  it('$90.000 llega justo al tope sin excederlo; $90.000,01 lo excede', () => {
+    expect(calcularArancelRegistro(90000).excedeMaximo).toBe(false)
+    expect(calcularArancelRegistro(90000.01).excedeMaximo).toBe(true)
+  })
+})
+
+describe('Alcabala y Consejo Provincial: casos a mano', () => {
+  it('alcabala $85.000 sin rebaja → $850,00', () => {
+    expect(calcularAlcabalaYConsejoProvincial(85000).impuestoAlcabala).toBe(850)
+  })
+
+  it('consejo provincial sobre $850 → $86,80', () => {
+    expect(calcularConsejoProvincial(850).total).toBe(86.8)
+  })
+
+  it('avalúo mayor que cuantía: alcabala sobre el avalúo', () => {
+    expect(calcularAlcabalaYConsejoProvincial(80000, 85000).impuestoAlcabala).toBe(850)
   })
 })

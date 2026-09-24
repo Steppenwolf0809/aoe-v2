@@ -78,7 +78,7 @@ export function calcularArancelBase(valorContrato: number): {
   } else {
     // Rangos 1-8: Búsqueda en tabla
     const encontrado = RANGOS_REGISTRO.find(
-      (r) => valorContrato >= r.min && valorContrato <= r.max && r.rango !== 9
+      (r) => valorContrato <= r.max && r.rango !== 9
     )
 
     if (encontrado) {
