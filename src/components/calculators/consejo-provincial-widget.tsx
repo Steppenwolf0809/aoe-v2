@@ -21,7 +21,7 @@ export function ConsejoProvincialCalculatorWidget() {
   // Modo completo: ingresa datos del inmueble
   const [valorTransferencia, setValorTransferencia] = useState(100000)
   const [avaluoCatastral, setAvaluoCatastral] = useState(95000)
-  const [mesesTranscurridos, setMesesTranscurridos] = useState(24)
+  const [mesesTranscurridos, setMesesTranscurridos] = useState(60)
 
   const [resultado, setResultado] = useState<
     ReturnType<typeof calcularConsejoProvincial> | null

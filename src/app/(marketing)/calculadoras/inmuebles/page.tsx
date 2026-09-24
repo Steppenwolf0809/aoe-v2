@@ -52,7 +52,7 @@ const faqs = [
   {
     question: '¿Cuánto cuesta escriturar una casa en Quito en 2026?',
     answer:
-      'El costo total de escriturar una casa en Quito depende del valor del inmueble. Incluye cuatro rubros principales: los aranceles notariales (tarifa gradual según la cuantía + 15% IVA), el impuesto de alcabala (1% del valor mayor entre precio de venta y avalúo catastral), el arancel del Registro de la Propiedad, y el impuesto del Consejo Provincial (10% de la alcabala + $1.60). En promedio, los gastos totales representan entre el 2% y el 5% del valor del inmueble.',
+      'El costo total de escriturar una casa en Quito depende del valor del inmueble. Incluye cuatro rubros principales: los aranceles notariales (tarifa gradual según la cuantía + 15% IVA), el impuesto de alcabala (1% del valor mayor entre precio de venta y avalúo catastral), el arancel del Registro de la Propiedad, y el impuesto del Consejo Provincial (10% de la alcabala + $1.80). En promedio, los gastos totales representan entre el 2% y el 5% del valor del inmueble.',
   },
   {
     question: '¿Quién paga los gastos de escrituración, el comprador o el vendedor?',
