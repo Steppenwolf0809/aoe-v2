@@ -11,7 +11,10 @@ No incluye honorarios, margen ni plusvalía. Valores referenciales.
 | `cuantia` | sí | número > 0, máx. 100.000.000 | USD |
 | `avaluo` | no | número > 0, máx. 100.000.000 | Base = mayor entre cuantía y avalúo (no aplica a hipoteca) |
 | `fecha_adquisicion` | no | `YYYY-MM-DD`, no futura | Sin ella, alcabala sin rebaja |
-| `donacion_legitimario` | no | `true` (defecto) / `false` | Solo `donacion` |
+| `donacion_legitimario` | sí, si `tipo=donacion` | `true` / `false` | Sin valor por defecto |
+
+Cualquier otro parámetro devuelve 422 (incluidos `utm_*`). No hay parámetros de descuento: los
+descuentos por adulto mayor dependen de los comparecientes y los calcula el sistema que consume la API.
 
 ## Rubros por tipo
 
@@ -31,6 +34,7 @@ curl "http://localhost:3000/api/cotizar?tipo=compraventa&cuantia=85000"
 curl "http://localhost:3000/api/cotizar?tipo=promesa&cuantia=85000"
 curl "http://localhost:3000/api/cotizar?tipo=hipoteca&cuantia=85000"
 curl "http://localhost:3000/api/cotizar?tipo=donacion&cuantia=85000&donacion_legitimario=false"
+curl "http://localhost:3000/api/cotizar?tipo=donacion&cuantia=85000&donacion_legitimario=true"
 curl "http://localhost:3000/api/cotizar?tipo=compraventa&cuantia=80000&avaluo=85000&fecha_adquisicion=2025-11-24"
 ```
 
@@ -83,9 +87,14 @@ Respuesta (compraventa $85.000):
 
 ## Errores
 
-- `422` — parámetros inválidos; `details` indica el campo.
-- `429` — más de 200 solicitudes por minuto desde la misma IP. Cabecera `Retry-After`.
-- `500` — error interno.
+- `422` — `{ "error": "Solicitud inválida", "details": { ... } }` con el mensaje por campo en español.
+  Los errores que no son de un campo (parámetro desconocido o repetido) van en `details.general`.
+  Se reportan todos los errores a la vez, incluido `donacion_legitimario` faltante.
+- `429` — `{ "error": "Demasiadas solicitudes" }`. Más de 200 solicitudes por minuto desde la misma IP. Cabecera `Retry-After`.
+- `500` — `{ "error": "Error interno" }`.
+
+Todas las respuestas (200, 422, 429, 500) llevan la cabecera `X-Robots-Tag: noindex`. El `robots.txt`
+permite el rastreo de `/api/cotizar` aunque `/api/` siga bloqueado.
 
 ## Límites y privacidad
 
