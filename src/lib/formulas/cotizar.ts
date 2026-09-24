@@ -145,7 +145,7 @@ function rubrosImpuestos(
         valor: 0,
         base_legal: 'COOTAD, impuesto de alcabala',
         formula: 'No aplica',
-        supuestos: ['Donación a legitimario: sin alcabala (donacion_legitimario=true, valor por defecto).'],
+        supuestos: ['Donación a legitimario: sin alcabala (donacion_legitimario=true).'],
       },
       {
         id: 'consejo_provincial',

@@ -36,10 +36,48 @@ describe('GET /api/cotizar', () => {
     ['fecha inexistente', 'tipo=compraventa&cuantia=85000&fecha_adquisicion=2020-13-45'],
     ['31 de febrero', 'tipo=compraventa&cuantia=85000&fecha_adquisicion=2020-02-31'],
     ['legitimario no booleano', 'tipo=donacion&cuantia=85000&donacion_legitimario=si'],
+    ['parámetro desconocido', 'tipo=compraventa&cuantia=85000&utm_source=x'],
+    ['descuento no soportado', 'tipo=compraventa&cuantia=85000&adulto_mayor=true'],
+    ['donación sin legitimario', 'tipo=donacion&cuantia=85000'],
   ])('%s → 422', async (_, qs) => {
     const res = await get(qs)
     expect(res.status).toBe(422)
-    expect((await res.json()).error).toBe('Invalid request')
+    expect((await res.json()).error).toBe('Solicitud inválida')
+  })
+})
+
+describe('GET /api/cotizar — mensajes y cabeceras', () => {
+  it('sin cuantía → mensaje "cuantía requerida"', async () => {
+    const body = await (await get('tipo=compraventa')).json()
+    expect(body.details.cuantia).toContain('cuantía requerida')
+  })
+
+  it('parámetro desconocido → lo nombra en español', async () => {
+    const body = await (await get('tipo=compraventa&cuantia=85000&utm_source=x')).json()
+    expect(JSON.stringify(body.details)).toContain('utm_source')
+  })
+
+  it('donación sin legitimario → error en ese campo', async () => {
+    const body = await (await get('tipo=donacion&cuantia=85000')).json()
+    expect(body.details.donacion_legitimario).toContain('donacion_legitimario requerido cuando tipo=donacion')
+  })
+
+  it('donación a legitimario explícito → alcabala 0', async () => {
+    const body = await (await get('tipo=donacion&cuantia=85000&donacion_legitimario=true')).json()
+    expect(body.rubros[1].valor).toBe(0)
+  })
+
+  it('mensajes genéricos en español (tipo inválido)', async () => {
+    const body = await (await get('tipo=arriendo&cuantia=85000')).json()
+    expect(JSON.stringify(body.details.tipo)).not.toMatch(/Invalid|expected/i)
+  })
+
+  it.each([
+    ['200', 'tipo=promesa&cuantia=85000'],
+    ['422', 'tipo=promesa'],
+  ])('X-Robots-Tag: noindex en respuesta %s', async (_, qs) => {
+    const res = await get(qs)
+    expect(res.headers.get('X-Robots-Tag')).toBe('noindex')
   })
 })
 
