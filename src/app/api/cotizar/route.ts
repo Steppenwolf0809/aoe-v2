@@ -12,6 +12,10 @@ const querySchema = z.object({
   fecha_adquisicion: z
     .string()
     .regex(/^\d{4}-\d{2}-\d{2}$/)
+    .refine((f) => {
+      const d = new Date(`${f}T00:00:00Z`)
+      return !isNaN(d.getTime()) && d.toISOString().startsWith(f)
+    }, 'Fecha inexistente')
     .refine((f) => f <= new Date().toISOString().slice(0, 10), 'No puede ser futura')
     .optional(),
   donacion_legitimario: z.enum(['true', 'false']).optional(),

@@ -93,6 +93,7 @@ Respuesta (compraventa $85.000):
   reinicia con cada despliegue o arranque en frío. Es una protección básica, no una cuota garantizada.
 - No se piden ni guardan datos personales, no se registran los parámetros y no se crean leads (LOPDP).
   La IP se usa solo como clave del contador en memoria.
+- Al ser GET, los parámetros (montos y fecha) quedan en los logs de acceso de la plataforma (Vercel), como cualquier URL. No son datos personales.
 
 ## Pendiente
 

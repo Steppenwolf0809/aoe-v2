@@ -31,6 +31,8 @@ describe('GET /api/cotizar', () => {
     ['cuantía no numérica', 'tipo=compraventa&cuantia=abc'],
     ['fecha mal formada', 'tipo=compraventa&cuantia=85000&fecha_adquisicion=24/09/2020'],
     ['fecha futura', 'tipo=compraventa&cuantia=85000&fecha_adquisicion=2999-01-01'],
+    ['fecha inexistente', 'tipo=compraventa&cuantia=85000&fecha_adquisicion=2020-13-45'],
+    ['31 de febrero', 'tipo=compraventa&cuantia=85000&fecha_adquisicion=2020-02-31'],
     ['legitimario no booleano', 'tipo=donacion&cuantia=85000&donacion_legitimario=si'],
   ])('%s → 422', async (_, qs) => {
     const res = await get(qs)
