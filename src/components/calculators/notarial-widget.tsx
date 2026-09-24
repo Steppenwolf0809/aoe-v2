@@ -33,7 +33,7 @@ export function NotarialCalculatorWidget() {
   const actosIndeterminados = getActosCuantiaIndeterminada()
 
   const [tipoServicio, setTipoServicio] = useState<TipoServicioNotarial>('TRANSFERENCIA_DOMINIO')
-  const [cuantia, setCuantia] = useState(50000)
+  const [cuantia, setCuantia] = useState<number | ''>(50000)
   const [tiempoMeses, setTiempoMeses] = useState(12)
   const [cantidadMenores, setCantidadMenores] = useState(1)
   const [actoIndeterminadoId, setActoIndeterminadoId] = useState(actosIndeterminados[0]?.id ?? '')
@@ -108,7 +108,7 @@ export function NotarialCalculatorWidget() {
       opciones.cantidadActoIndeterminado = cantidadActoIndeterminado
     }
 
-    const res = calcularTramiteNotarial(tipoServicio, cuantia, opciones)
+    const res = calcularTramiteNotarial(tipoServicio, Number(cuantia) || 0, opciones)
     setResultado(res)
   }
 
@@ -225,6 +225,9 @@ export function NotarialCalculatorWidget() {
           value={tipoServicio}
           onChange={(e) => {
             const nuevoTipo = e.target.value as TipoServicioNotarial
+            const eraArrendamiento = ['CONTRATO_ARRIENDO_ESCRITURA', 'INSCRIPCION_ARRENDAMIENTO'].includes(tipoServicio)
+            const seraArrendamiento = ['CONTRATO_ARRIENDO_ESCRITURA', 'INSCRIPCION_ARRENDAMIENTO'].includes(nuevoTipo)
+            if (eraArrendamiento !== seraArrendamiento) setCuantia('')
             setTipoServicio(nuevoTipo)
             if (nuevoTipo === 'ACTO_CUANTIA_INDETERMINADA' && !actoIndeterminadoId) {
               setActoIndeterminadoId(actosIndeterminados[0]?.id ?? '')
@@ -268,7 +271,7 @@ export function NotarialCalculatorWidget() {
             <input
               type="number"
               value={cuantia}
-              onChange={(e) => setCuantia(Number(e.target.value))}
+              onChange={(e) => setCuantia(e.target.value === '' ? '' : Number(e.target.value))}
               min={0}
               step={cuantiaInputStep}
               className="w-full pl-8 pr-4 py-3 bg-bg-secondary border border-[var(--glass-border)] rounded-lg text-text-primary focus:ring-2 focus:ring-[var(--accent-primary)] focus:border-transparent"
@@ -276,7 +279,7 @@ export function NotarialCalculatorWidget() {
             />
           </div>
           <Slider
-            value={[cuantia]}
+            value={[Number(cuantia) || 0]}
             onValueChange={(value) => setCuantia(value[0])}
             min={0}
             max={cuantiaSliderMax}
@@ -342,7 +345,7 @@ export function NotarialCalculatorWidget() {
           {tipoServicio === 'CONTRATO_ARRIENDO_ESCRITURA' && (
             <p className="text-xs text-[var(--text-secondary)]">
               Art. 40: Calcula sobre el valor total del contrato (canon x meses) = $
-              {(cuantia * tiempoMeses).toLocaleString()}
+              {((Number(cuantia) || 0) * tiempoMeses).toLocaleString()}
             </p>
           )}
         </div>
@@ -623,6 +626,7 @@ export function NotarialCalculatorWidget() {
       {/* Botón Calcular */}
       <Button
         onClick={handleCalcular}
+        disabled={requiereCuantia && cuantia === ''}
         className="w-full py-4 bg-[var(--accent-primary)] hover:bg-[var(--accent-primary)]/90 text-white font-semibold text-lg"
       >
         <Calculator className="w-5 h-5 mr-2" />
