@@ -480,7 +480,7 @@ export const TARIFAS_ITEMS_ADICIONALES: Record<
 // ============================================
 
 function buscarEnTabla(monto: number, tabla: RangoTarifa[]): RangoTarifa | undefined {
-  return tabla.find((r) => monto >= r.desde && monto <= r.hasta)
+  return tabla.find((r) => monto <= r.hasta)
 }
 
 function calcularExcedente(monto: number, limite: number, baseUSD: number, factor: number): number {
