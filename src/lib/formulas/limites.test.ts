@@ -92,3 +92,21 @@ describe('Alcabala y Consejo Provincial: casos a mano', () => {
     expect(calcularAlcabalaYConsejoProvincial(80000, 85000).impuestoAlcabala).toBe(850)
   })
 })
+
+describe('Notaría: frontera entre el último rango y el excedente', () => {
+  it.each<[TipoTramite, number]>([
+    ['TRANSFERENCIA_DOMINIO', 4000000.005],
+    ['PROMESA_COMPRAVENTA', 4000000.005],
+    ['HIPOTECA', 4000000.005],
+    ['CONSTITUCION_CIA', 1000000.005],
+  ])('%s $%s (entre X y X,01) no da cero: usa el excedente', (tramite, monto) => {
+    const enLimite = calcularTramiteNotarial(tramite, Math.floor(monto)).subtotal
+    const r = calcularTramiteNotarial(tramite, monto)
+    expect(r.subtotal).toBeGreaterThan(0)
+    expect(r.subtotal).toBeCloseTo(enLimite, 0)
+  })
+
+  it('monto negativo no se cobra', () => {
+    expect(calcularTramiteNotarial('TRANSFERENCIA_DOMINIO', -5).subtotal).toBe(0)
+  })
+})
