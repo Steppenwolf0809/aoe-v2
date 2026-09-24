@@ -270,7 +270,7 @@ export function VehicularCalculatorWidget() {
               <div className="text-center">
                 <p className="text-sm text-text-secondary mb-2">Costo Total Estimado</p>
                 <div className="text-5xl font-bold text-text-primary">
-                  $<AnimatedCounter value={granTotal} duration={0.8} />
+                  $<AnimatedCounter value={granTotal} />
                 </div>
                 <p className="text-xs text-[var(--text-muted)] mt-2">
                   {itemsAdicionales.length > 0

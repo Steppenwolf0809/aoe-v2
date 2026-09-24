@@ -7,7 +7,7 @@ interface AnimatedCounterProps {
   value: number
   label?: string
   formatAsCurrency?: boolean
-  duration?: number
+  duration?: number // milisegundos
   className?: string
 }
 
@@ -18,28 +18,38 @@ export function AnimatedCounter({
   duration = 400,
   className,
 }: AnimatedCounterProps) {
-  const [displayValue, setDisplayValue] = useState(0)
-  const prevValue = useRef(0)
+  const [displayValue, setDisplayValue] = useState(value)
+  const prevValue = useRef(value)
 
   useEffect(() => {
     const start = prevValue.current
     const end = value
-    const startTime = performance.now()
+    prevValue.current = value
 
-    function animate(currentTime: number) {
-      const elapsed = currentTime - startTime
-      const progress = Math.min(elapsed / duration, 1)
-      const eased = 1 - Math.pow(1 - progress, 3)
-      const current = start + (end - start) * eased
-      setDisplayValue(current)
-
-      if (progress < 1) {
-        requestAnimationFrame(animate)
-      }
+    if (start === end || typeof requestAnimationFrame !== 'function') {
+      setDisplayValue(end)
+      return
     }
 
-    requestAnimationFrame(animate)
-    prevValue.current = value
+    const startTime = performance.now()
+    let frame = 0
+
+    function animate(currentTime: number) {
+      const progress = Math.min((currentTime - startTime) / duration, 1)
+      const eased = 1 - Math.pow(1 - progress, 3)
+      setDisplayValue(start + (end - start) * eased)
+      if (progress < 1) frame = requestAnimationFrame(animate)
+    }
+
+    frame = requestAnimationFrame(animate)
+    // Si rAF no corre (pestaña en segundo plano), igual se muestra el valor final
+    const fallback = setTimeout(() => setDisplayValue(end), duration + 100)
+
+    return () => {
+      cancelAnimationFrame(frame)
+      clearTimeout(fallback)
+      setDisplayValue(end)
+    }
   }, [value, duration])
 
   // Si tiene label, renderiza el diseño completo

@@ -637,7 +637,7 @@ export function NotarialCalculatorWidget() {
             <div className="text-center">
               <p className="text-sm text-[var(--text-secondary)] mb-2">Total a Pagar</p>
               <div className="text-4xl font-bold text-text-primary">
-                $<AnimatedCounter value={resultado.granTotal} duration={0.8} />
+                $<AnimatedCounter value={resultado.granTotal} />
               </div>
               {resultado.itemsAdicionales.length > 0 && (
                 <p className="text-xs text-[var(--text-secondary)] mt-1">
