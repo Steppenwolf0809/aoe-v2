@@ -54,13 +54,10 @@ describe('cotizar: promesa', () => {
 describe('cotizar: hipoteca', () => {
   const r = cotizar({ tipo: 'hipoteca', cuantia: 85000, avaluo: 120000 }, HOY)
 
-  it('registro en null, fuera del subtotal, con supuesto explícito', () => {
-    const reg = rubro(r, 'registro')!
-    expect(reg.valor).toBeNull()
-    expect(reg.supuestos).toContain(
-      'Tasa fija del registro para hipotecas no configurada; no incluida en el subtotal.'
-    )
-    expect(r.subtotal).toBe(rubro(r, 'notaria')!.valor)
+  it('registro por cuantía (monto del préstamo), incluido en el subtotal', () => {
+    expect(rubro(r, 'notaria')!.valor).toBe(299.32)
+    expect(rubro(r, 'registro')!.valor).toBe(475)
+    expect(r.subtotal).toBe(774.32)
   })
 
   it('base = monto del préstamo, ignora el avalúo', () => {

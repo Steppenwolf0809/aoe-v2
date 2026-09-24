@@ -30,7 +30,7 @@ export interface InputCotizacion {
 export interface RubroCotizacion {
   id: 'notaria' | 'alcabala' | 'consejo_provincial' | 'registro'
   nombre: string
-  valor: number | null
+  valor: number
   base_legal: string
   formula: string
   supuestos: string[]
@@ -64,9 +64,6 @@ export const AVISO_COTIZACION =
   'Solo costos de terceros (notaría, alcabala, consejo provincial y registro). ' +
   'No incluye honorarios profesionales, plusvalía ni otros cobros. Valores referenciales.'
 
-export const SUPUESTO_REGISTRO_HIPOTECA =
-  'Tasa fija del registro para hipotecas no configurada; no incluida en el subtotal.'
-
 // ============================================
 // FUNCIÓN PRINCIPAL
 // ============================================
@@ -79,18 +76,10 @@ export function cotizar(input: InputCotizacion, hoy: Date = new Date()): Resulta
   if (input.tipo === 'compraventa' || input.tipo === 'donacion') {
     const conAlcabala = input.tipo === 'compraventa' || input.donacionLegitimario === false
     rubros.push(...rubrosImpuestos(base, conAlcabala, input.fechaAdquisicion, hoy))
-    rubros.push(rubroRegistro(base))
   }
 
-  if (input.tipo === 'hipoteca') {
-    rubros.push({
-      id: 'registro',
-      nombre: 'Registro de la Propiedad',
-      valor: null,
-      base_legal: 'Registro de la Propiedad de Quito — tasa fija para hipotecas',
-      formula: 'No configurada',
-      supuestos: [SUPUESTO_REGISTRO_HIPOTECA],
-    })
+  if (input.tipo !== 'promesa') {
+    rubros.push(rubroRegistro(base))
   }
 
   supuestos.push(`Fecha de cálculo: ${hoy.toISOString().slice(0, 10)}.`)
@@ -100,7 +89,7 @@ export function cotizar(input: InputCotizacion, hoy: Date = new Date()): Resulta
     moneda: 'USD',
     base_imponible: base,
     rubros,
-    subtotal: round(rubros.reduce((sum, r) => sum + (r.valor ?? 0), 0)),
+    subtotal: round(rubros.reduce((sum, r) => sum + r.valor, 0)),
     supuestos,
     aviso: AVISO_COTIZACION,
   }

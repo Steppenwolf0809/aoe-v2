@@ -19,10 +19,10 @@ No incluye honorarios, margen ni plusvalía. Valores referenciales.
 |---|---|---|---|---|
 | compraventa | Tabla 1 | 1 % con rebaja | 10 % + $1,80 | por cuantía |
 | promesa | Tabla 2 | — | — | — |
-| hipoteca | Tabla 3 | — | — | `null` (tasa fija no configurada) |
+| hipoteca | Tabla 3 | — | — | por cuantía (monto del préstamo) |
 | donacion | Tabla 1 | legitimario: 0; no legitimario: 1 % | $1,80 o 10 % + $1,80 | por cuantía |
 
-Cada rubro trae `valor`, `base_legal`, `formula` y `supuestos`. `subtotal` suma los valores no nulos.
+Cada rubro trae `valor`, `base_legal`, `formula` y `supuestos`. `subtotal` suma todos los rubros.
 
 ## Ejemplos
 
@@ -97,5 +97,4 @@ Respuesta (compraventa $85.000):
 
 ## Pendiente
 
-- Tasa fija del Registro de la Propiedad para hipotecas (monto y base legal).
 - Artículos del COOTAD para alcabala y rebaja.
