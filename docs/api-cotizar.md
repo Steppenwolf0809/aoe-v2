@@ -37,7 +37,48 @@ curl "http://localhost:3000/api/cotizar?tipo=compraventa&cuantia=80000&avaluo=85
 Respuesta (compraventa $85.000):
 
 ```json
-(pegar la respuesta real)
+{
+  "tipo": "compraventa",
+  "moneda": "USD",
+  "base_imponible": 85000,
+  "rubros": [
+    {
+      "id": "notaria",
+      "nombre": "Notaría",
+      "valor": 443.44,
+      "base_legal": "Reglamento del Sistema Notarial Integral de la Función Judicial (R.O. Nº 246, 2023-02-08), Art. 26 - Tabla 1 (Rango: $60,000.01 - $90,000)",
+      "formula": "Tarifa del rango $385,60 + IVA 15 % $57,84 = $443,44",
+      "supuestos": ["SBU vigente: $482,00.", "Sin rebajas por vivienda de interés social ni adulto mayor."]
+    },
+    {
+      "id": "alcabala",
+      "nombre": "Alcabala",
+      "valor": 850,
+      "base_legal": "COOTAD, impuesto de alcabala (1 % sobre el mayor entre precio y avalúo, rebaja por tiempo)",
+      "formula": "1 % × $85.000,00 = $850,00",
+      "supuestos": ["Sin fecha de adquisición: se calcula sin rebaja por tiempo."]
+    },
+    {
+      "id": "consejo_provincial",
+      "nombre": "Consejo Provincial",
+      "valor": 86.8,
+      "base_legal": "Ordenanza del Consejo Provincial de Pichincha",
+      "formula": "10 % × alcabala $850,00 = $85,00 + valor fijo $1,80 = $86,80",
+      "supuestos": ["Aplica a inmuebles en la provincia de Pichincha."]
+    },
+    {
+      "id": "registro",
+      "nombre": "Registro de la Propiedad",
+      "valor": 475,
+      "base_legal": "Tabla de aranceles del Registro de la Propiedad de Quito",
+      "formula": "$100 + 0,5 % × ($85.000,00 − $10.000) = $475,00",
+      "supuestos": ["Sin descuentos por adulto mayor ni discapacidad."]
+    }
+  ],
+  "subtotal": 1855.24,
+  "supuestos": ["Fecha de cálculo: 2026-09-24."],
+  "aviso": "Solo costos de terceros (notaría, alcabala, consejo provincial y registro). No incluye honorarios profesionales, plusvalía ni otros cobros. Valores referenciales."
+}
 ```
 
 ## Errores
