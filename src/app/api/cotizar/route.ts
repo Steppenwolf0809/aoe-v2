@@ -18,7 +18,7 @@ const querySchema = z
       .string({ error: (iss) => (iss.input === undefined ? 'cuantía requerida' : 'cuantía debe ser un número') })
       .transform((val, ctx) => {
         const n = Number(val)
-        if (Number.isNaN(n)) {
+        if (!Number.isFinite(n)) {
           ctx.addIssue({ code: 'custom', message: 'cuantía debe ser un número' })
           return z.NEVER
         }
@@ -37,7 +37,7 @@ const querySchema = z
       .optional(),
     fecha_adquisicion: z
       .string()
-      .regex(/^\d{4}-\d{2}-\d{2}$/)
+      .regex(/^\d{4}-\d{2}-\d{2}$/, 'Formato YYYY-MM-DD')
       .refine((f) => {
         const d = new Date(`${f}T00:00:00Z`)
         return !isNaN(d.getTime()) && d.toISOString().startsWith(f)
@@ -50,6 +50,8 @@ const querySchema = z
   .refine((q) => q.tipo !== 'donacion' || q.donacion_legitimario !== undefined, {
     error: 'donacion_legitimario requerido cuando tipo=donacion',
     path: ['donacion_legitimario'],
+    // Reportarlo aunque haya otros errores, para que el cliente corrija todo en un intento
+    when: () => true,
   })
 
 // Permitido rastrear (robots.txt) pero no indexar la respuesta
@@ -76,7 +78,15 @@ export async function GET(request: Request) {
     }
 
     // 2. Parse & validate
-    const params = Object.fromEntries(new URL(request.url).searchParams)
+    const searchParams = new URL(request.url).searchParams
+    const repetidos = [...new Set(searchParams.keys())].filter((k) => searchParams.getAll(k).length > 1)
+    if (repetidos.length) {
+      return NextResponse.json(
+        { error: 'Solicitud inválida', details: { general: [`Parámetro repetido: ${repetidos.join(', ')}`] } },
+        { status: 422, headers: SIN_INDEXAR },
+      )
+    }
+    const params = Object.fromEntries(searchParams)
     const parsed = querySchema.safeParse(params, { error: z.locales.es().localeError })
     if (!parsed.success) {
       const { formErrors, fieldErrors } = parsed.error.flatten()

@@ -88,6 +88,8 @@ Respuesta (compraventa $85.000):
 ## Errores
 
 - `422` — `{ "error": "Solicitud inválida", "details": { ... } }` con el mensaje por campo en español.
+  Los errores que no son de un campo (parámetro desconocido o repetido) van en `details.general`.
+  Se reportan todos los errores a la vez, incluido `donacion_legitimario` faltante.
 - `429` — `{ "error": "Demasiadas solicitudes" }`. Más de 200 solicitudes por minuto desde la misma IP. Cabecera `Retry-After`.
 - `500` — `{ "error": "Error interno" }`.
 
