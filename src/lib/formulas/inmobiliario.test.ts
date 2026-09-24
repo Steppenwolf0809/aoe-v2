@@ -356,3 +356,23 @@ describe('Funciones auxiliares', () => {
     expect(r.total).toBeGreaterThanOrEqual(0)
   })
 })
+
+describe('Base = mayor entre cuantía y avalúo', () => {
+  const input = {
+    valorTransferencia: 80000,
+    avaluoCatastral: 85000,
+    valorAdquisicion: 80000,
+    fechaAdquisicion: '2010-01-01',
+    fechaTransferencia: '2026-09-24',
+    tipoTransferencia: 'Compraventa' as const,
+    tipoTransferente: 'Natural' as const,
+  }
+
+  it('notaría usa el avalúo cuando es mayor', () => {
+    expect(calcularPresupuestoInmobiliario(input).comprador.notarial.total).toBe(443.44)
+  })
+
+  it('registro usa el avalúo cuando es mayor', () => {
+    expect(calcularPresupuestoInmobiliario(input).comprador.registro.arancelFinal).toBe(475)
+  })
+})

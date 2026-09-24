@@ -104,10 +104,13 @@ export function calcularPresupuestoInmobiliario(
 ): ResultadoInmobiliario {
   // --- GASTOS DEL COMPRADOR ---
 
+  // Base legal: el mayor entre precio y avalúo (igual que alcabala)
+  const baseImponible = Math.max(input.valorTransferencia, input.avaluoCatastral)
+
   // 1. Notarial (Transferencia de Dominio)
   const notarial = calcularTramiteNotarial(
     'TRANSFERENCIA_DOMINIO',
-    input.valorTransferencia,
+    baseImponible,
     {
       esViviendaSocial: input.esViviendaSocial,
       esTerceraEdad: input.esTerceraEdad,
@@ -133,7 +136,7 @@ export function calcularPresupuestoInmobiliario(
 
   // 4. Registro de la Propiedad
   const registro = calcularArancelRegistro(
-    input.valorTransferencia,
+    baseImponible,
     input.esTerceraEdad || false,
     input.esDiscapacitado || false
   )
@@ -154,7 +157,7 @@ export function calcularPresupuestoInmobiliario(
 
   // --- RESUMEN ---
   const totalTransaccion = round(totalComprador + totalVendedor)
-  const valorInmueble = Math.max(input.valorTransferencia, input.avaluoCatastral)
+  const valorInmueble = baseImponible
 
   return {
     comprador: {
