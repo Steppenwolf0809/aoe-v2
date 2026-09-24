@@ -28,6 +28,8 @@ describe('GET /api/cotizar', () => {
     ['tipo inválido', 'tipo=arriendo&cuantia=85000'],
     ['sin cuantía', 'tipo=compraventa'],
     ['cuantía negativa', 'tipo=compraventa&cuantia=-1'],
+    ['cuantía sobre el tope', 'tipo=compraventa&cuantia=100000000.01'],
+    ['avalúo sobre el tope', 'tipo=compraventa&cuantia=85000&avaluo=100000001'],
     ['cuantía no numérica', 'tipo=compraventa&cuantia=abc'],
     ['fecha mal formada', 'tipo=compraventa&cuantia=85000&fecha_adquisicion=24/09/2020'],
     ['fecha futura', 'tipo=compraventa&cuantia=85000&fecha_adquisicion=2999-01-01'],
@@ -39,4 +41,9 @@ describe('GET /api/cotizar', () => {
     expect(res.status).toBe(422)
     expect((await res.json()).error).toBe('Invalid request')
   })
+})
+
+it('cuantía justo en el tope ($100 millones) → 200', async () => {
+  const res = await GET(new Request('http://localhost/api/cotizar?tipo=promesa&cuantia=100000000'))
+  expect(res.status).toBe(200)
 })

@@ -5,10 +5,13 @@ import { cotizar } from '@/lib/formulas/cotizar'
 
 // Sin datos personales ni logs de parámetros (LOPDP). Solo costos de terceros.
 
+// Tope de cuantía y avalúo: evita montos absurdos (1e300)
+const MONTO_MAXIMO = 100_000_000
+
 const querySchema = z.object({
   tipo: z.enum(['compraventa', 'promesa', 'hipoteca', 'donacion']),
-  cuantia: z.coerce.number().positive(),
-  avaluo: z.coerce.number().positive().optional(),
+  cuantia: z.coerce.number().positive().max(MONTO_MAXIMO),
+  avaluo: z.coerce.number().positive().max(MONTO_MAXIMO).optional(),
   fecha_adquisicion: z
     .string()
     .regex(/^\d{4}-\d{2}-\d{2}$/)

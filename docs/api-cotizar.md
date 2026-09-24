@@ -8,8 +8,8 @@ No incluye honorarios, margen ni plusvalía. Valores referenciales.
 | Parámetro | Obligatorio | Valores | Nota |
 |---|---|---|---|
 | `tipo` | sí | `compraventa`, `promesa`, `hipoteca`, `donacion` | |
-| `cuantia` | sí | número > 0 | USD |
-| `avaluo` | no | número > 0 | Base = mayor entre cuantía y avalúo (no aplica a hipoteca) |
+| `cuantia` | sí | número > 0, máx. 100.000.000 | USD |
+| `avaluo` | no | número > 0, máx. 100.000.000 | Base = mayor entre cuantía y avalúo (no aplica a hipoteca) |
 | `fecha_adquisicion` | no | `YYYY-MM-DD`, no futura | Sin ella, alcabala sin rebaja |
 | `donacion_legitimario` | no | `true` (defecto) / `false` | Solo `donacion` |
 
